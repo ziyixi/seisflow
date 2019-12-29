@@ -8,36 +8,6 @@ import sh
 import subprocess
 
 
-def get_args(args=None):
-    parser = argparse.ArgumentParser(
-        description='A python script to init the structure of the specfem forward simulation',
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-
-    parser.add_argument('--base',
-                        help='the directory to place all the specefem directories',
-                        required=True)
-
-    parser.add_argument('--cmtfiles',
-                        help='cmt files, each named as the id of the event',
-                        required=True)
-
-    parser.add_argument('--ref',
-                        help='reference specfem directories',
-                        required=True)
-
-    parser.add_argument('--output',
-                        help='directory to place OUTPUT_FILES',
-                        required=True)
-
-    parser.add_argument('--database',
-                        help='directory to place DATABASES_MPI',
-                        required=True)
-
-    results = parser.parse_args(args)
-    # return results["base"], results["cmtfiles"], results["ref"], results["output"]
-    return results.base, results.cmtfiles, results.ref, results.output, results.database
-
-
 def init_structure(base, cmtfiles, ref, output, database):
     """
     only copy or ln the necessary files to each simulation directories.
@@ -78,8 +48,3 @@ def init_structure(base, cmtfiles, ref, output, database):
               join(working_dir, "OUTPUT_FILES"))
         # handle bin files
         sh.ln("-s", ref_bin_path, join(working_dir, "bin"))
-
-
-if __name__ == "__main__":
-    base, cmtfiles, ref, output, database = get_args(sys.argv[1:])
-    init_structure(base, cmtfiles, ref, output, database)

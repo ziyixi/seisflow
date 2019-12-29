@@ -3,24 +3,6 @@ import sys
 from glob import glob
 from os.path import join, dirname, abspath
 
-import configparser
-
-
-def get_args(args=None):
-    parser = argparse.ArgumentParser(
-        description='A python script to submit jobs in one sbatch job',
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-
-    parser.add_argument('--base',
-                        help='the directory to place all the specefem directories',
-                        required=True)
-    parser.add_argument('--configure',
-                        help='the configuration file name in the configuration directory',
-                        required=True)
-    results = parser.parse_args(args)
-    current_file_dir = dirname(abspath(__file__))
-    return results.base, join(current_file_dir, "..", "configuration", results.configure)
-
 
 def get_dirs(base):
     return glob(join(base, "*"))

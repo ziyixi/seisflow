@@ -9,10 +9,10 @@ class Run_multiple_forward_jobs(object):
     def __init__(self, base=None, cmtfiles=None, ref=None, output=None, database=None, N_total=None, N_each=None, N_iter=None,
                  nproc=None, N_node=None, ntasks=None, partition=None, time=None, account=None):
         super().__init__()
-        self.base = base         # working directory
-        self.cmtfiles = cmtfiles         # cmt dir
-        self.ref = ref  # reference spefcfem dir
-        self.output = output  # output directory
+        self.base = base
+        self.cmtfiles = cmtfiles
+        self.ref = ref
+        self.output = output
         self.database = database
         self.N_total = N_total
         self.N_each = N_each
