@@ -1,8 +1,9 @@
 """
 tao_2018_ggg_windows: get windows described in tao et al. ggg, 2018. Only works for one event (gcmtid).
 """
+from os.path import basename, join
+
 from ..tasks.windows.tao_2018_ggg_windows import generate_windows
-from os.path import join, basename
 from ..utils.load_files import load_pickle
 from ..utils.save_files import save_pickle_event
 

@@ -4,17 +4,17 @@ process asdf data file.
 
 from os.path import join
 
-import numpy as np
-import obspy
-import pyasdf
-from obspy.geodetics.base import gps2dist_azimuth
-from pyasdf import ASDFDataSet
-import pandas as pd
-from mpi4py import MPI
-from obspy.signal.invsim import simulate_seismometer
-
 # fix a bug in intel
 import mpi4py
+import numpy as np
+import obspy
+import pandas as pd
+import pyasdf
+from mpi4py import MPI
+from obspy.geodetics.base import gps2dist_azimuth
+from obspy.signal.invsim import simulate_seismometer
+from pyasdf import ASDFDataSet
+
 mpi4py.rc.recv_mprobe = False
 
 
@@ -27,6 +27,7 @@ isroot = (rank == 0)
 # CEA_NETWORKS
 CEA_NETWORKS = ["AH", "BJ", "BU", "CQ", "FJ", "GD", "GS", "GX", "GZ", "HA", "HB", "HE", "HI", "HL", "HN",
                 "JL", "JS", "JX", "LN", "NM", "NX", "QH", "SC", "SD", "SH", "SN", "SX", "TJ", "XJ", "XZ", "YN", "ZJ"]
+
 
 def check_st_numberlap(st, inv):
     """
@@ -155,6 +156,7 @@ def remove_response_paz(st, paz_directory, pre_filt):
             trace.data, trace.stats.sampling_rate, paz_remove=trace.stats.paz, water_level=6e9, zero_mean=False, taper=False, pre_filt=pre_filt, sacsim=True)
         trace.data = data
     return st
+
 
 def process_single_event(min_periods, max_periods, taper_tmin_tmax, asdf_filename, waveform_length, sampling_rate, output_directory, correct_cea, cea_correction_file, paz_directory):
     tmin, tmax = map(float, taper_tmin_tmax.split(","))

@@ -1,10 +1,11 @@
 """
 calculate_misfit_windows.py: get the misfit window given the asdf files and the windows.
 """
-from .misfit_window import Misfit_window
 import obspy
-from .window import Window, Windows_collection
 import pyasdf
+
+from .misfit_window import Misfit_window
+from .window import Window, Windows_collection
 
 
 def prepare_windows(windows_used_event,  consider_surface):

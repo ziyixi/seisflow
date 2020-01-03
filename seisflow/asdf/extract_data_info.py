@@ -18,6 +18,7 @@ def load_station_info(station_fname):
     stations = np.loadtxt(station_fname, dtype=np.str)
     return stations
 
+
 def kernel(event_pair, stations=None):
     model = TauPyModel(model="ak135")
     # for each station, we calculate the travel time
@@ -74,8 +75,9 @@ def kernel(event_pair, stations=None):
         result[net_sta] = result_template
     return result
 
-def extract_data_info(gcmtid,evla, evlo, evdp, event_time,stations):
-    used_event_pair=Event_pair(
-            gcmtid=gcmtid, lat=evla, lon=evlo, dep=evdp, time=event_time)
-    data_info=kernel(used_event_pair,stations=stations)
+
+def extract_data_info(gcmtid, evla, evlo, evdp, event_time, stations):
+    used_event_pair = Event_pair(
+        gcmtid=gcmtid, lat=evla, lon=evlo, dep=evdp, time=event_time)
+    data_info = kernel(used_event_pair, stations=stations)
     return data_info

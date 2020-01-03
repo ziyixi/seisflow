@@ -1,7 +1,8 @@
-import pyasdf
 import subprocess
+
 import click
 import obspy
+import pyasdf
 
 
 def remove_stations(ds):

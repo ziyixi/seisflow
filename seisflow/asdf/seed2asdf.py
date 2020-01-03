@@ -1,12 +1,13 @@
 """
 seed2asdf.py: convert a seed file to an asdf file. rdseed should be installed.
 """
-import obspy
-import pyasdf
+import subprocess
+import tempfile
 from glob import glob
 from os.path import join
-import tempfile
-import subprocess
+
+import obspy
+import pyasdf
 from obspy.io.xseed import Parser
 
 

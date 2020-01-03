@@ -1,14 +1,17 @@
 """
 slurm_calculate_misfit_windows.py: calculate misfit windows
 """
-from ..tasks.windows.calculate_misfit_windows import calculate_misfit_windows
-from glob import glob
 from functools import partial
+from glob import glob
+from os.path import basename, join
+
 import numpy as np
-from ..utils.load_files import load_pickle, load_windows, load_first_arrival_baz_evdp
-from ..utils.save_files import save_pickle_event
-from os.path import join, basename
 from mpi4py import MPI
+
+from ..tasks.windows.calculate_misfit_windows import calculate_misfit_windows
+from ..utils.load_files import (load_first_arrival_baz_evdp, load_pickle,
+                                load_windows)
+from ..utils.save_files import save_pickle_event
 
 comm = MPI.COMM_WORLD
 size = comm.Get_size()

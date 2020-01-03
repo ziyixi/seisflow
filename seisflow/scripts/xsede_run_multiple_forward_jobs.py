@@ -2,7 +2,7 @@
 A scripts to build the forward simulation structure and submit the job.
 """
 from ..slurm import submit_job
-from ..tasks import init_structure, forward_task
+from ..tasks import forward_task, init_structure
 
 
 class Run_multiple_forward_jobs(object):

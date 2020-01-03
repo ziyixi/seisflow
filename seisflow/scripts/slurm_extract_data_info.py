@@ -1,10 +1,12 @@
-from ..asdf.extract_data_info import extract_data_info
+import pickle
 from glob import glob
 from os.path import basename, join
-from pyasdf import ASDFDataSet
-from mpi4py import MPI
+
 import numpy as np
-import pickle
+from mpi4py import MPI
+from pyasdf import ASDFDataSet
+
+from ..asdf.extract_data_info import extract_data_info
 
 comm = MPI.COMM_WORLD
 size = comm.Get_size()

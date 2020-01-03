@@ -1,7 +1,7 @@
 import argparse
 import sys
 from glob import glob
-from os.path import join, dirname, abspath
+from os.path import abspath, dirname, join
 
 
 def get_dirs(base):

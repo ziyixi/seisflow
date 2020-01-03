@@ -1,12 +1,13 @@
 """
 sac2asdf: convert sac files to the asdf format. Station Response file should be in RESP format.
 """
-import obspy
-import pyasdf
+import subprocess
+import tempfile
 from glob import glob
 from os.path import join
-import tempfile
-import subprocess
+
+import obspy
+import pyasdf
 
 
 def sac2asdf(sac_directory, response_directory, cmt_path, output_path):

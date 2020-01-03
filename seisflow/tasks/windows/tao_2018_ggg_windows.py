@@ -2,8 +2,9 @@
 tao_2018_ggg_windows.py: get windows described in tao et al. ggg, 2018. Only works for one event (gcmtid).
 """
 
-from .window import Window, Windows_collection
 import obspy
+
+from .window import Window, Windows_collection
 
 phases = ["S", "sS", "SS", "P", "pP",
           "sP", "PP", "3.3kmps", "4.6kmps", "ScS"]

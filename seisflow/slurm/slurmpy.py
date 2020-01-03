@@ -3,13 +3,13 @@ slurmpy.py
 
     from https://github.com/brentp/slurmpy/blob/master/slurmpy/slurmpy.py, make some modifications.
 """
-import sys
+import atexit
+import datetime
+import hashlib
 import os
 import subprocess
+import sys
 import tempfile
-import atexit
-import hashlib
-import datetime
 
 TMPL = """\
 #!/bin/bash

@@ -1,10 +1,12 @@
-from .window import Window
-import pyasdf
-import numpy as np
-from obspy.signal.cross_correlation import correlate, xcorr_max
+import configparser
 import sys
 import warnings
-import configparser
+
+import numpy as np
+import pyasdf
+from obspy.signal.cross_correlation import correlate, xcorr_max
+
+from .window import Window
 
 if not sys.warnoptions:
     warnings.simplefilter("ignore")

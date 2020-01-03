@@ -19,7 +19,7 @@ if __name__ == "__main__":
     def main(min_periods, max_periods, taper_tmin_tmax, asdf_filename, waveform_length, sampling_rate, output_directory, logfile, correct_cea):
         min_periods = [float(item) for item in min_periods.split(",")]
         max_periods = [float(item) for item in max_periods.split(",")]
-        cea_correction_file=get_data("cmpaz_segment.txt")
+        cea_correction_file = get_data("cmpaz_segment.txt")
         process_single_event(min_periods, max_periods, taper_tmin_tmax, asdf_filename,
                              waveform_length, sampling_rate, output_directory, correct_cea, cea_correction_file)
 

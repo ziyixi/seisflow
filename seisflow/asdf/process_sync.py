@@ -1,15 +1,16 @@
 """
 process sync file. 
 """
-import obspy
-import numpy as np
-from mpi4py import MPI
-import pyasdf
-from obspy.signal.util import _npts2nfft
 from os.path import join
 
 # fix a bug in intel
 import mpi4py
+import numpy as np
+import obspy
+import pyasdf
+from mpi4py import MPI
+from obspy.signal.util import _npts2nfft
+
 mpi4py.rc.recv_mprobe = False
 
 
@@ -40,6 +41,7 @@ def sync_remove_response(pre_filt, st):
 
     return st
 
+
 def check_time(st, event_time, waveform_length, inv):
     for trace in st:
         starttime = trace.stats.starttime
@@ -49,6 +51,7 @@ def check_time(st, event_time, waveform_length, inv):
         if(endtime < event_time+waveform_length):
             return -1
     return 0
+
 
 def process_single_event(min_periods, max_periods, taper_tmin_tmax, asdf_filename, waveform_length, sampling_rate, output_directory):
     tmin, tmax = map(float, taper_tmin_tmax.split(","))
@@ -68,6 +71,7 @@ def process_single_event(min_periods, max_periods, taper_tmin_tmax, asdf_filenam
             f4 = 2.0 * f3
             pre_filt = (f1, f2, f3, f4)
             # inv will be None if no inv provided
+
             def process_function(st, inv):
                 status_code = check_time(st, event_time, waveform_length, inv)
                 if(status_code == 0):

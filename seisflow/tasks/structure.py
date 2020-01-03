@@ -1,11 +1,11 @@
 import argparse
-from glob import glob
-from os.path import join, basename
+import subprocess
 import sys
+from glob import glob
+from os.path import basename, join
 
 import numpy as np
 import sh
-import subprocess
 
 
 def init_structure(base, cmtfiles, ref, output, database):

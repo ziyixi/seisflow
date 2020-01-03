@@ -4,13 +4,14 @@ from ..asdf.sac2asdf import sac2asdf
 class Sac2Asdf():
     def __init__(self, sac_directory, response_directory, cmt_path, output_path):
         super().__init__()
-        self.sac_directory=sac_directory
-        self.response_directory=response_directory
-        self.cmt_path=cmt_path
-        self.output_path=output_path
+        self.sac_directory = sac_directory
+        self.response_directory = response_directory
+        self.cmt_path = cmt_path
+        self.output_path = output_path
 
     def run(self):
         sac2asdf(sac_directory, response_directory, cmt_path, output_path)
+
 
 if __name__ == "__main__":
     import click
@@ -21,7 +22,8 @@ if __name__ == "__main__":
     @click.option('--cmt_path', required=True, type=str, help="the cmt solution path")
     @click.option('--output_path', required=True, type=str, help="the output asdf path")
     def main(sac_directory, response_directory, cmt_path, output_path):
-        run_script=Sac2Asdf(sac_directory, response_directory, cmt_path, output_path)
+        run_script = Sac2Asdf(
+            sac_directory, response_directory, cmt_path, output_path)
         run_script.run()
 
     main()

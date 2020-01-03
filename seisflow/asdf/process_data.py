@@ -1,17 +1,17 @@
-from os.path import join
-
-import numpy as np
-import obspy
-import pyasdf
-from obspy.geodetics.base import gps2dist_azimuth
-from pyasdf import ASDFDataSet
-import pandas as pd
-from mpi4py import MPI
 import io
-from obspy.signal.invsim import simulate_seismometer
+from os.path import join
 
 # fix a bug in intel
 import mpi4py
+import numpy as np
+import obspy
+import pandas as pd
+import pyasdf
+from mpi4py import MPI
+from obspy.geodetics.base import gps2dist_azimuth
+from obspy.signal.invsim import simulate_seismometer
+from pyasdf import ASDFDataSet
+
 mpi4py.rc.recv_mprobe = False
 
 # global parameters
@@ -144,6 +144,7 @@ def filter_st(st, inv):
             newst += trace
     return newst
 
+
 def process_single_event(min_periods, max_periods, taper_tmin_tmax, asdf_filename, waveform_length, sampling_rate, output_directory, correct_cea, cea_correction_file):
     # with pyasdf.ASDFDataSet(asdf_filename) as ds:
     tmin, tmax = map(float, taper_tmin_tmax.split(","))
@@ -157,7 +158,6 @@ def process_single_event(min_periods, max_periods, taper_tmin_tmax, asdf_filenam
                 modify_time)
             correction_data["endtime"] = correction_data["endtime"].apply(
                 modify_time)
-
 
         # some parameters
         event = ds.events[0]
