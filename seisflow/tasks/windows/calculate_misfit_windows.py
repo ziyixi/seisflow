@@ -7,12 +7,11 @@ from .window import Window, Windows_collection
 import pyasdf
 
 
-def prepare_windows(windows, used_gcmtid, consider_surface):
+def prepare_windows(windows_used_event,  consider_surface):
     """
     Generate misfit windows and split different component from the windows.
     """
     new_windows = {}
-    windows_used_event = windows[used_gcmtid]
     for net_sta in windows_used_event:
         if(consider_surface):
             new_windows[net_sta] = {
@@ -100,11 +99,11 @@ def calculate_snr_cc_deltat(data_asdf_body_path, sync_asdf_body_path, data_asdf_
     return misfit_windows
 
 
-def calculate_misfit_windows(windows, used_gcmtid, consider_surface, data_asdf_body_path, sync_asdf_body_path, data_asdf_surface_path, sync_asdf_surface_path, first_arrival_zr, first_arrival_t, baz):
+def calculate_misfit_windows(windows, consider_surface, data_asdf_body_path, sync_asdf_body_path, data_asdf_surface_path, sync_asdf_surface_path, first_arrival_zr, first_arrival_t, baz):
     """
     calculate_misfit_windows: calculate misfit windows.
     """
-    misfit_windows = prepare_windows(windows, used_gcmtid, consider_surface)
+    misfit_windows = prepare_windows(windows, consider_surface)
     misfit_windows = calculate_snr_cc_deltat(data_asdf_body_path, sync_asdf_body_path, data_asdf_surface_path,
                                              sync_asdf_surface_path, misfit_windows, first_arrival_zr, first_arrival_t, baz, consider_surface)
     return misfit_windows

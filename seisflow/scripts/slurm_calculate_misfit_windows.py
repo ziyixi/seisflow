@@ -71,7 +71,7 @@ def kernel(gcmtid, windows_directory, min_periods, max_periods, data_asdf_direct
     first_arrival_zr, first_arrival_t, baz, evdp = load_first_arrival_baz_evdp(
         data_info_directory)
     consider_surface = get_consider_surface(gcmtid, evdp)
-    misfit_windows = calculate_misfit_windows(windows, gcmtid, consider_surface, data_asdf_body_path,
+    misfit_windows = calculate_misfit_windows(windows, consider_surface, data_asdf_body_path,
                                               sync_asdf_body_path, data_asdf_surface_path, sync_asdf_surface_path, first_arrival_zr, first_arrival_t, baz)
     return misfit_windows
 
