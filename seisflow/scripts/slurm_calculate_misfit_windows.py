@@ -3,27 +3,16 @@ slurm_calculate_misfit_windows.py: calculate misfit windows
 """
 from ..tasks.windows.calculate_misfit_windows import calculate_misfit_windows
 from glob import glob
-from os.path import join, basename
-import pickle
 from functools import partial
 import numpy as np
+from ..utils.load_files import load_pickle, load_windows, load_first_arrival_baz_evdp
+from ..utils.save_files import save_pickle_event
+from os.path import join, basename
 from mpi4py import MPI
 
 comm = MPI.COMM_WORLD
 size = comm.Get_size()
 rank = comm.Get_rank()
-
-
-def load_pickle(pickle_path):
-    with open(pickle_path, "rb") as f:
-        data = pickle.load(f)
-    return data
-
-
-def load_windows(gcmtid, windows_directory):
-    fname = join(windows_directory, f"{gcmtid}.pkl")
-    windows = load_pickle(fname)
-    return windows
 
 
 def get_asdf_fnames(gcmtid, min_periods, max_periods, data_asdf_directory, sync_asdf_directory):
@@ -43,22 +32,6 @@ def get_asdf_fnames(gcmtid, min_periods, max_periods, data_asdf_directory, sync_
         sync_asdf_directory, f"{gcmtid}.preprocessed_{surface_min_period}s_to_{surface_max_period}s")
 
     return data_asdf_body_path, sync_asdf_body_path, data_asdf_surface_path, sync_asdf_surface_path
-
-
-def load_first_arrival_baz_evdp(data_info_directory):
-    first_arrival_zr_path = join(
-        data_info_directory, "traveltime.P.pkl")
-    first_arrival_t_path = join(
-        data_info_directory, "traveltime.S.pkl")
-    baz_path = join(
-        data_info_directory, "extra.baz.pkl")
-    evdp_path = join(
-        data_info_directory, "extra.evdp.pkl")
-    first_arrival_zr = load_pickle(first_arrival_zr_path)
-    first_arrival_t = load_pickle(first_arrival_t_path)
-    baz = load_pickle(baz_path)
-    evdp = load_pickle(evdp_path)
-    return first_arrival_zr, first_arrival_t, baz, evdp
 
 
 def kernel(gcmtid, windows_directory, min_periods, max_periods, data_asdf_directory, sync_asdf_directory, data_info_directory):
@@ -92,12 +65,6 @@ def get_gcmtids_this_rank(windows_directory):
     return np.array_split(all_gcmtids, size)[rank]
 
 
-def save_misfit_windows(misfit_windows, output_dir, used_gcmtid):
-    output_path = join(output_dir, f"{used_gcmtid}.pkl")
-    with open(output_path, "wb") as f:
-        pickle.dump(misfit_windows, f)
-
-
 if __name__ == "__main__":
     import click
 
@@ -119,6 +86,6 @@ if __name__ == "__main__":
         gcmtids_this_rank = get_gcmtids_this_rank(windows_directory)
         for each_gcmtid in gcmtids_this_rank:
             misfit_windows = kernel_used(each_gcmtid)
-            save_misfit_windows(misfit_windows, output_directory, each_gcmtid)
+            save_pickle_event(misfit_windows, output_directory, each_gcmtid)
 
     main()

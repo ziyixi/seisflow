@@ -3,16 +3,11 @@ tao_2018_ggg_windows: get windows described in tao et al. ggg, 2018. Only works 
 """
 from ..tasks.windows.tao_2018_ggg_windows import generate_windows
 from os.path import join, basename
-import pickle
+from ..utils.load_files import load_pickle
+from ..utils.save_files import save_pickle_event
 
 phase_list = ["S", "sS", "SS", "P",
               "pP", "sP", "PP", "3.3kmps", "4.6kmps", "ScS"]
-
-
-def load_pickle(pickle_path):
-    with open(pickle_path, "rb") as f:
-        data = pickle.load(f)
-    return data
 
 
 def load_traveltime(data_info_directory):
@@ -43,12 +38,6 @@ def load_eventtime(data_info_directory):
     return eventtime
 
 
-def save_result(result, output_dir, gcmtid):
-    output_fname = join(output_dir, f"{gcmtid}.pkl")
-    with open(output_fname, "wb") as handle:
-        pickle.dump(result, handle)
-
-
 if __name__ == "__main__":
     import click
 
@@ -65,6 +54,6 @@ if __name__ == "__main__":
             each_event_time = eventtime[each_gcmtid][rep_net_sta]
             windows_this_gcmtid = generate_windows(
                 each_gcmtid, each_traveltime, each_event_time, time_length)
-            save_result(windows_this_gcmtid, output_dir, each_gcmtid)
+            save_pickle_event(windows_this_gcmtid, output_dir, each_gcmtid)
 
     main()
