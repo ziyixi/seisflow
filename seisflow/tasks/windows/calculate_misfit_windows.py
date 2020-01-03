@@ -8,12 +8,21 @@ from .misfit_window import Misfit_window
 from .window import Window, Windows_collection
 
 
-def prepare_windows(windows_used_event,  consider_surface):
+def get_used_net_sta(windows, data_asdf_body_path):
+    net_sta_sync = list(windows.keys())
+    data_asdf_body = pyasdf.ASDFDataSet(data_asdf_body_path, mode="r")
+    net_sta_data = data_asdf_body.waveforms.list()
+    used_net_sta = list(set(net_sta_data) & set(net_sta_sync))
+    del data_asdf_body
+    return used_net_sta
+
+
+def prepare_windows(windows_used_event,  consider_surface, used_net_sta):
     """
     Generate misfit windows and split different component from the windows.
     """
     new_windows = {}
-    for net_sta in windows_used_event:
+    for net_sta in used_net_sta:
         if(consider_surface):
             new_windows[net_sta] = {
                 "z": Windows_collection(),
@@ -104,7 +113,8 @@ def calculate_misfit_windows(windows, consider_surface, data_asdf_body_path, syn
     """
     calculate_misfit_windows: calculate misfit windows.
     """
-    misfit_windows = prepare_windows(windows, consider_surface)
+    used_net_sta = get_used_net_sta(windows, data_asdf_body_path)
+    misfit_windows = prepare_windows(windows, consider_surface, used_net_sta)
     misfit_windows = calculate_snr_cc_deltat(data_asdf_body_path, sync_asdf_body_path, data_asdf_surface_path,
                                              sync_asdf_surface_path, misfit_windows, first_arrival_zr, first_arrival_t, baz, consider_surface)
     return misfit_windows

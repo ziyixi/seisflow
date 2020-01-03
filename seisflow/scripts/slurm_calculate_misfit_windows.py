@@ -12,6 +12,7 @@ from ..tasks.windows.calculate_misfit_windows import calculate_misfit_windows
 from ..utils.load_files import (load_first_arrival_baz_evdp, load_pickle,
                                 load_windows)
 from ..utils.save_files import save_pickle_event
+from ..utils.setting import SURFACE_THRESHOLD
 
 comm = MPI.COMM_WORLD
 size = comm.Get_size()
@@ -56,7 +57,7 @@ def get_consider_surface(gcmtid, evdp):
     rep_net_sta = list(evdp[gcmtid].keys())[0]
     evdp_used = evdp[gcmtid][rep_net_sta]
     # evdp stored in the pickle file is already in the unit of km
-    if (evdp_used <= 150):
+    if (evdp_used <= SURFACE_THRESHOLD):
         return True
     else:
         return False

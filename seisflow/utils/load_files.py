@@ -28,3 +28,14 @@ def load_first_arrival_baz_evdp(data_info_directory):
     baz = load_pickle(baz_path)
     evdp = load_pickle(evdp_path)
     return first_arrival_zr, first_arrival_t, baz, evdp
+
+
+def get_stations_mapper(stations):
+    stations_mapper = {}
+    for row in stations:
+        net = row[1]
+        sta = row[0]
+        net_sta = f"{net}.{sta}"
+        # lon,lat
+        stations_mapper[net_sta] = (float(row[3]), float(row[2]))
+    return stations_mapper
