@@ -11,7 +11,7 @@ import pyasdf
 from mpi4py import MPI
 from obspy.signal.util import _npts2nfft
 
-from ..tasks.process.process_sync_single_trace import process_sync_single_trace
+from ..tasks.process.process_sync_single_st import process_sync_single_trace
 
 mpi4py.rc.recv_mprobe = False
 

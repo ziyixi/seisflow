@@ -7,6 +7,10 @@ import pyasdf
 from .misfit_window import Misfit_window
 from .window import Window, Windows_collection
 
+# ! we have to make the core functions of the misfit windows calculation are not restricted to the asdf format, which means we have to define
+# ! two kinds of functions: memory based asdf format and utils functions to comvert from this format and the asdf format. In the future, we don't
+# ! use asdf format outside the scripts directory, make no explicit IO in the package.
+
 
 def get_used_net_sta(windows, data_asdf_body_path):
     net_sta_sync = list(windows.keys())
