@@ -92,7 +92,7 @@ def calculate_snr_cc_deltat(data_asdf_body_path, sync_asdf_body_path, data_asdf_
                     each_window.update_snr(data_asdf_body, sync_asdf_body)
                     each_window.update_cc_deltat(
                         data_asdf_body, sync_asdf_body)
-                elif ((category == "surface_z") or (category == "surface_r") or (category == "surface_t")):
+                elif((category == "surface_z") or (category == "surface_r") or (category == "surface_t")):
                     if (consider_surface):
                         each_window.update_snr(
                             data_asdf_surface, sync_asdf_body)

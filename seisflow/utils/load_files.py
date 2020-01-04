@@ -39,3 +39,7 @@ def get_stations_mapper(stations):
         # lon,lat
         stations_mapper[net_sta] = (float(row[3]), float(row[2]))
     return stations_mapper
+
+
+def load_pickle_event(pickle_directory, used_gcmtid):
+    return load_pickle(join(pickle_directory, f"{used_gcmtid}.pkl"))

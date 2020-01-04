@@ -31,7 +31,6 @@ class Run_multiple_forward_jobs(object):
             base=self.base, N_total=self.N_total, N_each=self.N_each, N_iter=self.N_iter, nproc=self.nproc)
         job_id = submit_job(thecommand, self.N_node, self.ntasks,
                             self.partition, self.time, self.account)
-        print("job id", job_id)
         return job_id
 
 

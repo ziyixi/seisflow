@@ -99,8 +99,10 @@ def calculate_adjoint_source_zerolagcc_one_event(misfit_windows, stations, raw_s
         + body_band: body filter band in seconds (mintime,maxtime)
         + surface_band: surface filter band in seconds (mintime,maxtime)
         + consider_surface: if consider the surface waves
-        + sync_asdf_path: sync asdf path
-        + data_asdf_path: data asdf path
+        + sync_asdf_body_path: sync asdf path for the body wave
+        + data_asdf_body_path: data asdf path for the body wave
+        + sync_asdf_surface_path: sync asdf path for the surface wave
+        + data_asdf_surface_path: data asdf path for the surface wave
     output:
         a dict result, with result[net_sta] as a numpy array of shape (3, len(trace.data))
     """
@@ -186,6 +188,9 @@ def calculate_adjoint_source_zerolagcc_one_event(misfit_windows, stations, raw_s
                         np.sin(np.deg2rad(theta))
                     adjoint_source_zerolagcc[net_sta][1, :] += t_adjoint_source * \
                         np.cos(np.deg2rad(theta))
+    # normalize the adjoint source
+    for net_sta in adjoint_source_zerolagcc:
+        adjoint_source_zerolagcc[net_sta] /= weight_normalize_factor
 
     del raw_sync_asdf
     del sync_asdf_body
