@@ -7,17 +7,11 @@ import pyasdf
 from .misfit_window import Misfit_window
 from .window import Window, Windows_collection
 
-# ! we have to make the core functions of the misfit windows calculation are not restricted to the asdf format, which means we have to define
-# ! two kinds of functions: memory based asdf format and utils functions to comvert from this format and the asdf format. In the future, we don't
-# ! use asdf format outside the scripts directory, make no explicit IO in the package.
 
-
-def get_used_net_sta(windows, data_asdf_body_path):
+def get_used_net_sta(windows, data_virasdf_body):
     net_sta_sync = list(windows.keys())
-    data_asdf_body = pyasdf.ASDFDataSet(data_asdf_body_path, mode="r")
-    net_sta_data = data_asdf_body.waveforms.list()
+    net_sta_data = data_virasdf_body.get_waveforms_list()
     used_net_sta = list(set(net_sta_data) & set(net_sta_sync))
-    del data_asdf_body
     return used_net_sta
 
 
@@ -72,12 +66,7 @@ def prepare_windows(windows_used_event,  consider_surface, used_net_sta):
     return new_windows
 
 
-def calculate_snr_cc_deltat(data_asdf_body_path, sync_asdf_body_path, data_asdf_surface_path, sync_asdf_surface_path, misfit_windows, first_arrival_zr, first_arrival_t, baz, consider_surface):
-    data_asdf_body = pyasdf.ASDFDataSet(data_asdf_body_path)
-    sync_asdf_body = pyasdf.ASDFDataSet(sync_asdf_body_path)
-    if(consider_surface):
-        data_asdf_surface = pyasdf.ASDFDataSet(data_asdf_surface_path)
-        sync_asdf_surface = pyasdf.ASDFDataSet(sync_asdf_surface_path)
+def calculate_snr_cc_deltat(data_virasdf_body, sync_virasdf_body, data_virasdf_surface, sync_virasdf_surface, misfit_windows, first_arrival_zr, first_arrival_t, baz, consider_surface):
     for net_sta in misfit_windows:
         for category in misfit_windows[net_sta]:
             for each_window in misfit_windows[net_sta][category].windows:
@@ -93,32 +82,28 @@ def calculate_snr_cc_deltat(data_asdf_body_path, sync_asdf_body_path, data_asdf_
                         "channel is not correct in updating the first arrival!")
                 # update snr,deltat and cc
                 if((category == "z") or (category == "r") or (category == "t")):
-                    each_window.update_snr(data_asdf_body, sync_asdf_body)
+                    each_window.update_snr(
+                        data_virasdf_body, sync_virasdf_body)
                     each_window.update_cc_deltat(
-                        data_asdf_body, sync_asdf_body)
+                        data_virasdf_body, sync_virasdf_body)
                 elif((category == "surface_z") or (category == "surface_r") or (category == "surface_t")):
                     if (consider_surface):
                         each_window.update_snr(
-                            data_asdf_surface, sync_asdf_body)
+                            data_virasdf_surface, sync_virasdf_body)
                         each_window.update_cc_deltat(
-                            data_asdf_surface, sync_asdf_surface)
+                            data_virasdf_surface, sync_virasdf_surface)
                 else:
                     raise Exception(
                         "category is not correct in calculatng snr,delta and cc")
-    del data_asdf_body
-    del sync_asdf_body
-    if (consider_surface):
-        del data_asdf_surface
-        del sync_asdf_surface
     return misfit_windows
 
 
-def calculate_misfit_windows(windows, consider_surface, data_asdf_body_path, sync_asdf_body_path, data_asdf_surface_path, sync_asdf_surface_path, first_arrival_zr, first_arrival_t, baz):
+def calculate_misfit_windows(windows, consider_surface, data_virasdf_body, sync_virasdf_body, data_virasdf_surface, sync_virasdf_surface, first_arrival_zr, first_arrival_t, baz):
     """
     calculate_misfit_windows: calculate misfit windows.
     """
-    used_net_sta = get_used_net_sta(windows, data_asdf_body_path)
+    used_net_sta = get_used_net_sta(windows, data_virasdf_body)
     misfit_windows = prepare_windows(windows, consider_surface, used_net_sta)
-    misfit_windows = calculate_snr_cc_deltat(data_asdf_body_path, sync_asdf_body_path, data_asdf_surface_path,
-                                             sync_asdf_surface_path, misfit_windows, first_arrival_zr, first_arrival_t, baz, consider_surface)
+    misfit_windows = calculate_snr_cc_deltat(data_virasdf_body, sync_virasdf_body, data_virasdf_surface,
+                                             sync_virasdf_surface, misfit_windows, first_arrival_zr, first_arrival_t, baz, consider_surface)
     return misfit_windows

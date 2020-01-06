@@ -9,6 +9,7 @@ import numpy as np
 from mpi4py import MPI
 
 from ..tasks.windows.calculate_misfit_windows import calculate_misfit_windows
+from ..utils.asdf_io import VirAsdf
 from ..utils.get_path import get_asdf_fnames
 from ..utils.load_files import (load_first_arrival_baz_evdp, load_pickle,
                                 load_windows)
@@ -30,8 +31,19 @@ def kernel(gcmtid, windows_directory, min_periods, max_periods, data_asdf_direct
     first_arrival_zr, first_arrival_t, baz, evdp = load_first_arrival_baz_evdp(
         data_info_directory)
     consider_surface = get_consider_surface(gcmtid, evdp)
-    misfit_windows = calculate_misfit_windows(windows, consider_surface, data_asdf_body_path,
-                                              sync_asdf_body_path, data_asdf_surface_path, sync_asdf_surface_path, first_arrival_zr, first_arrival_t, baz)
+    # generate vir asdf
+    data_virasdf_body = VirAsdf()
+    data_virasdf_body.read_asdf(data_asdf_body_path)
+    sync_virasdf_body = VirAsdf()
+    sync_virasdf_body.read_asdf(sync_asdf_body_path)
+    data_virasdf_surface = VirAsdf()
+    data_virasdf_surface.read_asdf(data_asdf_surface_path)
+    sync_virasdf_surface = VirAsdf()
+    sync_virasdf_surface.read_asdf(sync_asdf_surface_path)
+
+    # run
+    misfit_windows = calculate_misfit_windows(windows, consider_surface, data_virasdf_body,
+                                              sync_virasdf_body, data_virasdf_surface, sync_virasdf_surface, first_arrival_zr, first_arrival_t, baz)
     return misfit_windows
 
 

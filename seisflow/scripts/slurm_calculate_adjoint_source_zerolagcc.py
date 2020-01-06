@@ -10,6 +10,7 @@ from mpi4py import MPI
 
 from ..tasks.adjoint.calculate_adjoint_source_zerolagcc_one_event import \
     calculate_adjoint_source_zerolagcc_one_event
+from ..utils.asdf_io import VirAsdf
 from ..utils.get_path import get_asdf_fnames
 from ..utils.load_files import load_first_arrival_baz_evdp, load_pickle
 from ..utils.setting import SURFACE_THRESHOLD
@@ -122,8 +123,21 @@ if __name__ == "__main__":
             misfit_windows = misfit_windows_this_rank[gcmtid]
             raw_sync_asdf_path = raw_sync_asdf_paths_this_rank[index]
             consider_surface = get_consider_surface(gcmtid, evdp_dict)
-            adjoint_source_zerolagcc = calculate_adjoint_source_zerolagcc_one_event(misfit_windows, stations, raw_sync_asdf_path, snr_threshold, cc_threshold, deltat_threshold, body_band, surface_band,
-                                                                                    consider_surface, sync_asdf_body_path, data_asdf_body_path, sync_asdf_surface_path, data_asdf_surface_path)
+            # build vir asdf
+            raw_sync_virasdf = VirAsdf()
+            raw_sync_virasdf.read_asdf(raw_sync_asdf_path)
+            data_virasdf_body = VirAsdf()
+            data_virasdf_body.read_asdf(data_asdf_body_path)
+            sync_virasdf_body = VirAsdf()
+            sync_virasdf_body.read_asdf(sync_asdf_body_path)
+            data_virasdf_surface = VirAsdf()
+            data_virasdf_surface.read_asdf(data_asdf_surface_path)
+            sync_virasdf_surface = VirAsdf()
+            sync_virasdf_surface.read_asdf(sync_asdf_surface_path)
+
+            # run
+            adjoint_source_zerolagcc = calculate_adjoint_source_zerolagcc_one_event(misfit_windows, stations, raw_sync_virasdf, snr_threshold, cc_threshold, deltat_threshold, body_band, surface_band,
+                                                                                    consider_surface, sync_virasdf_body, data_virasdf_body, sync_virasdf_surface, data_virasdf_surface)
             save_adjoint_to_asdf(adjoint_source_zerolagcc,
                                  output_directory, gcmtid)
     main()

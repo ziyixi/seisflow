@@ -3,9 +3,9 @@ import sys
 import warnings
 
 import numpy as np
-import pyasdf
 from obspy.signal.cross_correlation import correlate, xcorr_max
 
+from ...utils.setting import TOLERANCE_DIFF_TIME
 from .window import Window
 
 if not sys.warnoptions:
@@ -30,13 +30,12 @@ class Misfit_window(Window):
         self.first_arrival = first_arrival_dict[self.gcmtid][self.net_sta]
         self.baz = baz_dict[self.gcmtid][self.net_sta]
 
-    def update_snr(self, data_asdf, sync_asdf):
-        if (self.net_sta not in data_asdf.waveforms.list()):
+    def update_snr(self, data_virasdf, sync_virasdf):
+        if (self.net_sta not in data_virasdf.get_waveforms_list()):
             return
-        data_wg = data_asdf.waveforms[self.net_sta]
-        data_tag = data_wg.get_waveform_tags()[0]
-        data_tr = data_wg[data_tag].select(component=self.component)[0].copy()
-        event_time = sync_asdf.events[0].origins[0].time
+        data_wg = data_virasdf.get_waveforms()[self.net_sta]
+        data_tr = data_wg["st"].select(component=self.component)[0].copy()
+        event_time = sync_virasdf.get_events()[0].origins[0].time
         # get the noise window
         signal_st = data_tr.slice(self.left, self.right)
         signal_st.taper(0.05, type="hann")
@@ -51,19 +50,17 @@ class Misfit_window(Window):
         self.snr_amp = 20 * \
             np.log10(np.abs(signal_max_amp) / np.abs(noise_max_amp))
 
-    def update_cc_deltat(self, data_asdf, sync_asdf):
-        if (self.net_sta not in data_asdf.waveforms.list()):
+    def update_cc_deltat(self, data_virasdf, sync_virasdf):
+        if (self.net_sta not in data_virasdf.get_waveforms_list()):
             return
         # we assume the delta and the event_time are the same, but the starttime may be slightly different
         # also we have to make sure the net_sta is existing
-        data_wg = data_asdf.waveforms[self.net_sta]
-        data_tag = data_wg.get_waveform_tags()[0]
-        sync_wg = sync_asdf.waveforms[self.net_sta]
-        sync_tag = sync_wg.get_waveform_tags()[0]
-        data_tr = data_wg[data_tag].select(component=self.component)[0].copy()
-        sync_tr = sync_wg[sync_tag].select(component=self.component)[0].copy()
+        data_wg = data_virasdf.get_waveforms()[self.net_sta]
+        sync_wg = sync_virasdf.get_waveforms()[self.net_sta]
+        data_tr = data_wg["st"].select(component=self.component)[0].copy()
+        sync_tr = sync_wg["st"].select(component=self.component)[0].copy()
         # we make the starttime of sync to be the same with data
-        tolerance_time = 60
+        tolerance_time = TOLERANCE_DIFF_TIME
         time_difference = np.abs(
             sync_tr.stats.starttime - data_tr.stats.starttime)
         if (time_difference <= data_tr.stats.delta):

@@ -86,38 +86,29 @@ def get_weights_for_all(misfit_windows, stations,  snr_threshold, cc_threshold, 
     return weights_for_all
 
 
-def calculate_adjoint_source_zerolagcc_one_event(misfit_windows, stations, raw_sync_asdf_path, snr_threshold, cc_threshold, deltat_threshold, body_band, surface_band,
-                                                 consider_surface, sync_asdf_body_path, data_asdf_body_path, sync_asdf_surface_path, data_asdf_surface_path):
+def calculate_adjoint_source_zerolagcc_one_event(misfit_windows, stations, raw_sync_virasdf, snr_threshold, cc_threshold, deltat_threshold, body_band, surface_band,
+                                                 consider_surface, sync_virasdf_body, data_virasdf_body, sync_virasdf_surface, data_virasdf_surface):
     """
     calculate_adjoint_source_zerolagcc_one_event
         + misfit_windows: misfit_windows[net_sta][category_name] as Windows_collection
         + stations: stations in Specfem3D format
-        + raw_sync_asdf_path: raw sync asdf path
+        + raw_virsync_asdf: raw vir sync asdf 
         + snr_threshold: (snr_value1,snr_value2)
         + cc_threshold: (cc_value1,cc_value2)
         + deltat_threshold: (deltat_value1,deltat_value2)
         + body_band: body filter band in seconds (mintime,maxtime)
         + surface_band: surface filter band in seconds (mintime,maxtime)
         + consider_surface: if consider the surface waves
-        + sync_asdf_body_path: sync asdf path for the body wave
-        + data_asdf_body_path: data asdf path for the body wave
-        + sync_asdf_surface_path: sync asdf path for the surface wave
-        + data_asdf_surface_path: data asdf path for the surface wave
+        + sync_virasdf_body: sync vir asdf for the body wave
+        + data_virasdf_body: data vir asdf for the body wave
+        + sync_virasdf_surface: sync vir asdf for the surface wave
+        + data_virasdf_surface: data vir asdf for the surface wave
     output:
         a dict result, with result[net_sta] as a numpy array of shape (3, len(trace.data))
     """
-    # * init
-    raw_sync_asdf = pyasdf.ASDFDataSet(raw_sync_asdf_path, mode="r")
-    sync_asdf_body = pyasdf.ASDFDataSet(sync_asdf_body_path, mode="r")
-    data_asdf_body = pyasdf.ASDFDataSet(data_asdf_body_path, mode="r")
-    if(consider_surface):
-        sync_asdf_surface = pyasdf.ASDFDataSet(
-            sync_asdf_surface_path, mode="r")
-        data_asdf_surface = pyasdf.ASDFDataSet(
-            data_asdf_surface_path, mode="r")
     # * get weight for all the windows with the same structure as misfit_windows
     weights_for_all = get_weights_for_all(
-        misfit_windows, stations, raw_sync_asdf_path, snr_threshold, cc_threshold)
+        misfit_windows, stations, snr_threshold, cc_threshold, deltat_threshold)
 
     # * get adjoint sources (weighted)
     # weights_for_all has the same structure with misfit_windows
@@ -125,9 +116,8 @@ def calculate_adjoint_source_zerolagcc_one_event(misfit_windows, stations, raw_s
     weight_normalize_factor = 0
     # get adjoint_source_length
     rep_net_sta = list(weights_for_all.keys())[0]
-    rep_sync_wg = raw_sync_asdf.waveforms[rep_net_sta]
-    rep_sync_tag = rep_sync_wg.get_waveform_tags()[0]
-    rep_trace = rep_sync_wg[rep_sync_tag][0]
+    rep_sync_wg = raw_sync_virasdf.get_waveforms()[rep_net_sta]
+    rep_trace = rep_sync_wg["st"][0]
     adjoint_source_length = len(rep_trace.data)
 
     for net_sta in weights_for_all:
@@ -136,19 +126,16 @@ def calculate_adjoint_source_zerolagcc_one_event(misfit_windows, stations, raw_s
             (3, adjoint_source_length))
         for category in weights_for_all[net_sta]:
             if (category in ["z", "r", "t"]):
-                data_asdf = data_asdf_body
-                sync_asdf = sync_asdf_body
+                data_asdf = data_virasdf_body
+                sync_asdf = sync_virasdf_body
                 mintime, maxtime = body_band
             elif (category in ["surface_z", "surface_r", "surface_t"]):
-                data_asdf = data_asdf_surface
-                sync_asdf = sync_asdf_surface
+                data_asdf = data_virasdf_surface
+                sync_asdf = sync_virasdf_surface
                 mintime, maxtime = surface_band
-            data_wg = data_asdf.waveforms[net_sta]
-            sync_wg = sync_asdf.waveforms[net_sta]
-            raw_sync_wg = raw_sync_asdf.waveforms[net_sta]
-            data_tag = data_wg.get_waveform_tags()[0]
-            sync_tag = sync_wg.get_waveform_tags()[0]
-            raw_sync_tag = raw_sync_wg.get_waveform_tags()[0]
+            data_wg = data_asdf.get_waveforms()[net_sta]
+            sync_wg = sync_asdf.get_waveforms()[net_sta]
+            raw_sync_wg = raw_sync_virasdf.get_waveforms()[net_sta]
             for index, each_misfit_window in enumerate(misfit_windows[net_sta][category].windows):
                 each_weight = weights_for_all[net_sta][category][index]
                 wcc = each_weight.cc
@@ -160,11 +147,11 @@ def calculate_adjoint_source_zerolagcc_one_event(misfit_windows, stations, raw_s
 
                 # calculate each_adjoint_trace
                 component = each_misfit_window.component
-                sync_asdf_trace = sync_wg[sync_tag].select(
+                sync_asdf_trace = sync_wg["st"].select(
                     component=component)[0]
-                raw_sync_asdf_trace = raw_sync_wg[raw_sync_tag].select(component=component)[
+                raw_sync_asdf_trace = raw_sync_wg["st"].select(component=component)[
                     0]
-                data_asdf_trace = data_wg[data_tag].select(
+                data_asdf_trace = data_wg["st"].select(
                     component=component)[0]
                 each_adjoint_trace = calculate_adjoint_source_each_window(
                     each_misfit_window, raw_sync_asdf_trace, sync_asdf_trace, data_asdf_trace, mintime, maxtime)
@@ -191,12 +178,5 @@ def calculate_adjoint_source_zerolagcc_one_event(misfit_windows, stations, raw_s
     # normalize the adjoint source
     for net_sta in adjoint_source_zerolagcc:
         adjoint_source_zerolagcc[net_sta] /= weight_normalize_factor
-
-    del raw_sync_asdf
-    del sync_asdf_body
-    del data_asdf_body
-    if (consider_surface):
-        del sync_asdf_surface
-        del data_asdf_surface
 
     return adjoint_source_zerolagcc
