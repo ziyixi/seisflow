@@ -4,6 +4,7 @@ source_line_search.py: give the waveforms from green func and the data, get opti
 from glob import glob
 from os.path import basename, join
 
+import click
 import numpy as np
 import obspy
 from mpi4py import MPI
@@ -13,6 +14,9 @@ from ..tasks.source.make_perturbed_cmtsolution import add_src_frechet
 from ..utils.asdf_io import VirAsdf
 from ..utils.get_path import get_data_asdf_fnames
 from ..utils.load_files import load_first_arrival_baz_evdp, load_pickle_event
+from ..utils.setting import (CC_THRESHOLD, DELTAT_THRESHOLD, INIT_POINTS,
+                             MAX_DXS_RATIO, N_ITER, RANDOM_STATE,
+                             SNR_THRESHOLD, SURFACE_THRESHOLD)
 
 comm = MPI.COMM_WORLD
 size = comm.Get_size()
@@ -124,11 +128,43 @@ def get_paths(green_raw_asdf_directory, green_perturbed_asdf_directory, data_asd
     all_files_cmtsolution_directory_this_rank, all_files_output_newcmtsolution_directory_this_rank
 
 
+def convert_input_parameters(alpha_range, t0_range,
+                             tau_range, body_band, surface_band, snr_threshold,
+                             cc_threshold, deltat_threshold):
+    """
+    convert_input_parameters: convert the input form of some parameters to be used in the script
+    """
+    alpha_range = tuple(map(float, alpha_range.split(",")))
+    t0_range = tuple(map(float, t0_range.split(",")))
+    tau_range = tuple(map(float, tau_range.split(",")))
+    body_band = tuple(map(float, body_band.split(",")))
+    surface_band = tuple(map(float, surface_band.split(",")))
+    snr_threshold = tuple(map(float, snr_threshold.split(",")))
+    cc_threshold = tuple(map(float, cc_threshold.split(",")))
+    deltat_threshold = tuple(map(float, deltat_threshold.split(",")))
+    return alpha_range, t0_range, tau_range, body_band, surface_band, snr_threshold, cc_threshold, deltat_threshold
+
+
+@click.command()
+@click.option('--green_raw_asdf_directory', required=True, type=str, help="the directory of the asdf files from the raw green function cmtsolution")
+@click.option('--green_perturbed_asdf_directory', required=True, type=str, help="the directory of the asdf files from the perturbed green function cmtsolution")
+@click.option('--data_asdf_directory', required=True, type=str, help="the directory of the processed data asdf files")
+@click.option('--windows_directory', required=True, type=str, help="the directory of the windows files in the pickle format")
+@click.option('--data_info_directory', required=True, type=str, help="the data info directory")
+@click.option('--stations_path', required=True, type=str, help="the stations file path in the specfem3D format")
+@click.option('--src_frechet_directory', required=True, type=str, help="the src frechet files directory")
+@click.option('--cmtsolution_directory', required=True, type=str, help="the cmtsolution directory")
+@click.option('--output_newcmtsolution_directory', required=True, type=str, help="the new cmtsolution directory to output for the next iterations")
+@click.option('--body_band', required=True, type=str, help="body wave filtering range: min_period,max_period")
+@click.option('--surface_band', required=True, type=str, help="surface wave filtering range: min_period,max_period")
+@click.option('--taper_tmin_tmax', required=True, type=str, help="frequency taper range: min_period,max_period")
+@click.option('--alpha_range', required=True, type=str, help="alpha range: min_alpha,max_alpha")
+@click.option('--t0_range', required=True, type=str, help="t0 range: min_t0,max_t0")
+@click.option('--tau_range', required=True, type=str, help="tau range: min_tau,max_tau")
 def main(green_raw_asdf_directory, green_perturbed_asdf_directory, data_asdf_directory, windows_directory, data_info_directory, stations_path,
          src_frechet_directory, cmtsolution_directory, output_newcmtsolution_directory,
          body_band, surface_band, taper_tmin_tmax,
-         random_state, alpha_range, t0_range, tau_range, init_points, n_iter,
-         snr_threshold, cc_threshold, deltat_threshold, max_dxs_ratio):
+         alpha_range, t0_range, tau_range):
     # handle paths
     all_virasdf_green_raw_this_rank, all_virasdf_green_perturbed_this_rank, all_virasdf_data_body_this_rank, \
         all_virasdf_data_surface_this_rank, all_windows_this_rank, first_arrival_zr, first_arrival_t, baz, evdp, \
@@ -137,3 +173,48 @@ def main(green_raw_asdf_directory, green_perturbed_asdf_directory, data_asdf_dir
                                                                         data_asdf_directory, windows_directory, data_info_directory, stations_path,
                                                                         src_frechet_directory, cmtsolution_directory, output_newcmtsolution_directory, body_band, surface_band)
     # convert input parameters.
+    snr_threshold = SNR_THRESHOLD
+    cc_threshold = CC_THRESHOLD
+    deltat_threshold = DELTAT_THRESHOLD
+    alpha_range, t0_range, tau_range, body_band, surface_band, snr_threshold, \
+        cc_threshold, deltat_threshold = convert_input_parameters(alpha_range, t0_range,
+                                                                  tau_range, body_band, surface_band, snr_threshold,
+                                                                  cc_threshold, deltat_threshold)
+    # call the line search script
+    each_virasdf_combined = zip(
+        all_virasdf_green_raw_this_rank, all_virasdf_green_perturbed_this_rank, all_virasdf_data_body_this_rank, all_virasdf_data_surface_this_rank, all_windows_this_rank,
+        all_files_src_frechet_directory_this_rank, all_files_cmtsolution_directory_this_rank, all_files_output_newcmtsolution_directory_this_rank)
+    for (each_virasdf_green_raw, each_virasdf_green_perturbed, each_virasdf_data_body,
+         each_virasdf_data_surface, each_windows, each_src_frechet_path, each_cmtsolution_path, each_output_path) in each_virasdf_combined:
+        # call the function of the line search
+        depth = each_virasdf_green_raw.get_events()[0].preferred_origin().depth
+        if (depth <= SURFACE_THRESHOLD):
+            consider_surface = True
+        else:
+            consider_surface = False
+
+        each_cmtsolution = load_cmtsolution(each_cmtsolution_path)
+        t0_raw = 0.0
+        tau_raw = each_cmtsolution.focal_mechanisms[0].moment_tensor.source_time_function.duration / 2
+        init_points = INIT_POINTS
+        n_iter = N_ITER
+        weighted_similarity_raw, optimizer_max = line_search(alpha_range, t0_range, tau_range, each_virasdf_green_raw, each_virasdf_green_perturbed, each_virasdf_data_body, each_virasdf_data_surface,
+                                                             each_windows, consider_surface, body_band, surface_band, taper_tmin_tmax, first_arrival_zr, first_arrival_t, baz,
+                                                             RANDOM_STATE, tau_raw, t0_raw, stations,  snr_threshold, cc_threshold, deltat_threshold, init_points=init_points, n_iter=n_iter)
+        # print informations
+        print(f"raw accuracy: {weighted_similarity_raw:.3f}")
+        print(f"new accuracy: {optimizer_max['target']:.3f}")
+        print(f"parameters combination:")
+        print(
+            f"alpha: {optimizer_max['params']['alpha']:.3f}; tau: {optimizer_max['params']['tau']:.3f}; t0: {optimizer_max['params']['t0']:.3f}")
+        # generate the new cmtsolution
+        each_src_frechet = np.loadtxt(each_src_frechet_path)
+        max_dxs_ratio = MAX_DXS_RATIO
+        optimized_dxs_ratio = -1*max_dxs_ratio*optimizer_max['params']['alpha']
+        new_cmtsolution = add_src_frechet(
+            each_src_frechet, each_cmtsolution, optimized_dxs_ratio)
+        new_cmtsolution.write(each_output_path, format="CMTSOLUTION")
+
+
+if __name__ == "__main__":
+    main()

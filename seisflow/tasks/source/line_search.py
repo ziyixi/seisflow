@@ -8,11 +8,11 @@ import numpy as np
 from bayes_opt import BayesianOptimization
 
 from ...utils.asdf_io import VirAsdf
+from ..adjoint.calculate_adjoint_source_one_event import get_weights_for_all
 from ..process.convolve_src_func import conv_sf_and_st, source_time_func
 from ..process.process_sync_single_st import (ahead_process_green_function_st,
                                               post_process_green_function_st)
 from ..windows.calculate_misfit_windows import calculate_misfit_windows
-from ..adjoint.calculate_adjoint_source_one_event import get_weights_for_all
 
 Weight = namedtuple(
     'Weight', ['snr', 'cc', 'deltat', 'geographical', 'category'])
