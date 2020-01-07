@@ -17,6 +17,8 @@ class VirAsdf():
         """
         read_asdf: read in asdf
         """
+        if (asdf_path == None):
+            return
         if(isfile(asdf_path)):
             with pyasdf.ASDFDataSet(asdf_path, mode="r") as ds:
                 self.events = ds.events
@@ -52,8 +54,24 @@ class VirAsdf():
         return self.waveforms_list
 
     def set_events(self, events):
-        self.events = events
+        self.events = events.copy()
 
     def set_waveforms(self, waveforms):
         self.waveforms = waveforms
         self.waveforms_list = list(self.waveforms.keys())
+
+    def __copy__(self):
+        new_virasdf = VirAsdf()
+        new_virasdf.set_events(self.events)
+        new_waveforms = {}
+        for each_net_sta in self.waveforms_list:
+            new_waveforms[each_net_sta] = {
+                "inv": self.waveforms[each_net_sta]["inv"].copy(),
+                "st": self.waveforms[each_net_sta]["st"].copy()
+            }
+        new_virasdf.set_waveforms(new_waveforms)
+        return new_virasdf
+
+    def update_st(self, st, net_sta):
+        if (self.waveforms[net_sta]["st"]):
+            self.waveforms[net_sta]["st"] = st

@@ -26,7 +26,7 @@ def get_weights_for_all(misfit_windows, stations,  snr_threshold, cc_threshold, 
         weights_for_all[net_sta] = {}
         for category in misfit_windows[net_sta]:
             weights_for_all[net_sta][category] = []
-            for each_misfit_window in misfit_windows[net_sta].windows:
+            for each_misfit_window in misfit_windows[net_sta][category].windows:
                 wsnr = cal_snr_weight(each_misfit_window,
                                       snr_threshold[0], snr_threshold[1])
                 wcc = cal_cc_weight(each_misfit_window,

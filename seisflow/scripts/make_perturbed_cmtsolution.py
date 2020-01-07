@@ -19,6 +19,30 @@ def load_cmtsolution(cmtsolution_path):
     return cmtsolution
 
 
+def kernel(src_frechet_directory, cmtsolution_directory, output_directory, max_dxs_ratio):
+    # we assume the gcmtids in src_frechet_directory and cmtsolution_directory are the same
+    all_files_frechet = glob(join(src_frechet_directory, "*"))
+    all_gcmtids_frechet = [basename(item).split(
+        ".")[0] for item in all_files_frechet]
+    all_files_cmtsolution = glob(join(cmtsolution_directory, "*"))
+    all_gcmtids_cmtsolution = [basename(item).split(
+        ".")[0] for item in all_files_cmtsolution]
+    all_gcmtids = sorted(set(all_gcmtids_frechet) &
+                         set(all_gcmtids_cmtsolution))
+
+    for each_gcmtid in all_gcmtids:
+        # get paths
+        src_frechet_path = join(src_frechet_directory, each_gcmtid)
+        cmtsolution_path = join(cmtsolution_directory, each_gcmtid)
+        output_path = join(output_directory, each_gcmtid)
+        # run
+        src_frechet = load_src_frechet(src_frechet_path)
+        cmtsolution = load_cmtsolution(cmtsolution_path)
+        cmtsolution_new = add_src_frechet(
+            src_frechet, cmtsolution, max_dxs_ratio)
+        cmtsolution_new.write(output_path, format="CMTSOLUTION")
+
+
 if __name__ == "__main__":
     import click
 
@@ -28,25 +52,6 @@ if __name__ == "__main__":
     @click.option('--output_directory', required=True, type=str, help="output CMTSOLUTION directory")
     @click.option('--max_dxs_ratio', required=True, type=str, help="max_dxs_ratio used to perturb")
     def main(src_frechet_directory, cmtsolution_directory, output_directory, max_dxs_ratio):
-        # we assume the gcmtids in src_frechet_directory and cmtsolution_directory are the same
-        all_files_frechet = glob(join(src_frechet_directory, "*"))
-        all_gcmtids_frechet = [basename(item).split(
-            ".")[0] for item in all_files_frechet]
-        all_files_cmtsolution = glob(join(cmtsolution_directory, "*"))
-        all_gcmtids_cmtsolution = [basename(item).split(
-            ".")[0] for item in all_files_cmtsolution]
-        all_gcmtids = sorted(set(all_gcmtids_frechet) &
-                             set(all_gcmtids_cmtsolution))
-
-        for each_gcmtid in all_gcmtids:
-            # get paths
-            src_frechet_path = join(src_frechet_directory, each_gcmtid)
-            cmtsolution_path = join(cmtsolution_directory, each_gcmtid)
-            output_path = join(output_directory, each_gcmtid)
-            # run
-            src_frechet = load_src_frechet(src_frechet_path)
-            cmtsolution = load_cmtsolution(cmtsolution_path)
-            cmtsolution_new = add_src_frechet(
-                src_frechet, cmtsolution, max_dxs_ratio)
-            cmtsolution_new.write(output_path, format="CMTSOLUTION")
+        kernel(src_frechet_directory, cmtsolution_directory,
+               output_directory, max_dxs_ratio)
     main()
