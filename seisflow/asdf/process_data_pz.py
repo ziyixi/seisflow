@@ -135,7 +135,7 @@ def filter_st(st, inv):
     return newst
 
 
-def remove_response_paz(st, paz_directory, pre_filt):
+def remove_response_paz(st, paz_path, pre_filt):
     """
     remove response using paz file
     """
@@ -145,7 +145,7 @@ def remove_response_paz(st, paz_directory, pre_filt):
         station = trace.stats.station
         channel = trace.stats.channel
         key = f"{network}.{station}.{channel}"
-        paz_path = join(paz_directory, key)
+        paz_path = join(paz_path, key)
         # try to read paz
         try:
             obspy.io.sac.sacpz.attach_paz(trace, paz_path)
@@ -158,7 +158,7 @@ def remove_response_paz(st, paz_directory, pre_filt):
     return st
 
 
-def process_single_event(min_periods, max_periods, taper_tmin_tmax, asdf_filename, waveform_length, sampling_rate, output_directory, correct_cea, cea_correction_file, paz_directory):
+def process_single_event(min_periods, max_periods, taper_tmin_tmax, asdf_filename, waveform_length, sampling_rate, output_directory, correct_cea, cea_correction_file, paz_path):
     tmin, tmax = map(float, taper_tmin_tmax.split(","))
     # with pyasdf.ASDFDataSet(asdf_filename) as ds:
     ds = pyasdf.ASDFDataSet(asdf_filename, mode="r")
@@ -220,7 +220,7 @@ def process_single_event(min_periods, max_periods, taper_tmin_tmax, asdf_filenam
 
             # st.remove_response(output="DISP", pre_filt=pre_filt, zero_mean=False,
             #                    taper=False, inventory=inv, water_level=None)
-            st = remove_response_paz(st, paz_directory, pre_filt)
+            st = remove_response_paz(st, paz_path, pre_filt)
             # the same of removing response with sac
             st.detrend("demean")
             st.detrend("linear")
