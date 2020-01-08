@@ -29,7 +29,7 @@ def get_scripts(run_files, N_iters, N_node, N_cores_each_node, PY, min_periods, 
             if(offset >= N_files):
                 continue
             filename = run_files[offset]
-            result += f"srun -n {N_cores_each_node} --exclusive {PY} -m seisflow.scripts.process_sync.py --min_periods {min_periods} --max_periods {max_periods} --asdf_filename {filename} --waveform_length {waveform_length} --sampling_rate {sampling_rate} --output_directory {PROCESSED_DIR} --taper_tmin_tmax {taper_tmin_tmax} &"
+            result += f"srun -n {N_cores_each_node} --exclusive {PY} -m seisflow.scripts.process_sync --min_periods {min_periods} --max_periods {max_periods} --asdf_filename {filename} --waveform_length {waveform_length} --sampling_rate {sampling_rate} --output_directory {PROCESSED_DIR} --taper_tmin_tmax {taper_tmin_tmax} &"
         result += f"wait; "
         result += f"echo 'end iteration {iiter}'; "
     return result
