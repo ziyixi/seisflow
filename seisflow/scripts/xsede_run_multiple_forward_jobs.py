@@ -3,6 +3,7 @@ A scripts to build the forward simulation structure and submit the job.
 """
 from ..slurm import submit_job
 from ..tasks import forward_task, init_structure
+
 # * test is passed for this script on 01/07/2020
 
 
@@ -30,8 +31,8 @@ class Run_multiple_forward_jobs(object):
                        self.ref, self.output, self.database)
         thecommand = forward_task(
             base=self.base, N_total=self.N_total, N_each=self.N_each, N_iter=self.N_iter, nproc=self.nproc)
-        job_id = submit_job(thecommand, self.N_node, self.ntasks,
-                            self.partition, self.time, self.account)
+        job_id = submit_job("forward", thecommand, self.N_node, self.ntasks,
+                            self.partition, self.time, self.account, "stampede2")
         return job_id
 
 
