@@ -16,12 +16,12 @@ if __name__ == "__main__":
     @click.option('--sampling_rate', required=True, type=int, help="sampling rate in HZ")
     @click.option('--output_directory', required=True, type=str, help="output directory")
     @click.option('--correct_cea/--no-correct_cea', default=False, help="if handling cea dataset")
-    @click.option('--paz_directory', required=True, type=str, help="the paz directory, named with gcmtid")
-    def main(min_periods, max_periods, taper_tmin_tmax, asdf_filename, waveform_length, sampling_rate, output_directory, correct_cea, paz_directory):
+    @click.option('--paz_path', required=True, type=str, help="the paz path, named with gcmtid")
+    def main(min_periods, max_periods, taper_tmin_tmax, asdf_filename, waveform_length, sampling_rate, output_directory, correct_cea, paz_path):
         min_periods = [float(item) for item in min_periods.split(",")]
         max_periods = [float(item) for item in max_periods.split(",")]
         cea_correction_file = get_data("cmpaz_segment.txt")
         process_single_event(min_periods, max_periods, taper_tmin_tmax, asdf_filename,
-                             waveform_length, sampling_rate, output_directory, correct_cea, cea_correction_file, paz_directory)
+                             waveform_length, sampling_rate, output_directory, correct_cea, cea_correction_file, paz_path)
 
     main()
