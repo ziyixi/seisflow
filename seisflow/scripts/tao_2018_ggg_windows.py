@@ -9,6 +9,7 @@ from ..utils.save_files import save_pickle_event
 
 phase_list = ["S", "sS", "SS", "P",
               "pP", "sP", "PP", "3.3kmps", "4.6kmps", "ScS"]
+# * test is passed for this script on 01/07/2020
 
 
 def load_traveltime(data_info_directory):
@@ -19,7 +20,7 @@ def load_traveltime(data_info_directory):
     loaded_dicts = {}
     for each_phase in phase_list:
         fname = join(data_info_directory, f"traveltime.{each_phase}.pkl")
-        load_pickle[each_phase] = load_pickle(fname)
+        loaded_dicts[each_phase] = load_pickle(fname)
     # convert to traveltime_all[gcmtid][net_sta][each_phase]
     traveltime_all = {}
     all_gcmtids = list(loaded_dicts[phase_list[0]].keys())

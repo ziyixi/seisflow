@@ -13,11 +13,13 @@ from ..tasks.adjoint.calculate_adjoint_source_zerolagcc_one_event import \
 from ..utils.asdf_io import VirAsdf
 from ..utils.get_path import get_asdf_fnames
 from ..utils.load_files import load_first_arrival_baz_evdp, load_pickle
-from ..utils.setting import SURFACE_THRESHOLD
+from ..utils.setting import (CC_THRESHOLD, DELTAT_THRESHOLD, SNR_THRESHOLD,
+                             SURFACE_THRESHOLD)
 
 comm = MPI.COMM_WORLD
 size = comm.Get_size()
 rank = comm.Get_rank()
+# * test is passed for this script on 01/07/2020
 
 
 def get_gcmtid_this_rank(misfit_windows_directory):
@@ -54,10 +56,9 @@ def save_adjoint_to_asdf(adjoint_source_zerolagcc, output_directory, gcmtid):
     """
     output_fname = join(output_directory, f"{gcmtid}.h5")
     components = ["MXE", "MXN", "MXZ"]
-    with pyasdf.ASDFDataSet(output_fname, mode="w") as output_asdf:
+    with pyasdf.ASDFDataSet(output_fname, mode="w", mpi=False) as output_asdf:
         for net_sta in adjoint_source_zerolagcc:
-            adjoint_source_length = adjoint_source_zerolagcc[net_sta].shape()[
-                1]
+            adjoint_source_length = adjoint_source_zerolagcc[net_sta].shape[1]
             for index_component in range(3):
                 component = components[index_component]
                 specfem_adj_source = adjoint_source_zerolagcc[net_sta][index_component, :]
@@ -78,19 +79,20 @@ if __name__ == "__main__":
     @click.option('--data_directory', required=True, type=str, help="processed data directory")
     @click.option('--data_info_directory', required=True, type=str, help="data info directory")
     @click.option('--output_directory', required=True, type=str, help="adjoint source asdf output directory")
-    @click.option('--snr', required=True, type=str, help="snr threshold, value1,value2")
-    @click.option('--cc', required=True, type=str, help="cc threshold, value1,value2")
-    @click.option('--deltat', required=True, type=str, help="deltat threshold, value1,value2")
     @click.option('--body_band', required=True, type=str, help="body wave filtering band, time_min,time_max")
     @click.option('--surface_band', required=True, type=str, help="surface wave filtering band, time_min,time_max")
     def main(misfit_windows_directory, stations_path, raw_sync_directory, sync_directory, data_directory,
-             data_info_directory, output_directory, snr, cc, deltat, body_band, surface_band):
+             data_info_directory, output_directory, body_band, surface_band):
         # * prepare parameters
         # load misfit windows
         files_used_this_rank = get_gcmtid_this_rank(misfit_windows_directory)
         misfit_windows_this_rank = load_misfit_windows_this_rank(
             files_used_this_rank)
         stations = load_stations(stations_path)
+        # load setting
+        snr = SNR_THRESHOLD
+        cc = CC_THRESHOLD
+        deltat = DELTAT_THRESHOLD
         # get snr_threshold,cc_threshold,deltat_threshold,body_band,surface_band
         snr_threshold = tuple(map(float, snr.split(",")))
         cc_threshold = tuple(map(float, cc.split(",")))

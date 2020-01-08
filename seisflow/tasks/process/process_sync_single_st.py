@@ -11,7 +11,6 @@ def sync_remove_response(pre_filt, st):
     """
     mimic obspy.remove_response, but only do the frequency taper
     """
-    obspy.core.util.misc.limit_numpy_fft_cache()
     for trace in st:
         data = trace.data.astype(np.float64)
         npts = len(data)

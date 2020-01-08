@@ -51,11 +51,11 @@ def get_weights_for_all(misfit_windows, stations,  snr_threshold, cc_threshold, 
     stations_mapper = get_stations_mapper(stations)
     # get geographical weighting and update
     geographical_weight_dict = cal_geographical_weight(
-        stations_mapper, used_geographical_net_sta_list)
+        stations_mapper, used_geographical_net_sta_list, list(weights_for_all.keys()))
     for net_sta in weights_for_all:
         for category in weights_for_all[net_sta]:
             for index, each_weight in enumerate(weights_for_all[net_sta][category]):
-                weights_for_all[net_sta][index] = each_weight._replace(
+                weights_for_all[net_sta][category][index] = each_weight._replace(
                     geographical=geographical_weight_dict[net_sta])
 
     # * get the number of items for each category
@@ -81,7 +81,7 @@ def get_weights_for_all(misfit_windows, stations,  snr_threshold, cc_threshold, 
     for net_sta in weights_for_all:
         for category in weights_for_all[net_sta]:
             for index, each_weight in enumerate(weights_for_all[net_sta][category]):
-                weights_for_all[net_sta][index] = each_weight._replace(
+                weights_for_all[net_sta][category][index] = each_weight._replace(
                     category=weight_each_category[category])
     return weights_for_all
 

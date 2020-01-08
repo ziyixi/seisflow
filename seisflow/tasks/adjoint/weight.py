@@ -67,11 +67,12 @@ def cal_deltat_weight(used_misfit_window, value1, value2):
 ##################################################################################
 
 
-def cal_geographical_weight(stations_mapper, used_net_sta_list):
+def cal_geographical_weight(stations_mapper, used_net_sta_list, all_net_sta_list):
     """
     cal_geographical_weight: calculate geographycal weighting for the given stations.
         + stations_mapper: stations_mapper[net_sta]=(lon,lat)
         + used_net_sta_list: a list of net_sta used.
+        + all_net_sta_list: net_sta should exit in the returned dict, 0 if not in used_net_sta_list
     """
     # * build up the lon,lat matrix in the order of used_net_sta_list
     matrix_size = len(used_net_sta_list)
@@ -108,7 +109,11 @@ def cal_geographical_weight(stations_mapper, used_net_sta_list):
     for i in range(matrix_size):
         net_sta = used_net_sta_list[i]
         used_wt_dict[net_sta] = 1.0 / \
-            np.sum(np.exp(-(distance_matrix[i]/used_ref)**2))
+            np.sum(np.exp(-(distance_matrix[i] / used_ref) ** 2))
+    # since the weight should consider the case where this station is not counted for the gw.
+    for each_net_sta in all_net_sta_list:
+        if (each_net_sta not in used_net_sta_list):
+            used_wt_dict[each_net_sta] = 0
     return used_wt_dict
 
 

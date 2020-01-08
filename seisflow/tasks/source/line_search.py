@@ -2,14 +2,17 @@
 line_search.py: using BayesianOptimization to find the step length and the source parameters at the same time.
 """
 from collections import namedtuple
+from copy import copy
 from functools import partial
 
 import numpy as np
 from bayes_opt import BayesianOptimization
 
 from ...utils.asdf_io import VirAsdf
-from ..adjoint.calculate_adjoint_source_one_event import get_weights_for_all
-from ..process.convolve_src_func import conv_sf_and_st, source_time_func
+from ..adjoint.calculate_adjoint_source_zerolagcc_one_event import \
+    get_weights_for_all
+from ..process.convolve_src_func_single_st import (conv_sf_and_st,
+                                                   source_time_func)
 from ..process.process_sync_single_st import (ahead_process_green_function_st,
                                               post_process_green_function_st)
 from ..windows.calculate_misfit_windows import calculate_misfit_windows
@@ -22,18 +25,18 @@ def prepare_green_func(green_virasdf, body_band, surface_band, taper_tmin_tmax, 
     """
     prepare_green_func: do the preprocesing for all the streams in virasdf
     """
-    body_virasdf = green_virasdf.copy()
+    body_virasdf = copy(green_virasdf)
     if(consider_surface):
-        surface_virasdf = green_virasdf.copy()
+        surface_virasdf = copy(green_virasdf)
     else:
         surface_virasdf = None
     for each_net_sta in green_virasdf.get_waveforms_list():
-        st_body = body_virasdf[each_net_sta]["st"]
+        st_body = body_virasdf.get_waveforms()[each_net_sta]["st"]
         st_body = ahead_process_green_function_st(
             st_body, taper_tmin_tmax, body_band[0], body_band[1])
         body_virasdf.update_st(st_body, each_net_sta)
         if (consider_surface):
-            st_surface = surface_virasdf[each_net_sta]["st"]
+            st_surface = surface_virasdf.get_waveforms()[each_net_sta]["st"]
             st_surface = ahead_process_green_function_st(
                 st_surface, taper_tmin_tmax, surface_band[0], surface_band[1])
             surface_virasdf.update_st(st_surface, each_net_sta)
@@ -44,8 +47,8 @@ def get_perturbed_gf(green_virasdf1, green_virasdf2, green_virasdf_raw, alpha):
     """
     get_perturbed_gf: get asdf as waveforms=asdf1-asdf2 (usually zero-pos)
     """
-    green_virasdf_perturbed = green_virasdf_raw.copy()
-    for each_net_sta in green_virasdf_perturbed:
+    green_virasdf_perturbed = copy(green_virasdf_raw)
+    for each_net_sta in green_virasdf_perturbed.get_waveforms_list():
         st1 = green_virasdf1.get_waveforms()[each_net_sta]["st"]
         st2 = green_virasdf2.get_waveforms()[each_net_sta]["st"]
         st_perturbed = green_virasdf_perturbed.get_waveforms()[
@@ -62,7 +65,7 @@ def conv_and_postprocess(green_virasdf, sf, t0, waveform_length, sampling_rate):
     conv_and_postprocess: do the convolution and postprocessing for all the sts in virasdf.
     """
     # we should not change green_virasdf, so make a copy of it.
-    conv_virasdf = green_virasdf.copy()
+    conv_virasdf = copy(green_virasdf)
     # firstly, we do the convolution
     for each_net_sta in conv_virasdf.get_waveforms_list():
         st = conv_virasdf.get_waveforms()[each_net_sta]["st"]
@@ -97,11 +100,12 @@ def forward_misfit_windows(alpha, t0, tau, body_green_virasdf1, body_green_viras
     # get sf
     rep_net_sta = body_green_virasdf_perturbed.get_waveforms_list()[0]
     dt = body_green_virasdf_perturbed.get_waveforms()[
-        rep_net_sta]["st"].stats.delta
+        rep_net_sta]["st"][0].stats.delta
     sf = source_time_func(tau, dt)
     # conv and post process
     body_conv_virasdf_perturbed = conv_and_postprocess(
         body_green_virasdf_perturbed, sf, t0, waveform_length, sampling_rate)
+    surface_conv_virasdf_perturbed = None
     if (consider_surface):
         surface_conv_virasdf_perturbed = conv_and_postprocess(
             surface_green_virasdf_perturbed, sf, t0, waveform_length, sampling_rate)
@@ -133,7 +137,7 @@ def get_weighted_similarity(misfit_windows, weights):
     for net_sta in misfit_windows:
         for category in misfit_windows[net_sta]:
             for index in range(len(misfit_windows[net_sta][category].windows)):
-                each_misfit_window = misfit_windows[net_sta][category][index]
+                each_misfit_window = misfit_windows[net_sta][category].windows[index]
                 each_weight = weights[net_sta][category][index]
                 # get weighted similarity for this window
                 wcc = each_weight.cc
@@ -226,6 +230,13 @@ def line_search(alpha_range, t0_range, tau_range, green_virasdf1, green_virasdf2
         params={"alpha": 0,
                 "tau": tau_raw,
                 "t0": t0_raw},
+        lazy=True,
+    )
+    # ! for the debugging purpose
+    optimizer.probe(
+        params={"alpha": 2.6943372432159,
+                "tau": tau_raw,
+                "t0": -0.4399999999999995},
         lazy=True,
     )
     optimizer.maximize(

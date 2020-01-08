@@ -1,6 +1,7 @@
 SURFACE_THRESHOLD = 150
 TOLERANCE_DIFF_TIME = 60
 RANDOM_STATE = 1
+# note the values below may be modified for the testing purpose during the development
 INIT_POINTS = 9
 N_ITER = 20
 SNR_THRESHOLD = "3,6"

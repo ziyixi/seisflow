@@ -19,8 +19,9 @@ class VirAsdf():
         """
         if (asdf_path == None):
             return
-        if(isfile(asdf_path)):
-            with pyasdf.ASDFDataSet(asdf_path, mode="r") as ds:
+        if (isfile(asdf_path)):
+            # since virasdf will not used parallel io, we disable mpi here
+            with pyasdf.ASDFDataSet(asdf_path, mode="r", mpi=False) as ds:
                 self.events = ds.events
                 self.waveforms_list = ds.waveforms.list()
                 for each_net_sta in self.waveforms_list:
@@ -37,7 +38,8 @@ class VirAsdf():
         """
         write_asdf: write to asdf
         """
-        with pyasdf.ASDFDataSet(output_path, mode="w") as ds:
+        # since virasdf will not used parallel io, we disable mpi here
+        with pyasdf.ASDFDataSet(output_path, mode="w", mpi=False) as ds:
             ds.add_quakeml(self.events)
             for net_sta in self.waveforms:
                 ds.add_waveforms(
@@ -66,7 +68,8 @@ class VirAsdf():
         new_waveforms = {}
         for each_net_sta in self.waveforms_list:
             new_waveforms[each_net_sta] = {
-                "inv": self.waveforms[each_net_sta]["inv"].copy(),
+                # as we don't modify inv or from the dict this value is a copy?
+                "inv": self.waveforms[each_net_sta]["inv"],
                 "st": self.waveforms[each_net_sta]["st"].copy()
             }
         new_virasdf.set_waveforms(new_waveforms)

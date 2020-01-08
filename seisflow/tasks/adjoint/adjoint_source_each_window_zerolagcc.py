@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def calculate_adjoint_source_each_window(mistit_window: Misfit_window, raw_sync_asdf_trace, sync_asdf_trace, data_asdf_trace, mintime, maxtime):
+def calculate_adjoint_source_each_window(mistit_window, raw_sync_asdf_trace, sync_asdf_trace, data_asdf_trace, mintime, maxtime):
     # firstly we prepare the windowed trace with tapering.
     # all the input traces should be a copy
     # since we are not going to invert for the half duration, using raw_sync_asdf_trace calculated using the raw CMTSOLUTION is appropriate for the reference purpose.

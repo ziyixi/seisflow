@@ -21,6 +21,7 @@ from ..utils.setting import (CC_THRESHOLD, DELTAT_THRESHOLD, INIT_POINTS,
 comm = MPI.COMM_WORLD
 size = comm.Get_size()
 rank = comm.Get_rank()
+# * test is passed for this script on 01/07/2020
 
 
 def load_src_frechet(src_frechet_path):
@@ -91,6 +92,8 @@ def get_paths(green_raw_asdf_directory, green_perturbed_asdf_directory, data_asd
     # * data_asdf_body_path, data_asdf_surface_path and convert them to virasdf
     all_virasdf_data_body_this_rank = []
     all_virasdf_data_surface_this_rank = []
+    body_band = tuple(map(float, body_band.split(",")))
+    surface_band = tuple(map(float, surface_band.split(",")))
     min_periods = f"{body_band[0]},{surface_band[0]}"
     max_periods = f"{body_band[1]},{surface_band[1]}"
     for each_gcmtid in all_gcmtids_this_rank:
@@ -111,7 +114,7 @@ def get_paths(green_raw_asdf_directory, green_perturbed_asdf_directory, data_asd
     first_arrival_zr, first_arrival_t, baz, evdp = load_first_arrival_baz_evdp(
         data_info_directory)
     # * load stations
-    stations = np.loadtxt(stations_path)
+    stations = np.loadtxt(stations_path, dtype=np.str)
     # * get src_frechet used in this rank
     all_files_src_frechet_directory_this_rank = [
         join(src_frechet_directory, item) for item in all_gcmtids_this_rank]
@@ -121,11 +124,12 @@ def get_paths(green_raw_asdf_directory, green_perturbed_asdf_directory, data_asd
     # * get output_newcmtsolution_directory path used in this rank
     all_files_output_newcmtsolution_directory_this_rank = [
         join(output_newcmtsolution_directory, item) for item in all_gcmtids_this_rank]
-    # * return the results
-    return all_virasdf_green_raw_this_rank, all_virasdf_green_perturbed_this_rank,
-    all_virasdf_data_body_this_rank, all_virasdf_data_surface_this_rank, all_windows_this_rank,
-    first_arrival_zr, first_arrival_t, baz, evdp, stations, all_files_src_frechet_directory_this_rank,
-    all_files_cmtsolution_directory_this_rank, all_files_output_newcmtsolution_directory_this_rank
+    # * return the results, note we have to return tuple or it will only return the values in the first line (as C++)
+    return (all_virasdf_green_raw_this_rank, all_virasdf_green_perturbed_this_rank,
+            all_virasdf_data_body_this_rank, all_virasdf_data_surface_this_rank, all_windows_this_rank,
+            first_arrival_zr, first_arrival_t, baz, evdp, stations, all_files_src_frechet_directory_this_rank,
+            all_files_cmtsolution_directory_this_rank, all_files_output_newcmtsolution_directory_this_rank
+            )
 
 
 def convert_input_parameters(alpha_range, t0_range,
@@ -187,7 +191,9 @@ def main(green_raw_asdf_directory, green_perturbed_asdf_directory, data_asdf_dir
     for (each_virasdf_green_raw, each_virasdf_green_perturbed, each_virasdf_data_body,
          each_virasdf_data_surface, each_windows, each_src_frechet_path, each_cmtsolution_path, each_output_path) in each_virasdf_combined:
         # call the function of the line search
-        depth = each_virasdf_green_raw.get_events()[0].preferred_origin().depth
+        # notice here the unit of depth is m, so we should divide it by 1000
+        depth = each_virasdf_green_raw.get_events(
+        )[0].preferred_origin().depth/1000.0
         if (depth <= SURFACE_THRESHOLD):
             consider_surface = True
         else:
@@ -213,7 +219,19 @@ def main(green_raw_asdf_directory, green_perturbed_asdf_directory, data_asdf_dir
         optimized_dxs_ratio = -1*max_dxs_ratio*optimizer_max['params']['alpha']
         new_cmtsolution = add_src_frechet(
             each_src_frechet, each_cmtsolution, optimized_dxs_ratio)
+        # update tau and event_time
+        new_cmtsolution.focal_mechanisms[0].moment_tensor.source_time_function.duration = optimizer_max['params']['tau'] * 2
+        new_cmtsolution.preferred_origin(
+        ).time += optimizer_max['params']['t0']
+        # write
         new_cmtsolution.write(each_output_path, format="CMTSOLUTION")
+        # remove the final line (or specfem will report error)
+        with open(each_output_path, "r") as f:
+            lines = f.readlines()
+        with open(each_output_path, "w") as f:
+            for i in range(12):
+                f.write(lines[i])
+            f.write(lines[-1].split("\n")[0])
 
 
 if __name__ == "__main__":

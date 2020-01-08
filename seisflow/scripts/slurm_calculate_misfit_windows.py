@@ -19,6 +19,7 @@ from ..utils.setting import SURFACE_THRESHOLD
 comm = MPI.COMM_WORLD
 size = comm.Get_size()
 rank = comm.Get_rank()
+# * test is passed for this script on 01/07/2020
 
 
 def kernel(gcmtid, windows_directory, min_periods, max_periods, data_asdf_directory, sync_asdf_directory, data_info_directory):
@@ -78,9 +79,9 @@ if __name__ == "__main__":
         """
         Calculate misfit windows for all the gcmtids (events) in windows_directory
         """
-        kernel_used = partial(
-            windows_directory=windows_directory, min_periods=min_periods, max_periods=max_periods, data_asdf_directory=data_asdf_directory,
-            sync_asdf_directory=sync_asdf_directory, data_info_directory=data_info_directory)
+        kernel_used = partial(kernel,
+                              windows_directory=windows_directory, min_periods=min_periods, max_periods=max_periods, data_asdf_directory=data_asdf_directory,
+                              sync_asdf_directory=sync_asdf_directory, data_info_directory=data_info_directory)
         gcmtids_this_rank = get_gcmtids_this_rank(windows_directory)
         for each_gcmtid in gcmtids_this_rank:
             misfit_windows = kernel_used(each_gcmtid)

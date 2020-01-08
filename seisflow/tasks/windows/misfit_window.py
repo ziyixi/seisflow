@@ -73,7 +73,12 @@ class Misfit_window(Window):
                 data_tr.trim(sync_tr.stats.starttime, data_tr.stats.endtime)
                 sync_tr.stats.starttime = data_tr.stats.starttime
         else:
-            return
+            # for the case the start time is later than the event time while self.left is earlier than the start time
+            # set self.cc as 0 or similarity as 0 will not influence the final result
+            self.similarity = 0
+            self.deltat = 0
+            self.cc = 0
+
         # cut to the window
         data_win_tr = data_tr.slice(self.left, self.right)
         data_win_tr.taper(0.05, type="hann")

@@ -46,5 +46,10 @@ def init_structure(base, cmtfiles, ref, output, database):
             output, each_gcmtid, "values_from_mesher.h"))
         sh.ln("-s", join(output, each_gcmtid),
               join(working_dir, "OUTPUT_FILES"))
+        # make SEM directory
+        sh.mkdir("-p", join(working_dir, "SEM"))
+        # copy change_simulation_type.pl script for changing the simulation type
+        sh.cp(join(ref, "change_simulation_type.pl"), join(
+            working_dir, "change_simulation_type.pl"))
         # handle bin files
         sh.ln("-s", ref_bin_path, join(working_dir, "bin"))
