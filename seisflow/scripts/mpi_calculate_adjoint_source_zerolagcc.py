@@ -1,5 +1,5 @@
 """
-slurm_calculate_adjoint_source_zerolagcc.py: calculate adjoint source for multiple events in parallel using MPI.
+mpi_calculate_adjoint_source_zerolagcc.py: calculate adjoint source for multiple events in parallel using MPI.
 """
 from glob import glob
 from os.path import basename, join

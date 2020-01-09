@@ -1,5 +1,5 @@
 """
-source_line_search.py: give the waveforms from green func and the data, get optimized parameters and perturbed new CMTSOLUTION.
+mpi_source_line_search.py: give the waveforms from green func and the data, get optimized parameters and perturbed new CMTSOLUTION.
 """
 from glob import glob
 from os.path import basename, join

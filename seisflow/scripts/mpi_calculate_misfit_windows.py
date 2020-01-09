@@ -1,5 +1,5 @@
 """
-slurm_calculate_misfit_windows.py: calculate misfit windows
+mpi_calculate_misfit_windows.py: calculate misfit windows
 """
 from functools import partial
 from glob import glob
