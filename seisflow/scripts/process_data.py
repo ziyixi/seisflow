@@ -16,7 +16,7 @@ if __name__ == "__main__":
     @click.option('--sampling_rate', required=True, type=int, help="sampling rate in HZ")
     @click.option('--output_directory', required=True, type=str, help="output directory")
     @click.option('--correct_cea/--no-correct_cea', default=False, help="if handling cea dataset")
-    def main(min_periods, max_periods, taper_tmin_tmax, asdf_filename, waveform_length, sampling_rate, output_directory, logfile, correct_cea):
+    def main(min_periods, max_periods, taper_tmin_tmax, asdf_filename, waveform_length, sampling_rate, output_directory, correct_cea):
         min_periods = [float(item) for item in min_periods.split(",")]
         max_periods = [float(item) for item in max_periods.split(",")]
         cea_correction_file = get_data("cmpaz_segment.txt")
