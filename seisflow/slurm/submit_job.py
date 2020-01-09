@@ -16,7 +16,7 @@ def submit_job(jobname, thecommand, N_node, ntasks, partition, time, account, hp
                             "partition": partition, "time": time, "account": account})
     elif (hpc == "icer"):
         s = Slurm(jobname, {"nodes": N_node, "ntasks": ntasks,
-                            "time": time, "cpus-per-task": 1, "mem-per-cpu": "2G"})
+                            "time": time, "cpus-per-task": 1, "mem-per-cpu": "5G"})
     else:
         raise Exception(
             "not supported hpc platform, can be either stampede2 or ICER.")
