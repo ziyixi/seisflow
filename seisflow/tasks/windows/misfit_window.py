@@ -44,6 +44,10 @@ class Misfit_window(Window):
         # noise_avg_power = np.sum(noise_data**2) / len(noise_data)
         noise_avg_power, noise_max_amp = self.cal_noise_average_energy(
             data_tr, self.first_arrival, event_time)
+        if (len(signal_data) == 0):
+            # not use this window
+            self.snr_energy = -1e9
+            self.snr_amp = -1e9
         signal_avg_power = np.sum(signal_data ** 2) / len(signal_data)
         signal_max_amp = np.max(np.abs(signal_data))
         self.snr_energy = 10 * np.log10(signal_avg_power / noise_avg_power)
@@ -114,6 +118,9 @@ class Misfit_window(Window):
             noise_win_end = event_time+first_arrival
         tr_noise = data_tr.slice(noise_win_start, noise_win_end)
         # tr_noise.taper(0.05, type="hann")
+        if (len(tr_noise.data) == 0):
+            # not use this window
+            return 1e9, 1e9
         noise_max_amp = np.max(np.abs(tr_noise.data))
         noise_average_energy = np.sum(tr_noise.data**2)/len(tr_noise.data)
         return noise_average_energy, noise_max_amp
