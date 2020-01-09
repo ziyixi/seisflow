@@ -1,8 +1,6 @@
 """
 process asdf data file.
 """
-
-from functools import partial
 from os.path import join
 
 # fix a bug in intel
@@ -146,10 +144,10 @@ def remove_response_paz(st, paz_path, pre_filt):
         station = trace.stats.station
         channel = trace.stats.channel
         key = f"{network}.{station}.{channel}"
-        paz_path = join(paz_path, key)
+        paz_path_used = join(paz_path, key)
         # try to read paz
         try:
-            obspy.io.sac.sacpz.attach_paz(trace, paz_path)
+            obspy.io.sac.sacpz.attach_paz(trace, paz_path_used)
         except:
             return None
         # ndarray
@@ -187,7 +185,7 @@ def process_single_event(min_periods, max_periods, taper_tmin_tmax, asdf_filenam
         f4 = 2.0 * f3
         pre_filt = (f1, f2, f3, f4)
 
-        def process_function_kernel(st, inv, paz_path_used):
+        def process_function(st, inv):
             # there are possibility that some stations has multiple loc codes or use HH stations. (should avoid in the future)
             st = filter_st(st, inv)
 
@@ -221,7 +219,7 @@ def process_single_event(min_periods, max_periods, taper_tmin_tmax, asdf_filenam
 
             # st.remove_response(output="DISP", pre_filt=pre_filt, zero_mean=False,
             #                    taper=False, inventory=inv, water_level=None)
-            st = remove_response_paz(st, paz_path_used, pre_filt)
+            st = remove_response_paz(st, paz_path, pre_filt)
             # the same of removing response with sac
             st.detrend("demean")
             st.detrend("linear")
@@ -275,8 +273,6 @@ def process_single_event(min_periods, max_periods, taper_tmin_tmax, asdf_filenam
             "raw": tag_name
         }
         output_name_head = asdf_filename.split("/")[-1].split(".")[0]
-        process_function = partial(
-            process_function_kernel, paz_path_used=paz_path)
         ds.process(process_function, join(
             output_directory, output_name_head+"."+tag_name + ".h5"), tag_map=tag_map)
 
