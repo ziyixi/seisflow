@@ -60,17 +60,18 @@ def get_perturbed_gf(green_virasdf1, green_virasdf2, green_virasdf_raw, alpha):
     return green_virasdf_perturbed
 
 
-def conv_and_postprocess(green_virasdf, sf, t0, waveform_length, sampling_rate):
+def conv_and_postprocess(green_virasdf, sf, t0, waveform_length, sampling_rate, if_conv):
     """
     conv_and_postprocess: do the convolution and postprocessing for all the sts in virasdf.
     """
     # we should not change green_virasdf, so make a copy of it.
     conv_virasdf = copy(green_virasdf)
     # firstly, we do the convolution
-    for each_net_sta in conv_virasdf.get_waveforms_list():
-        st = conv_virasdf.get_waveforms()[each_net_sta]["st"]
-        st = conv_sf_and_st(st, sf, t0)
-        conv_virasdf.update_st(st, each_net_sta)
+    if(if_conv):
+        for each_net_sta in conv_virasdf.get_waveforms_list():
+            st = conv_virasdf.get_waveforms()[each_net_sta]["st"]
+            st = conv_sf_and_st(st, sf, t0)
+            conv_virasdf.update_st(st, each_net_sta)
     # and we can do the postprocessing
     event = green_virasdf.get_events()[0]
     origin = event.preferred_origin() or event.origins[0]
@@ -104,11 +105,11 @@ def forward_misfit_windows(alpha, t0, tau, body_green_virasdf1, body_green_viras
     sf = source_time_func(tau, dt)
     # conv and post process
     body_conv_virasdf_perturbed = conv_and_postprocess(
-        body_green_virasdf_perturbed, sf, t0, waveform_length, sampling_rate)
+        body_green_virasdf_perturbed, sf, t0, waveform_length, sampling_rate, True)
     surface_conv_virasdf_perturbed = None
     if (consider_surface):
         surface_conv_virasdf_perturbed = conv_and_postprocess(
-            surface_green_virasdf_perturbed, sf, t0, waveform_length, sampling_rate)
+            surface_green_virasdf_perturbed, sf, t0, waveform_length, sampling_rate, True)
     # calculate to get misfit windows
     misfit_windows = calculate_misfit_windows(windows, consider_surface, data_virasdf_body, body_conv_virasdf_perturbed,
                                               data_virasdf_surface, surface_conv_virasdf_perturbed, first_arrival_zr, first_arrival_t, baz)
