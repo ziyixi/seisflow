@@ -2,6 +2,7 @@
 icer_calculate_misfit_windows.py: calculate misfit windows massively on ICER.
 """
 from ..slurm import submit_job
+from os import listdir
 
 
 def get_script(windows_directory, output_directory, time_length, station_fname, min_periods, max_periods, data_asdf_directory, sync_asdf_directory, data_info_directory,
@@ -14,9 +15,13 @@ def get_script(windows_directory, output_directory, time_length, station_fname, 
     result += "module load GCC/8.2.0-2.31.1;"
     result += "module load OpenMPI/3.1.3;"
     # run mpi_extract_data_info.py
-    result += f"srun -n {n_node*n_cores_each_node} {py} -m seisflow.scripts.mpi_extract_data_info --asdf_directory {data_asdf_directory} --station_fname {station_fname} --output_dir {data_info_directory} ;"
+    if (len(listdir(data_info_directory)) == 0):
+        # run only when data_info_directory is empty
+        result += f"srun -n {n_node*n_cores_each_node} {py} -m seisflow.scripts.mpi_extract_data_info --asdf_directory {data_asdf_directory} --station_fname {station_fname} --output_dir {data_info_directory} ;"
+    else:
+        pass
     # get windows
-    result += f"srun -n 1 {py} -m seisflow.scripts.tao_2018_ggg_windows.py --data_info_directory {data_info_directory} --time_length {time_length} --output_dir {windows_directory} ;"
+    result += f"srun -n 1 {py} -m seisflow.scripts.tao_2018_ggg_windows --data_info_directory {data_info_directory} --time_length {time_length} --output_dir {windows_directory} ;"
     # run mpi_calculate_misfit_windows.py
     result += f"srun -n {n_node*n_cores_each_node} {py} -m seisflow.scripts.mpi_calculate_misfit_windows --windows_directory {windows_directory} --output_directory {output_directory} --min_periods {min_periods} --max_periods {max_periods} --data_asdf_directory {data_asdf_directory} --sync_asdf_directory {sync_asdf_directory} --data_info_directory {data_info_directory} ;"
     return result
