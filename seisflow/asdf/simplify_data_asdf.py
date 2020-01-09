@@ -1,8 +1,7 @@
+import pyasdf
 import subprocess
-
 import click
 import obspy
-import pyasdf
 
 
 def remove_stations(ds):
@@ -40,5 +39,5 @@ def remove_stations(ds):
 
 
 def simplify_data_asdf(asdf_file):
-    with pyasdf.ASDFDataSet(asdf_file) as ds:
+    with pyasdf.ASDFDataSet(asdf_file, mpi=False) as ds:
         remove_stations(ds)
