@@ -3,12 +3,18 @@ tao_2018_ggg_windows: get windows described in tao et al. ggg, 2018. Only works 
 """
 from os.path import basename, join
 
+import numpy as np
+from mpi4py import MPI
+
 from ..tasks.windows.tao_2018_ggg_windows import generate_windows
 from ..utils.load_files import load_pickle
 from ..utils.save_files import save_pickle_event
 
 phase_list = ["S", "sS", "SS", "P",
               "pP", "sP", "PP", "3.3kmps", "4.6kmps", "ScS"]
+comm = MPI.COMM_WORLD
+size = comm.Get_size()
+rank = comm.Get_rank()
 # * test is passed for this script on 01/07/2020
 
 
@@ -40,6 +46,15 @@ def load_eventtime(data_info_directory):
     return eventtime
 
 
+def get_traveltime_all_this_rank(traveltime_all):
+    traveltime_all_this_rank = {}
+    all_gcmtids = sorted(list(traveltime_all.keys()))
+    all_gcmtids_this_rank = np.array_split(all_gcmtids, size)[rank]
+    for each_gcmtid_this_rank in all_gcmtids_this_rank:
+        traveltime_all_this_rank[each_gcmtid_this_rank] = traveltime_all[each_gcmtid_this_rank]
+    return traveltime_all_this_rank
+
+
 if __name__ == "__main__":
     import click
 
@@ -50,8 +65,9 @@ if __name__ == "__main__":
     def main(data_info_directory, time_length, output_dir):
         traveltime_all = load_traveltime(data_info_directory)
         eventtime = load_eventtime(data_info_directory)
-        for each_gcmtid in traveltime_all:
-            each_traveltime = traveltime_all[each_gcmtid]
+        traveltime_all_this_rank = get_traveltime_all_this_rank(traveltime_all)
+        for each_gcmtid in traveltime_all_this_rank:
+            each_traveltime = traveltime_all_this_rank[each_gcmtid]
             rep_net_sta = list(eventtime[each_gcmtid].keys())[0]
             each_event_time = eventtime[each_gcmtid][rep_net_sta]
             windows_this_gcmtid = generate_windows(
