@@ -21,7 +21,7 @@ def get_script(windows_directory, output_directory, time_length, station_fname, 
     else:
         pass
     # get windows
-    result += f"srun -n {n_node*n_cores_each_node} {py} -m seisflow.scripts.tao_2018_ggg_windows --data_info_directory {data_info_directory} --time_length {time_length} --output_dir {windows_directory} ;"
+    result += f"srun -n {n_node*n_cores_each_node} {py} -m seisflow.scripts.mpi_tao_2018_ggg_windows --data_info_directory {data_info_directory} --time_length {time_length} --output_dir {windows_directory} ;"
     # run mpi_calculate_misfit_windows.py
     result += f"srun -n {n_node*n_cores_each_node} {py} -m seisflow.scripts.mpi_calculate_misfit_windows --windows_directory {windows_directory} --output_directory {output_directory} --min_periods {min_periods} --max_periods {max_periods} --data_asdf_directory {data_asdf_directory} --sync_asdf_directory {sync_asdf_directory} --data_info_directory {data_info_directory} ;"
     return result
