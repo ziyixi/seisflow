@@ -62,18 +62,18 @@ def get_weights_for_all(misfit_windows, stations,  snr_threshold, cc_threshold, 
         # firstly we get all the category names
         rep_net_sta = list(weights_for_all.keys())[0]
         all_categories = list(weights_for_all[rep_net_sta].keys())
+        # here we should weight based on number of windows but not the number of usable stations.
         number_each_category = {}
         for each_category in all_categories:
             number_each_category[each_category] = 0
             for net_sta in weights_for_all:
-                status = False
                 for each_weight in weights_for_all[net_sta][each_category]:
+                    # if this window is usable or not
                     wsnr_cc_deltat = each_weight.snr * each_weight.cc * each_weight.deltat
                     if (wsnr_cc_deltat > 0):
-                        status = True
-                if (status):
-                    number_each_category[each_category] += 1
+                        number_each_category[each_category] += 1
         # get category weighting and update
+        # here we should weight based on number of windows but not the number of usable stations.
         weight_each_category = {}
         for each_category in number_each_category:
             weight_each_category[each_category] = cal_category_weight(
