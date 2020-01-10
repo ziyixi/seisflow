@@ -35,6 +35,7 @@ class Misfit_window(Window):
             return
         data_wg = data_virasdf.get_waveforms()[self.net_sta]
         data_tr = data_wg["st"].select(component=self.component)[0].copy()
+        # event time has to follow the sync during the source inversion.
         event_time = sync_virasdf.get_events()[0].origins[0].time
         # get the noise window
         signal_st = data_tr.slice(self.left, self.right)

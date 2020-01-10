@@ -198,7 +198,7 @@ def line_search(alpha_range, t0_range, tau_range, green_virasdf1, green_virasdf2
                                                 first_arrival_t=first_arrival_t,
                                                 baz=baz)
     weights = get_weights_for_all(
-        rep_misfit_windows, stations, snr_threshold, cc_threshold, deltat_threshold)
+        rep_misfit_windows, stations, snr_threshold, cc_threshold, deltat_threshold, False)
     # using the weight to calculate the similarity in the last step:
     weighted_similarity_raw = get_weighted_similarity(
         rep_misfit_windows, weights)

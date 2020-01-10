@@ -16,7 +16,7 @@ Weight = namedtuple(
     'Weight', ['snr', 'cc', 'deltat', 'geographical', 'category'])
 
 
-def get_weights_for_all(misfit_windows, stations,  snr_threshold, cc_threshold, deltat_threshold):
+def get_weights_for_all(misfit_windows, stations,  snr_threshold, cc_threshold, deltat_threshold, calculate_basic):
     """
     get_weights_for_all: calculate weights.
     """
@@ -35,54 +35,54 @@ def get_weights_for_all(misfit_windows, stations,  snr_threshold, cc_threshold, 
                                             deltat_threshold[0], deltat_threshold[1])
                 weights_for_all[net_sta][category].append(
                     Weight(wsnr, wcc, wdeltat, None, None))
-
-    # * get the station list for the geographical weighting (remove all 0 cases)
-    used_geographical_net_sta_list = []
-    for net_sta in weights_for_all:
-        status = False
-        for category in weights_for_all[net_sta]:
-            for each_weight in weights_for_all[net_sta][category]:
-                wsnr_cc_deltat = each_weight.snr * each_weight.cc * each_weight.deltat
-                if (wsnr_cc_deltat > 0):
-                    status = True
-        if (status):
-            used_geographical_net_sta_list.append(net_sta)
-    # build stations_mapper
-    stations_mapper = get_stations_mapper(stations)
-    # get geographical weighting and update
-    geographical_weight_dict = cal_geographical_weight(
-        stations_mapper, used_geographical_net_sta_list, list(weights_for_all.keys()))
-    for net_sta in weights_for_all:
-        for category in weights_for_all[net_sta]:
-            for index, each_weight in enumerate(weights_for_all[net_sta][category]):
-                weights_for_all[net_sta][category][index] = each_weight._replace(
-                    geographical=geographical_weight_dict[net_sta])
-
-    # * get the number of items for each category
-    # firstly we get all the category names
-    rep_net_sta = list(weights_for_all.keys())[0]
-    all_categories = list(weights_for_all[rep_net_sta].keys())
-    number_each_category = {}
-    for each_category in all_categories:
-        number_each_category[each_category] = 0
+    if(not calculate_basic):
+        # * get the station list for the geographical weighting (remove all 0 cases)
+        used_geographical_net_sta_list = []
         for net_sta in weights_for_all:
             status = False
-            for each_weight in weights_for_all[net_sta][each_category]:
-                wsnr_cc_deltat = each_weight.snr * each_weight.cc * each_weight.deltat
-                if (wsnr_cc_deltat > 0):
-                    status = True
+            for category in weights_for_all[net_sta]:
+                for each_weight in weights_for_all[net_sta][category]:
+                    wsnr_cc_deltat = each_weight.snr * each_weight.cc * each_weight.deltat
+                    if (wsnr_cc_deltat > 0):
+                        status = True
             if (status):
-                number_each_category[each_category] += 1
-    # get category weighting and update
-    weight_each_category = {}
-    for each_category in number_each_category:
-        weight_each_category[each_category] = cal_category_weight(
-            number_each_category[each_category])
-    for net_sta in weights_for_all:
-        for category in weights_for_all[net_sta]:
-            for index, each_weight in enumerate(weights_for_all[net_sta][category]):
-                weights_for_all[net_sta][category][index] = each_weight._replace(
-                    category=weight_each_category[category])
+                used_geographical_net_sta_list.append(net_sta)
+        # build stations_mapper
+        stations_mapper = get_stations_mapper(stations)
+        # get geographical weighting and update
+        geographical_weight_dict = cal_geographical_weight(
+            stations_mapper, used_geographical_net_sta_list, list(weights_for_all.keys()))
+        for net_sta in weights_for_all:
+            for category in weights_for_all[net_sta]:
+                for index, each_weight in enumerate(weights_for_all[net_sta][category]):
+                    weights_for_all[net_sta][category][index] = each_weight._replace(
+                        geographical=geographical_weight_dict[net_sta])
+
+        # * get the number of items for each category
+        # firstly we get all the category names
+        rep_net_sta = list(weights_for_all.keys())[0]
+        all_categories = list(weights_for_all[rep_net_sta].keys())
+        number_each_category = {}
+        for each_category in all_categories:
+            number_each_category[each_category] = 0
+            for net_sta in weights_for_all:
+                status = False
+                for each_weight in weights_for_all[net_sta][each_category]:
+                    wsnr_cc_deltat = each_weight.snr * each_weight.cc * each_weight.deltat
+                    if (wsnr_cc_deltat > 0):
+                        status = True
+                if (status):
+                    number_each_category[each_category] += 1
+        # get category weighting and update
+        weight_each_category = {}
+        for each_category in number_each_category:
+            weight_each_category[each_category] = cal_category_weight(
+                number_each_category[each_category])
+        for net_sta in weights_for_all:
+            for category in weights_for_all[net_sta]:
+                for index, each_weight in enumerate(weights_for_all[net_sta][category]):
+                    weights_for_all[net_sta][category][index] = each_weight._replace(
+                        category=weight_each_category[category])
     return weights_for_all
 
 
@@ -108,7 +108,7 @@ def calculate_adjoint_source_zerolagcc_one_event(misfit_windows, stations, raw_s
     """
     # * get weight for all the windows with the same structure as misfit_windows
     weights_for_all = get_weights_for_all(
-        misfit_windows, stations, snr_threshold, cc_threshold, deltat_threshold)
+        misfit_windows, stations, snr_threshold, cc_threshold, deltat_threshold, False)
 
     # * get adjoint sources (weighted)
     # weights_for_all has the same structure with misfit_windows

@@ -30,6 +30,13 @@ def load_first_arrival_baz_evdp(data_info_directory):
     return first_arrival_zr, first_arrival_t, baz, evdp
 
 
+def load_gcarc(data_info_directory):
+    gcarc_path = join(
+        data_info_directory, "extra.gcarc.pkl")
+    gcarc = load_pickle(gcarc_path)
+    return gcarc
+
+
 def get_stations_mapper(stations):
     stations_mapper = {}
     for row in stations:
