@@ -14,6 +14,7 @@ from ..tasks.source.make_perturbed_cmtsolution import add_src_frechet
 from ..utils.asdf_io import VirAsdf
 from ..utils.get_path import get_data_asdf_fnames
 from ..utils.load_files import load_first_arrival_baz_evdp, load_pickle_event
+from ..utils.save_files import save_cmtsolution
 from ..utils.setting import (CC_THRESHOLD, DELTAT_THRESHOLD, INIT_POINTS,
                              MAX_DXS_RATIO, N_ITER, RANDOM_STATE,
                              SNR_THRESHOLD, SURFACE_THRESHOLD)
@@ -224,14 +225,7 @@ def main(green_raw_asdf_directory, green_perturbed_asdf_directory, data_asdf_dir
         new_cmtsolution.preferred_origin(
         ).time += optimizer_max['params']['t0']
         # write
-        new_cmtsolution.write(each_output_path, format="CMTSOLUTION")
-        # remove the final line (or specfem will report error)
-        with open(each_output_path, "r") as f:
-            lines = f.readlines()
-        with open(each_output_path, "w") as f:
-            for i in range(12):
-                f.write(lines[i])
-            f.write(lines[-1].split("\n")[0])
+        save_cmtsolution(each_output_path, new_cmtsolution)
 
 
 if __name__ == "__main__":

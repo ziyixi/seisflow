@@ -8,7 +8,9 @@ import numpy as np
 import obspy
 
 from ..tasks.source.make_perturbed_cmtsolution import add_src_frechet
+from ..utils.save_files import save_cmtsolution
 from ..utils.setting import MAX_DXS_RATIO
+
 # * test is passed for this script on 01/07/2020
 
 
@@ -42,14 +44,7 @@ def kernel(src_frechet_directory, cmtsolution_directory, output_directory, max_d
         cmtsolution = load_cmtsolution(cmtsolution_path)
         cmtsolution_new = add_src_frechet(
             src_frechet, cmtsolution, max_dxs_ratio)
-        cmtsolution_new.write(output_path, format="CMTSOLUTION")
-        # delete the last line if have an empty line no.14
-        with open(output_path, "r") as f:
-            lines = f.readlines()
-        with open(output_path, "w") as f:
-            for i in range(12):
-                f.write(lines[i])
-            f.write(lines[-1].split("\n")[0])
+        save_cmtsolution(output_path, cmtsolution_new)
 
 
 if __name__ == "__main__":
