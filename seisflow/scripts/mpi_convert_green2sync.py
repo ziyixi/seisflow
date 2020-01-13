@@ -43,7 +43,7 @@ if __name__ == "__main__":
         taper_tmin_tmax_list = taper_tmin_tmaxs.split("/")
         periods_list = periods.split("/")
         asdf_paths_this_rank, cmt_paths_this_rank, conv_paths_this_rank = get_paths_this_rank(
-            cmts_directory, green_directory)
+            cmts_directory, green_directory, conv_directory)
         for each_taper_tmin_tmax, each_period in zip(taper_tmin_tmax_list, periods_list):
             taper_tmin_tmax = each_taper_tmin_tmax
             min_period, max_period = map(float, each_period.split(","))
