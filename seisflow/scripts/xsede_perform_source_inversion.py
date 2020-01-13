@@ -204,7 +204,7 @@ def make_source_inversion_directory(iter_number, inversion_directory, cmtfiles_d
 @click.option('--sampling_rate', required=True, type=int, help="the sampling rate to use")
 @click.option('--alpha_range', required=True, type=str, help="the line search range for alpha")
 @click.option('--t0_range', required=True, type=str, help="the line search range for t0")
-@click.option('--tau_range', required=True, type=str, help="the line search range for tau")
+@click.option('--tau_range', required=True, type=str, help="the line search range for tau, use 'fixed' if no change")
 def source_inversion_single_step(iter_number, py, n_total, n_each, n_iter, nproc, n_node, ntasks, partition, simulation_time_step1, account,
                                  n_node_line_search, ntasks_line_search, partition_line_search, simulation_time_step2,
                                  inversion_directory, cmtfiles_directory, ref_directory, data_directory, windows_directory, data_info_directory, stations_path,

@@ -141,7 +141,10 @@ def convert_input_parameters(alpha_range, t0_range,
     """
     alpha_range = tuple(map(float, alpha_range.split(",")))
     t0_range = tuple(map(float, t0_range.split(",")))
-    tau_range = tuple(map(float, tau_range.split(",")))
+    if (tau_range == "fixed"):
+        pass
+    else:
+        tau_range = tuple(map(float, tau_range.split(",")))
     body_band = tuple(map(float, body_band.split(",")))
     surface_band = tuple(map(float, surface_band.split(",")))
     snr_threshold = tuple(map(float, snr_threshold.split(",")))

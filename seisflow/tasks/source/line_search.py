@@ -220,6 +220,8 @@ def line_search(alpha_range, t0_range, tau_range, green_virasdf1, green_virasdf2
                       first_arrival_t=first_arrival_t,
                       baz=baz)
     # do the optimization
+    if (tau_range == "fixed"):
+        tau_range = (tau_raw, tau_raw)
     pbounds = {'alpha': alpha_range, 'tau': tau_range, 't0': t0_range}
     optimizer = BayesianOptimization(
         f=forward,
