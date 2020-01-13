@@ -24,7 +24,7 @@ if __name__ == "__main__":
             flag = "-F"
         else:
             raise Exception("no such simulation type")
-        all_simulation_directories = sorted(glob(base_directory, "*"))
+        all_simulation_directories = sorted(glob(join(base_directory, "*")))
         current_path = str(sh.pwd())[:-1]
         for each_simulation_directory in all_simulation_directories:
             sh.cd(each_simulation_directory)
