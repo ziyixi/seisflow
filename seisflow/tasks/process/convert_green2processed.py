@@ -4,6 +4,7 @@ convert_green2processed.py: do the convolution and process the green sync.
 from .process_sync_single_st import ahead_process_green_function_st, post_process_green_function_st
 from .convolve_src_func_single_st import source_time_func, conv_sf_and_st
 import copy
+import numpy as np
 
 
 def conv_process_single_virasdf(input_virasdf, waveform_length, tau, t0,
@@ -27,5 +28,9 @@ def conv_process_single_virasdf(input_virasdf, waveform_length, tau, t0,
         conv_st = conv_sf_and_st(green_st, sf, t0)
         conv_st = post_process_green_function_st(
             conv_st, event_time, waveform_length, sampling_rate)
+        # Convert to single precision to save space.
+        for tr in conv_st:
+            tr.data = np.require(tr.data, dtype="float32")
+
         output_virasdf.update_st(conv_st, each_net_sta)
     return output_virasdf

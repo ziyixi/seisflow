@@ -37,10 +37,6 @@ def process_single_event(min_periods, max_periods, taper_tmin_tmax, asdf_filenam
                 st = process_sync_single_trace(
                     st, event_time, waveform_length, taper_tmin_tmax, min_period, max_period, sampling_rate)
 
-                # Convert to single precision to save space.
-                for tr in st:
-                    tr.data = np.require(tr.data, dtype="float32")
-
                 return st
             tag_name = "preprocessed_%is_to_%is" % (
                 int(min_period), int(max_period))

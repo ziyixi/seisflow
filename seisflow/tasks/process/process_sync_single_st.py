@@ -67,7 +67,11 @@ def process_sync_single_trace(st, event_time, waveform_length, taper_tmin_tmax, 
 
     # bandpass filter
     st.filter("bandpass", freqmin=1.0/max_period,
-              freqmax=1.0/min_period, corners=2, zerophase=True)
+              freqmax=1.0 / min_period, corners=2, zerophase=True)
+    # Convert to single precision to save space.
+    for tr in st:
+        tr.data = np.require(tr.data, dtype="float32")
+
     return st
 
 

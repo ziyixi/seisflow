@@ -56,6 +56,6 @@ if __name__ == "__main__":
                                                              taper_tmin_tmax, min_period, max_period, sampling_rate)
                 # here each_conv_path is not the form we are using in processing sync, so do some modifications here
                 each_conv_path = each_conv_path + \
-                    f"preprocessed_{int(min_period)}s_to_{int(max_period)}s.h5"
+                    f".preprocessed_{int(min_period)}s_to_{int(max_period)}s.h5"
                 output_virasdf.write_asdf(each_conv_path, "convolve_processed")
     main()

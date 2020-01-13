@@ -248,7 +248,7 @@ def source_inversion_single_step(iter_number, py, n_total, n_each, n_iter, nproc
     surface_min_period, surface_max_period = surface_periods.split(",")
     min_periods = f"{body_min_period},{surface_min_period}"
     max_periods = f"{body_max_period},{surface_max_period}"
-    result += calculate_misfit_windows(py, n_total, windows_directory, iter_misfit_windows,
+    result += calculate_misfit_windows(py, n_total, windows, iter_misfit_windows,
                                        min_periods, max_periods, data_processed, iter_conv1_processed, data_info)
     # calculate the adjoint source
     result += calculate_adjoint_source_raw(py, n_total, iter_misfit_windows, stations, raw_sync, iter_conv1_processed,
