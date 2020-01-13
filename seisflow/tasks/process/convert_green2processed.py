@@ -21,7 +21,7 @@ def conv_process_single_virasdf(input_virasdf, waveform_length, tau, t0,
     event_time = origin.time
     output_virasdf = copy.copy(input_virasdf)
     for each_net_sta in output_virasdf.get_waveforms_list():
-        green_st = output_virasdf.get_waveforms()[each_net_sta]
+        green_st = output_virasdf.get_waveforms()[each_net_sta]["st"]
         green_st = ahead_process_green_function_st(
             green_st, taper_tmin_tmax, min_period, max_period)
         conv_st = conv_sf_and_st(green_st, sf, t0)
