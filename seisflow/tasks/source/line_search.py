@@ -27,11 +27,8 @@ def prepare_green_func(green_virasdf, body_band, surface_band, taper_tmin_tmax_c
     """
     body_virasdf = copy(green_virasdf)
     # get taper_tmin_tmax_body and taper_tmin_tmax_surface
-    if (consider_surface):
-        taper_tmin_tmax_body, taper_tmin_tmax_surface = taper_tmin_tmax_combined.split(
-            "/")
-    else:
-        taper_tmin_tmax_body = taper_tmin_tmax_combined
+    taper_tmin_tmax_body, taper_tmin_tmax_surface = taper_tmin_tmax_combined.split(
+        "/")
     if(consider_surface):
         surface_virasdf = copy(green_virasdf)
     else:
