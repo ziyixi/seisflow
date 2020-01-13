@@ -35,7 +35,15 @@ def init_structure(base, cmtfiles, ref, output, database):
         subprocess.call(
             f"ln -s {join(ref, 'DATA', '*')} {join(working_dir, 'DATA/')}", shell=True)
         sh.unlink(join(working_dir, "DATA", "CMTSOLUTION"))
+        sh.unlink(join(working_dir, "DATA", "STATIONS"))
+        sh.unlink(join(working_dir, "DATA", "Par_file"))
+        try:
+            sh.unlink(join(working_dir, "DATA", "STATIONS_ADJOINT"))
+        except:
+            pass
         sh.cp(each_gcmtid_path, join(working_dir, "DATA", "CMTSOLUTION"))
+        sh.cp(each_gcmtid_path, join(working_dir, "DATA", "STATIONS"))
+        sh.cp(each_gcmtid_path, join(working_dir, "DATA", "Par_file"))
         # handle DATABASES_MPI
         sh.mkdir("-p", join(database, each_gcmtid))
         sh.ln("-s", join(database, each_gcmtid),
