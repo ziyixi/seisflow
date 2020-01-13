@@ -197,6 +197,7 @@ def make_source_inversion_directory(iter_number, inversion_directory, cmtfiles_d
 @click.option('--data_directory', required=True, type=str, help="the processed data directory")
 @click.option('--windows_directory', required=True, type=str, help="the windows directory")
 @click.option('--data_info_directory', required=True, type=str, help="the datainfo directory")
+@click.option('--stations_path', required=True, type=str, help="the stations path")
 @click.option('--raw_sync_directory', required=True, type=str, help="the raw sync directory (not changing tau)")
 @click.option('--waveform_length', required=True, type=int, help="the waveform length")
 @click.option('--taper_tmin_tmaxs', required=True, type=str, help="the taper time bands: minp1,maxp1/minp2,maxp2/...")
