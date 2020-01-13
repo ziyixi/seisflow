@@ -19,6 +19,22 @@ def calculate_adjoint_source_raw(py, nproc, misfit_windows_directory, stations_p
     return script
 
 
+def calculate_stations_adjoint(py, stations_path, misfit_windows_directory, output_directory):
+    """
+    get the files STATIONS_ADJOINT.
+    """
+    script = f"ibrun -n 1 {py} -m seisflow.scripts.get_stations_adjoint --stations_path {stations_path} --misfit_windows_directory {misfit_windows_directory} --output_directory {output_directory}; \n"
+    return script
+
+
+def cp_stations_adjoint2structure(py, stations_adjoint_directory, base_directory):
+    """
+    copy the stations adjoint file to the structure.
+    """
+    script = f"ibrun -n 1 {py} -m seisflow.scripts.cp_stations_adjoint2structure --stations_adjoint_directory {stations_adjoint_directory} --base_directory {base_directory}; \n"
+    return script
+
+
 def calculate_misfit_windows(py, nproc, windows_directory, output_directory, min_periods, max_periods, data_asdf_directory, sync_asdf_directory, data_info_directory):
     """
     calculate misfit windows
@@ -111,13 +127,14 @@ def make_source_inversion_directory(iter_number, inversion_directory, cmtfiles_d
     specfem_ref = join(inversion_directory, "ref")
     specfem_output = join(inversion_directory, "output")
     specfem_database = join(inversion_directory, "database")
+    specfem_stations_adjoint = join(inversion_directory, "stations_adjoint")
     data_processed = join(inversion_directory, "data_processed")
     windows = join(inversion_directory, "windows")
     data_info = join(inversion_directory, "data_info")
     stations = join(inversion_directory, "stations")
     raw_sync = join(inversion_directory, "syncs", "raw_sync")
     raw_cmtfiles = join(inversion_directory, "cmts", "raw_cmtsolutions")
-    # always make directories
+    # directories for each iteration
     iter_green1_cmt = join(inversion_directory, "cmts",
                            f"iter{iter_number}_green1_cmtsolutions")
     iter_green1_sync = join(inversion_directory, "syncs",
@@ -140,6 +157,7 @@ def make_source_inversion_directory(iter_number, inversion_directory, cmtfiles_d
     # make directories
     if (int(iter_number) == 1):
         sh.mkdir("-p", specfem_base)
+        sh.mkdir("-p", specfem_stations_adjoint)
         sh.mkdir("-p", join(inversion_directory, "cmts"))
         sh.mkdir("-p", join(inversion_directory, "syncs"))
         sh.mv(stations_path, stations)
@@ -167,7 +185,7 @@ def make_source_inversion_directory(iter_number, inversion_directory, cmtfiles_d
     sh.mkdir("-p", iter_green2_cmt)
     sh.mkdir("-p", iter_green2_sync)
     sh.mkdir("-p", iter_next_cmt)
-    return (specfem_base, specfem_cmtfiles, specfem_ref, specfem_output, specfem_database, data_processed, windows, data_info, stations, raw_sync, iter_green1_cmt, iter_green1_sync,
+    return (specfem_base, specfem_stations_adjoint, specfem_cmtfiles, specfem_ref, specfem_output, specfem_database, data_processed, windows, data_info, stations, raw_sync, iter_green1_cmt, iter_green1_sync,
             iter_conv1_processed, iter_misfit_windows, iter_adjoint_source, iter_src_frechets, iter_green2_cmt,
             iter_green2_sync, iter_next_cmt)
 
@@ -213,7 +231,7 @@ def source_inversion_single_step(iter_number, py, n_total, n_each, n_iter, nproc
     perform the source inversion for one step.
     """
     # firstly we have to make a running directory.
-    (specfem_base, specfem_cmtfiles, specfem_ref, specfem_output, specfem_database, data_processed, windows, data_info, stations, raw_sync, iter_green1_cmt, iter_green1_sync,
+    (specfem_base, specfem_stations_adjoint, specfem_cmtfiles, specfem_ref, specfem_output, specfem_database, data_processed, windows, data_info, stations, raw_sync, iter_green1_cmt, iter_green1_sync,
      iter_conv1_processed, iter_misfit_windows, iter_adjoint_source, iter_src_frechets, iter_green2_cmt,
      iter_green2_sync, iter_next_cmt) = make_source_inversion_directory(
         iter_number, inversion_directory, cmtfiles_directory, ref_directory, data_directory, windows_directory, data_info_directory, stations_path,
@@ -229,8 +247,9 @@ def source_inversion_single_step(iter_number, py, n_total, n_each, n_iter, nproc
     result += generate_green_cmtsolutions(py,
                                           specfem_cmtfiles, iter_green1_cmt)
     # make simulation dirs based on the green function
-    init_structure(specfem_base, specfem_cmtfiles, specfem_ref,
-                   specfem_output, specfem_database)
+    if(int(iter_number) == 1):
+        init_structure(specfem_base, specfem_cmtfiles, specfem_ref,
+                       specfem_output, specfem_database)
     # here we generate the directory using specfem_cmtfiles, but have to change to iter_green1_cmt
     result += cp_cmtsolution2structure(py,
                                        iter_green1_cmt, specfem_base)
@@ -253,13 +272,18 @@ def source_inversion_single_step(iter_number, py, n_total, n_each, n_iter, nproc
     max_periods = f"{body_max_period},{surface_max_period}"
     result += calculate_misfit_windows(py, n_total, windows, iter_misfit_windows,
                                        min_periods, max_periods, data_processed, iter_conv1_processed, data_info)
+    # generate stations_adjoint directory and copy it to the data directory
+    result += calculate_stations_adjoint(py, stations,
+                                         iter_misfit_windows, specfem_stations_adjoint)
+    result += cp_stations_adjoint2structure(py,
+                                            specfem_stations_adjoint, specfem_base)
     # calculate the adjoint source
     result += calculate_adjoint_source_raw(py, n_total, iter_misfit_windows, stations, raw_sync, iter_conv1_processed,
                                            data_processed, data_info, iter_adjoint_source, body_periods, surface_periods)
     # move the adjoint source back to the SEM folder
     result += ln_adjoint_source_to_structure(py,
                                              iter_adjoint_source, specfem_base)
-    # change simulation type to adjoint of source
+    # change simulation type to the source inversion (type 2)
     result += change_simulation_type(py, specfem_base, "source")
     # do the adjoint simulation
     result += forward_task(base=specfem_base, N_total=n_total,
