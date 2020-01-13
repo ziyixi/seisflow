@@ -22,7 +22,8 @@ if __name__ == "__main__":
         for each_file in all_files:
             gcmtid = basename(each_file)
             cmtsolution = obspy.read_events(each_file)[0]
-            cmtsolution.focal_mechanisms[0].moment_tensor.source_time_function.duration = 0.0
+            # use 0 will cause an error in obspy, specfem will change all cmtsolution less that 5*dt as 5*dt.
+            cmtsolution.focal_mechanisms[0].moment_tensor.source_time_function.duration = 0.0002
             output_path = join(output_directory, gcmtid)
             save_cmtsolution(output_path, cmtsolution)
     main()

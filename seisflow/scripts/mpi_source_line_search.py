@@ -224,6 +224,7 @@ def main(green_raw_asdf_directory, green_perturbed_asdf_directory, data_asdf_dir
         new_cmtsolution = add_src_frechet(
             each_src_frechet, each_cmtsolution, optimized_dxs_ratio)
         # update tau and event_time
+        # ! a possible bug here when optimizer_max['params']['tau']==0: the half duration will be 1 in obspy.
         new_cmtsolution.focal_mechanisms[0].moment_tensor.source_time_function.duration = optimizer_max['params']['tau'] * 2
         new_cmtsolution.preferred_origin(
         ).time += optimizer_max['params']['t0']
