@@ -221,6 +221,7 @@ def source_inversion_single_step(iter_number, py, n_total, n_each, n_iter, nproc
 
     # * step 1: generaet two green function asdf files.
     # init
+    current_directory = str(sh.pwd())[:-1]
     result = "date; "
     result += "module load boost/1.68; "
     result += "module load phdf5/1.8.16; "
@@ -238,6 +239,7 @@ def source_inversion_single_step(iter_number, py, n_total, n_each, n_iter, nproc
     # do forward simulation for green1
     result += forward_task(base=specfem_base, N_total=n_total,
                            N_each=n_each, N_iter=n_iter, nproc=nproc, run_mesh=True)
+    result += f"cd {current_directory}; \n"
     # collect the sync to green1
     result += collect_sync_files(py, specfem_output, iter_green1_sync)
     # convert green1 to conv1
@@ -262,6 +264,7 @@ def source_inversion_single_step(iter_number, py, n_total, n_each, n_iter, nproc
     # do the adjoint simulation
     result += forward_task(base=specfem_base, N_total=n_total,
                            N_each=n_each, N_iter=n_iter, nproc=nproc, run_mesh=False)
+    result += f"cd {current_directory}; \n"
     # collect the src_frechet files
     result += collect_src_frechet_files(py, specfem_output, iter_src_frechets)
     # make the perturbed green cmtsolutions
@@ -275,6 +278,7 @@ def source_inversion_single_step(iter_number, py, n_total, n_each, n_iter, nproc
     # do the forward simulation
     result += forward_task(base=specfem_base, N_total=n_total,
                            N_each=n_each, N_iter=n_iter, nproc=nproc, run_mesh=False)
+    result += f"cd {current_directory}; \n"
     # collect the sync to green2
     result += collect_sync_files(py, specfem_output, iter_green2_sync)
 
