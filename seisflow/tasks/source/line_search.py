@@ -235,13 +235,6 @@ def line_search(alpha_range, t0_range, tau_range, green_virasdf1, green_virasdf2
                 "t0": t0_raw},
         lazy=True,
     )
-    # ! for the debugging purpose
-    optimizer.probe(
-        params={"alpha": 2.6943372432159,
-                "tau": tau_raw,
-                "t0": -0.4399999999999995},
-        lazy=True,
-    )
     optimizer.maximize(
         init_points=init_points,
         n_iter=n_iter,
