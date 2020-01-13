@@ -227,8 +227,11 @@ def source_inversion_single_step(iter_number, py, n_total, n_each, n_iter, nproc
     result += generate_green_cmtsolutions(py,
                                           specfem_cmtfiles, iter_green1_cmt)
     # make simulation dirs based on the green function
-    init_structure(specfem_base, iter_green1_cmt, specfem_ref,
+    init_structure(specfem_base, specfem_cmtfiles, specfem_ref,
                    specfem_output, specfem_database)
+    # here we generate the directory using specfem_cmtfiles, but have to change to iter_green1_cmt
+    result += cp_cmtsolution2structure(py,
+                                       iter_green1_cmt, specfem_base)
     # change simulation type to forward
     result += change_simulation_type(py, specfem_base, "forward")
     # do forward simulation for green1
