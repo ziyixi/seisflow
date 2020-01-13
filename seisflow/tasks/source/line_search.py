@@ -21,11 +21,17 @@ Weight = namedtuple(
     'Weight', ['snr', 'cc', 'deltat', 'geographical', 'category'])
 
 
-def prepare_green_func(green_virasdf, body_band, surface_band, taper_tmin_tmax, consider_surface):
+def prepare_green_func(green_virasdf, body_band, surface_band, taper_tmin_tmax_combined, consider_surface):
     """
     prepare_green_func: do the preprocesing for all the streams in virasdf
     """
     body_virasdf = copy(green_virasdf)
+    # get taper_tmin_tmax_body and taper_tmin_tmax_surface
+    if (consider_surface):
+        taper_tmin_tmax_body, taper_tmin_tmax_surface = taper_tmin_tmax_combined.split(
+            "/")
+    else:
+        taper_tmin_tmax_body = taper_tmin_tmax_combined
     if(consider_surface):
         surface_virasdf = copy(green_virasdf)
     else:
@@ -33,12 +39,12 @@ def prepare_green_func(green_virasdf, body_band, surface_band, taper_tmin_tmax, 
     for each_net_sta in green_virasdf.get_waveforms_list():
         st_body = body_virasdf.get_waveforms()[each_net_sta]["st"]
         st_body = ahead_process_green_function_st(
-            st_body, taper_tmin_tmax, body_band[0], body_band[1])
+            st_body, taper_tmin_tmax_body, body_band[0], body_band[1])
         body_virasdf.update_st(st_body, each_net_sta)
         if (consider_surface):
             st_surface = surface_virasdf.get_waveforms()[each_net_sta]["st"]
             st_surface = ahead_process_green_function_st(
-                st_surface, taper_tmin_tmax, surface_band[0], surface_band[1])
+                st_surface, taper_tmin_tmax_surface, surface_band[0], surface_band[1])
             surface_virasdf.update_st(st_surface, each_net_sta)
     return body_virasdf, surface_virasdf
 
