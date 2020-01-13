@@ -2,12 +2,16 @@
 xsede_perform_source_inversion.py: perform source inversion for several events.
 """
 from glob import glob
-from os.path import join, isdir
-import sh
-from ..tasks.forward import forward_task
-from ..slurm.submit_job import submit_job
+from os.path import isdir, join
+
 import click
+import sh
+
+from ..slurm.submit_job import submit_job
+from ..tasks.forward import forward_task
 from ..tasks.structure import init_structure
+
+# ! in the future, this file could be rewritten with jinja2.
 
 
 def calculate_adjoint_source_raw(py, nproc, misfit_windows_directory, stations_path, raw_sync_directory, sync_directory,

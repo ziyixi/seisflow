@@ -2,7 +2,7 @@
 icer_process_sync.py: massively process the sync on ICER.
 """
 from glob import glob
-from os.path import join, basename
+from os.path import basename, join
 
 from ..slurm import submit_job
 

@@ -1,8 +1,9 @@
 """
 move_adjoint2sem.py: move the adjoint asdf files back to the SEM folders.
 """
-from os.path import join, basename
 from glob import glob
+from os.path import basename, join
+
 import sh
 
 

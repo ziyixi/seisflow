@@ -1,8 +1,9 @@
 """
 icer_calculate_misfit_windows.py: calculate misfit windows massively on ICER.
 """
-from ..slurm import submit_job
 from os import listdir
+
+from ..slurm import submit_job
 
 
 def get_script(windows_directory, output_directory, time_length, station_fname, min_periods, max_periods, data_asdf_directory, sync_asdf_directory, data_info_directory,

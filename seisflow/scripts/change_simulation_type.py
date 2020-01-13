@@ -3,7 +3,8 @@ change_simulation_type.py: change the simulation type in specfem massively.
 """
 
 from glob import glob
-from os.path import join, basename
+from os.path import basename, join
+
 import sh
 
 if __name__ == "__main__":

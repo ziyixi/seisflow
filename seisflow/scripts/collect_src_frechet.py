@@ -1,8 +1,9 @@
 """
 collect_src_frechet.py: collect all the src_frechet files in the output directory.
 """
-from os.path import join
 from glob import glob
+from os.path import join
+
 import sh
 
 

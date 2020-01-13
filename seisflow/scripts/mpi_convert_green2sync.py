@@ -1,13 +1,15 @@
 """
 mpi_convert_green2sync.py: convert the green function asdf to the normal convolved asdf in a directory.
 """
-from ..tasks.process.convert_green2processed import conv_process_single_virasdf
-from ..utils.asdf_io import VirAsdf
-from mpi4py import MPI
 from glob import glob
-from os.path import join, basename
+from os.path import basename, join
+
 import numpy as np
 import obspy
+from mpi4py import MPI
+
+from ..tasks.process.convert_green2processed import conv_process_single_virasdf
+from ..utils.asdf_io import VirAsdf
 
 comm = MPI.COMM_WORLD
 size = comm.Get_size()

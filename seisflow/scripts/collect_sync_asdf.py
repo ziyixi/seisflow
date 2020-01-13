@@ -1,8 +1,9 @@
 """
 collect_sync_asdf.py: collect all the synthetics in the output directory.
 """
-from os.path import join
 from glob import glob
+from os.path import join
+
 import sh
 
 
