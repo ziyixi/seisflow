@@ -7,6 +7,7 @@ import sh
 from ..tasks.forward import forward_task
 from ..slurm.submit_job import submit_job
 import click
+from ..tasks.structure import init_structure
 
 
 def calculate_adjoint_source_raw(py, nproc, misfit_windows_directory, stations_path, raw_sync_directory, sync_directory,
@@ -31,14 +32,6 @@ def ln_adjoint_source_to_structure(py, adjoint_directoy, base_directory):
     cp the adjoint sources to the SEM folders.
     """
     script = f"ibrun -n 1 {py} -m seisflow.scripts.ln_adjoint2sem --adjoint_directoy {adjoint_directoy} --base_directory {base_directory}; \n"
-    return script
-
-
-def make_simulation_structure(py, base, cmtfiles, ref, output, database):
-    """
-    build up the simulation structure
-    """
-    script = f"ibrun -n 1 {py} -m seisflow.scripts.build_structure --base {base} -cmtfiles {cmtfiles} --ref {ref} --output {output} --database {database}; \n"
     return script
 
 
@@ -234,8 +227,8 @@ def source_inversion_single_step(iter_number, py, n_total, n_each, n_iter, nproc
     result += generate_green_cmtsolutions(py,
                                           specfem_cmtfiles, iter_green1_cmt)
     # make simulation dirs based on the green function
-    result += make_simulation_structure(py,
-                                        specfem_base, iter_green1_cmt, specfem_ref, specfem_output, specfem_database)
+    init_structure(specfem_base, iter_green1_cmt, specfem_ref,
+                   specfem_output, specfem_database)
     # change simulation type to forward
     result += change_simulation_type(py, specfem_base, "forward")
     # do forward simulation for green1
