@@ -147,6 +147,7 @@ def make_source_inversion_directory(iter_number, inversion_directory, cmtfiles_d
     if (int(iter_number) == 1):
         sh.mkdir("-p", specfem_base)
         sh.mkdir("-p", join(inversion_directory, "cmts"))
+        sh.mkdir("-p", join(inversion_directory, "syncs"))
         sh.mv(cmtfiles_directory, raw_cmtfiles)
         sh.cp("-r", raw_cmtfiles, specfem_cmtfiles)
         sh.mv(ref_directory, specfem_ref)
