@@ -39,6 +39,7 @@ def make_simulation_structure(py, base, cmtfiles, ref, output, database):
     build up the simulation structure
     """
     script = f"ibrun -n 1 {py} -m seisflow.scripts.build_structure --base {base} -cmtfiles {cmtfiles} --ref {ref} --output {output} --database {database}; \n"
+    return script
 
 
 def generate_green_cmtsolutions(py, cmtsolution_directory, output_directory):
