@@ -41,9 +41,12 @@ def init_structure(base, cmtfiles, ref, output, database):
             sh.unlink(join(working_dir, "DATA", "STATIONS_ADJOINT"))
         except:
             pass
-        sh.cp(each_gcmtid_path, join(working_dir, "DATA", "CMTSOLUTION"))
-        sh.cp(each_gcmtid_path, join(working_dir, "DATA", "STATIONS"))
-        sh.cp(each_gcmtid_path, join(working_dir, "DATA", "Par_file"))
+        sh.cp(join(ref, 'DATA', 'CMTSOLUTION'), join(
+            working_dir, "DATA", "CMTSOLUTION"))
+        sh.cp(join(ref, 'DATA', 'STATIONS'), join(
+            working_dir, "DATA", "STATIONS"))
+        sh.cp(join(ref, 'DATA', 'Par_file'), join(
+            working_dir, "DATA", "Par_file"))
         # handle DATABASES_MPI
         sh.mkdir("-p", join(database, each_gcmtid))
         sh.ln("-s", join(database, each_gcmtid),
