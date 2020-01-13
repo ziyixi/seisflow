@@ -33,7 +33,7 @@ if __name__ == "__main__":
     @click.option('--cmts_directory', required=True, type=str, help="the directory of the cmtsolution")
     @click.option('--green_directory', required=True, type=str, help="the directory of the green function sync")
     @click.option('--conv_directory', required=True, type=str, help="the directory to output the convolution result")
-    @click.option('--waveform_length', required=True, type=str, help="the length of the waveform to cut")
+    @click.option('--waveform_length', required=True, type=int, help="the length of the waveform to cut")
     @click.option('--taper_tmin_tmaxs', required=True, type=str, help="the taper time bands: minp1,maxp1/minp2,maxp2/...")
     @click.option('--periods', required=True, type=str, help="min periods in filtering: minp1,maxp1/minp2,maxp2/...")
     @click.option('--sampling_rate', required=True, type=int, help="the sampling rate to use")
