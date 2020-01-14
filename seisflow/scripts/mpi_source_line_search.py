@@ -197,7 +197,9 @@ def main(green_raw_asdf_directory, green_perturbed_asdf_directory, data_asdf_dir
         # call the function of the line search
         # notice here the unit of depth is m, so we should divide it by 1000
         depth = each_virasdf_green_raw.get_events(
-        )[0].preferred_origin().depth/1000.0
+        )[0].preferred_origin().depth / 1000.0
+        gcmtid = each_virasdf_green_raw.get_events(
+        )[0].resource_id.id.split("/")[-2]
         if (depth <= SURFACE_THRESHOLD):
             consider_surface = True
         else:
@@ -212,6 +214,7 @@ def main(green_raw_asdf_directory, green_perturbed_asdf_directory, data_asdf_dir
                                                              each_windows, consider_surface, body_band, surface_band, taper_tmin_tmax, first_arrival_zr, first_arrival_t, baz,
                                                              RANDOM_STATE, tau_raw, t0_raw, stations,  snr_threshold, cc_threshold, deltat_threshold, init_points=init_points, n_iter=n_iter)
         # print informations
+        print(f"gcmtid: {gcmtid}")
         print(f"raw accuracy: {weighted_similarity_raw:.3f}")
         print(f"new accuracy: {optimizer_max['target']:.3f}")
         print(f"parameters combination:")
