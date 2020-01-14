@@ -16,6 +16,11 @@ def ln_all_files(all_files, base_directory):
     for each_file in all_files:
         gcmtid = basename(each_file).split(".")[0]
         to_path = join(base_directory, gcmtid, "SEM", "adjoint.h5")
+        # in the second iteration, the already existing adjoint.h5 will prevent linking
+        try:
+            sh.unlink(to_path)
+        except:
+            pass
         sh.ln("-s", each_file, to_path)
 
 
