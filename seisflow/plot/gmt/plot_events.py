@@ -30,8 +30,26 @@ def prepare_environment(cpt_type, value_pickle_path, cpt_color, cpt_range, flag_
         raise Exception("no such cpt_type")
     tmpdir = tempfile.mkdtemp()
     cpt_min, cpt_max = cpt_range.split(",")
-    # cpt step should
+    # determine cpt_step value
+
     # * required parameters for the template
     # tmpdir, cpt_1, cpt_2, cpt_3, cpt_color, cpt_min, cpt_max, cpt_step,
     # output_path, flag_J, flag_R, value_min, value_max, colorbar_name, colorbar_unit
     template = env.get_template('plot_events.j2')
+    template.render({
+        "tmpdir": tmpdir,
+        "cpt_1": cpt_1,
+        "cpt_2": cpt_2,
+        "cpt_3": cpt_3,
+        "cpt_color": cpt_color,
+        "cpt_min": cpt_min,
+        "cpt_max": cpt_max,
+        "cpt_step": cpt_step,
+        "output_path": output_path,
+        "flag_J": flag_J,
+        "flag_R": flag_R,
+        "value_min": value_min,
+        "value_max": value_max,
+        "colorbar_name": colorbar_name,
+        "colorbar_unit": colorbar_unit
+    })
