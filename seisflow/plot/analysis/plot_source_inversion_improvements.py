@@ -6,8 +6,10 @@ from os.path import basename, join
 
 import matplotlib.pyplot as plt
 import numpy as np
+import obspy
 import seaborn as sns
 from matplotlib.backends.backend_pdf import PdfPages
+from obspy.imaging.beachball import beach
 
 from ...utils.data_analysis import (get_windows_cc, get_windows_deltat,
                                     get_windows_net_sta,
@@ -150,14 +152,76 @@ def get_plotting_data(each_misfit_windows_collection, iterations_list, snr_thres
     return result, category_phases, category_list
 
 
-def plot_to_pdf(pdf_fname, misfit_windows_collection, iterations_list, snr_threshold, event_depth):
+def plot_source_parameters(event_gcmtid, pdf, cmts_directory, iterations_list):
     """
-    plot the statistical figures.
+    plot the beachball and the source parameters.
+    """
+    figs = plt.figure(figsize=(50, 50))
+    # * firstly we prepare the information from cmt solution
+    # our desired columns will be for each iteration
+    # our desired rows will be [time, half duration, latitude, longitude, depth.]
+    # and we also plot the beachball in the bottom.
+    table_data = np.zeros((5, len(iterations_list)), dtype=np.object)
+    for column_index, each_iteration in enumerate(iterations_list):
+        if (int(each_iteration) == 1):
+            cmt_fpath = join(cmts_directory, "raw_cmtsolutions", event_gcmtid)
+        else:
+            cmt_fpath = join(
+                cmts_directory, f"iter{int(each_iteration)-1}_next_cmtsolutions", event_gcmtid)
+        cmtsolution = obspy.read_events(cmt_fpath)[0]
+        table_data[0, column_index] = str(cmtsolution.preferred_origin().time)
+        table_data[1, column_index] = cmtsolution.focal_mechanisms[0].moment_tensor.source_time_function.duration / 2
+        table_data[2, column_index] = cmtsolution.preferred_origin().latitude
+        table_data[3, column_index] = cmtsolution.preferred_origin().longitude
+        table_data[4, column_index] = cmtsolution.preferred_origin().depth / \
+            1000.0
+
+    ax = figs.add_subplot(2, 1, 1)
+    figs.patch.set_visible(False)
+    ax.axis('off')
+    thetable = ax.table(cellText=table_data, rowLabels=["time", "half duration", "latitude", "longitude", "depth"],
+                        colLabels=[
+                            f"{event_gcmtid}\niteration {item}" for item in iterations_list],
+                        cellLoc='center', rowLoc='center', loc="center")
+    thetable.set_fontsize(75)
+    table_props = thetable.properties()
+    table_cells = table_props['child_artists']
+    for cell in table_cells:
+        cell.set_height(0.3)
+    for column_index, each_iteration in enumerate(iterations_list):
+        if (int(each_iteration) == 1):
+            cmt_fpath = join(cmts_directory, "raw_cmtsolutions", event_gcmtid)
+        else:
+            cmt_fpath = join(
+                cmts_directory, f"iter{int(each_iteration)-1}_next_cmtsolutions", event_gcmtid)
+        cmtsolution = obspy.read_events(cmt_fpath)[0]
+        # plot the beachball
+        ax = figs.add_subplot(6, len(iterations_list),
+                              column_index + 4 * len(iterations_list) + 1)
+        ax.axis('off')
+        tensor = cmtsolution.focal_mechanisms[0].moment_tensor.tensor
+        to_plot_beachball = beach(
+            [tensor.m_rr, tensor.m_tt, tensor.m_pp, tensor.m_rt, tensor.m_rp, tensor.m_tp], width=.5, xy=(0.5, 0.5))
+        ax.add_collection(to_plot_beachball)
+        ax.set_xlim((0, 1))
+        ax.set_ylim((0, 1))
+        ax.axis('equal')
+    figs.tight_layout()
+    pdf.savefig(figs, bbox_inches="tight")
+    plt.close(fig=figs)
+
+
+def plot_to_pdf(pdf_fname, cmts_directory, misfit_windows_collection, iterations_list, snr_threshold, event_depth):
+    """
+    figs = plt.figure(figsize=(50, 50))
     """
     rep_key = sorted(misfit_windows_collection.keys())[0]
     all_events = sorted(misfit_windows_collection[rep_key].keys())
     with PdfPages(pdf_fname) as pdf:
         for each_event in all_events:
+            # we should plot the beachball and plot the source parameter table here
+            plot_source_parameters(
+                each_event, pdf, cmts_directory, iterations_list)
             # prepare information to plot
             each_misfit_windows_collection = {}
             for each_iteration in iterations_list:
@@ -214,15 +278,16 @@ if __name__ == "__main__":
 
     @click.command()
     @click.option('--misfit_windows_base', required=True, type=str, help="the misfit windows base directory")
+    @click.option('--cmts_directory', required=True, type=str, help="the cmt solution directory for all the iterations")
     @click.option('--iterations', required=True, type=str, help="the iterations to plot. eg: 1,2,3")
     @click.option('--pdf_fname', required=True, type=str, help="the pdf path to save")
     @click.option('--snr_threshold', required=True, type=float, help="the snr threshold, such as 3")
     @click.option('--data_info_directory', required=True, type=str, help="the data info directory")
-    def main(misfit_windows_base, iterations, pdf_fname, snr_threshold, data_info_directory):
+    def main(misfit_windows_base, cmts_directory, iterations, pdf_fname, snr_threshold, data_info_directory):
         iterations_list = iterations.split(",")
         misfit_windows_collection = load_misfit_windows(
             misfit_windows_base, iterations_list)
         _, _, _, event_depth = load_first_arrival_baz_evdp(data_info_directory)
-        plot_to_pdf(pdf_fname, misfit_windows_collection,
+        plot_to_pdf(pdf_fname, cmts_directory, misfit_windows_collection,
                     iterations_list, snr_threshold, event_depth)
     main()
