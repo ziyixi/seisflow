@@ -179,7 +179,7 @@ def plot_source_parameters(event_gcmtid, pdf, cmts_directory, iterations_list):
     ax = figs.add_subplot(2, 1, 1)
     figs.patch.set_visible(False)
     ax.axis('off')
-    thetable = ax.table(cellText=table_data, rowLabels=["time", "half duration", "latitude", "longitude", "depth"],
+    thetable = ax.table(cellText=table_data, rowLabels=["time", "half duration(s)", "latitude(°)", "longitude(°)", "depth(km)"],
                         colLabels=[
                             f"{event_gcmtid}\niteration {item}" for item in iterations_list],
                         cellLoc='center', rowLoc='center', loc="center")
@@ -233,6 +233,14 @@ def plot_to_pdf(pdf_fname, cmts_directory, misfit_windows_collection, iterations
             for each_category, phase_list_for_each_category in zip(category_list, category_phases):
                 # one page for each category
                 figs = plt.figure(figsize=(50, 50))
+                collecction_all = {}
+                if (each_category != "surface"):
+                    collecction_all["deltat"] = [np.array([], dtype=np.float)
+                                                 for i in range(len(iterations_list))]
+                    collecction_all["similarity"] = [np.array([], dtype=np.float)
+                                                     for i in range(len(iterations_list))]
+                    collecction_all["cc"] = [np.array([], dtype=np.float)
+                                             for i in range(len(iterations_list))]
                 # we plot for each phases
                 for row_index, each_phase in enumerate(phase_list_for_each_category):
                     # we plot for deltat,similarity,cc
@@ -240,20 +248,32 @@ def plot_to_pdf(pdf_fname, cmts_directory, misfit_windows_collection, iterations
                         # num must be 1 <= num <= num_max, not 0
                         # keep different category's figsize the same
                         ax = figs.add_subplot(
-                            7, 3, row_index * 3 + column_index+1)
+                            8, 3, row_index * 3 + column_index+1)
 
-                        for each_iteration in iterations_list:
-                            # print(
-                            #     data_collection[each_iteration].keys(), each_event, each_iteration, each_category)
+                        for interation_index, each_iteration in enumerate(iterations_list):
                             sns.distplot(data_collection[each_iteration][each_category][row_index]
                                          [plot_type], ax=ax, hist=False, label=f"before iteration {each_iteration}",
                                          kde_kws={"linewidth": 6})
-                            if (plot_type == "deltat"):
-                                ax.set_xlim((-10, 10))
-                            elif(plot_type == "similarity"):
-                                ax.set_xlim((0, 1))
-                            elif(plot_type == "cc"):
-                                ax.set_xlim((0, 1))
+                            # collect to the category summary
+                            if(each_category != "surface"):
+                                if (column_index == 0):
+                                    collecction_all["deltat"][interation_index] = np.concatenate(
+                                        (collecction_all["deltat"][interation_index], data_collection[each_iteration][each_category][row_index]
+                                         [plot_type]))
+                                elif (column_index == 1):
+                                    collecction_all["similarity"][interation_index] = np.concatenate(
+                                        (collecction_all["similarity"][interation_index], data_collection[each_iteration][each_category][row_index]
+                                         [plot_type]))
+                                elif (column_index == 2):
+                                    collecction_all["cc"][interation_index] = np.concatenate(
+                                        (collecction_all["cc"][interation_index], data_collection[each_iteration][each_category][row_index]
+                                         [plot_type]))
+                        if (plot_type == "deltat"):
+                            ax.set_xlim((-10, 10))
+                        elif(plot_type == "similarity"):
+                            ax.set_xlim((0, 1))
+                        elif(plot_type == "cc"):
+                            ax.set_xlim((0, 1))
                         # ax.legend()
                         if (column_index == 0):
                             ax.get_yaxis().set_ticklabels([])
@@ -268,6 +288,31 @@ def plot_to_pdf(pdf_fname, cmts_directory, misfit_windows_collection, iterations
                         if (row_index == 0 and column_index == 1):
                             ax.set_title(
                                 f"gcmtid: {each_event}\ncategory: {each_category}", fontsize=50)
+                if (each_category != "surface"):
+                    for column_index, plot_type in enumerate(["deltat", "similarity", "cc"]):
+                        ax = figs.add_subplot(
+                            8, 3, (row_index+1) * 3 + column_index+1)
+                        for interation_index, each_iteration in enumerate(iterations_list):
+                            sns.distplot(collecction_all[plot_type][interation_index], ax=ax, hist=False, label=f"before iteration {each_iteration}",
+                                         kde_kws={"linewidth": 6})
+                            if (plot_type == "deltat"):
+                                ax.set_xlim((-10, 10))
+                            elif(plot_type == "similarity"):
+                                ax.set_xlim((0, 1))
+                            elif(plot_type == "cc"):
+                                ax.set_xlim((0, 1))
+                        if (column_index == 0):
+                            ax.get_yaxis().set_ticklabels([])
+                            ax.set_ylabel(
+                                "all phases", fontsize=50, rotation=90)
+                        else:
+                            ax.get_yaxis().set_ticklabels([])
+                        ax.tick_params(axis="x", labelsize=30)
+                        if(plot_type != "similarity"):
+                            ax.set_xlabel(plot_type, fontsize=30)
+                        else:
+                            ax.set_xlabel("zero-lag cc", fontsize=30)
+
                 figs.tight_layout()
                 pdf.savefig(figs)
                 plt.close(fig=figs)
