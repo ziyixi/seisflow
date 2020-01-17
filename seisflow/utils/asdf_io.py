@@ -12,11 +12,13 @@ class VirAsdf():
         self.events = None
         self.waveforms_list = []
         self.waveforms = {}
+        self.asdf_path = None
 
     def read_asdf(self, asdf_path):
         """
         read_asdf: read in asdf
         """
+        self.asdf_path = asdf_path
         if (asdf_path == None):
             return
         if (isfile(asdf_path)):
