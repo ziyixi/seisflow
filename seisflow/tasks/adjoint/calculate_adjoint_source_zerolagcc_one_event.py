@@ -178,5 +178,11 @@ def calculate_adjoint_source_zerolagcc_one_event(misfit_windows, stations, raw_s
     # normalize the adjoint source
     for net_sta in adjoint_source_zerolagcc:
         adjoint_source_zerolagcc[net_sta] /= weight_normalize_factor
+        # check if the adjoint source for this station is nan
+        # now we have only seen the station HB.ZHX has some problem
+        status = np.isfinite(adjoint_source_zerolagcc[net_sta]).all()
+        if (not status):
+            # there is inf/-inf/nan in the adjoint source
+            adjoint_source_zerolagcc[net_sta][:] = 0.0
 
     return adjoint_source_zerolagcc
