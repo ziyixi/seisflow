@@ -199,8 +199,7 @@ def main(green_raw_asdf_directory, green_perturbed_asdf_directory, data_asdf_dir
         # notice here the unit of depth is m, so we should divide it by 1000
         depth = each_virasdf_data_body.get_events(
         )[0].preferred_origin().depth / 1000.0
-        gcmtid = each_virasdf_data_body.get_events(
-        )[0].resource_id.id.split("/")[-2]
+        gcmtid = each_windows.gcmtid
         if (depth <= SURFACE_THRESHOLD):
             consider_surface = True
         else:
