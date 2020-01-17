@@ -124,6 +124,11 @@ if __name__ == "__main__":
             gcmtid = gcmtids_this_rank[index]
             misfit_windows = misfit_windows_this_rank[gcmtid]
             raw_sync_asdf_path = raw_sync_asdf_paths_this_rank[index]
+            # ! fix a serious bug here!!!
+            sync_asdf_body_path = sync_asdf_body_path_this_rank[index]
+            data_asdf_body_path = data_asdf_body_path_this_rank[index]
+            data_asdf_surface_path = data_asdf_surface_path_this_rank[index]
+            sync_asdf_surface_path = sync_asdf_surface_path_this_rank[index]
             consider_surface = get_consider_surface(gcmtid, evdp_dict)
             # build vir asdf
             raw_sync_virasdf = VirAsdf()
