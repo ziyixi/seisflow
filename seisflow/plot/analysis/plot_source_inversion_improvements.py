@@ -28,7 +28,7 @@ def load_misfit_windows(misfit_windows_base, iterations_list):
         iteration_directory = join(
             misfit_windows_base, f"iter{each_iteration}_misfit_windows")
         misfit_windows_collection[each_iteration] = {}
-        all_files = glob(join(iteration_directory, "*pkl"))
+        all_files = sorted(glob(join(iteration_directory, "*pkl")))
         for each_file in all_files:
             gcmtid = basename(each_file).split(".")[0]
             misfit_windows_collection[each_iteration][gcmtid] = load_pickle(

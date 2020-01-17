@@ -17,7 +17,7 @@ rank = comm.Get_rank()
 
 
 def get_paths_this_rank(cmts_directory, green_directory, conv_directory):
-    all_files = glob(join(green_directory, "*h5"))
+    all_files = sorted(glob(join(green_directory, "*h5")))
     asdf_paths_this_rank = np.array_split(all_files, size)[rank]
     cmt_paths_this_rank = []
     conv_paths_this_rank = []

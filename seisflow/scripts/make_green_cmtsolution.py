@@ -18,7 +18,7 @@ if __name__ == "__main__":
         """
         make all cmtsolution files in cmtsolution_directory's half duration as 0.
         """
-        all_files = glob(join(cmtsolution_directory, "*"))
+        all_files = sorted(glob(join(cmtsolution_directory, "*")))
         for each_file in all_files:
             gcmtid = basename(each_file)
             cmtsolution = obspy.read_events(each_file)[0]

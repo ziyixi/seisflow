@@ -19,7 +19,7 @@ def seed2asdf(seed_directory, cmt_path, output_path):
         ds.add_quakeml(event_xml)
         event = ds.events[0]
         # read in waves
-        files = glob(join(seed_directory, "*"))
+        files = sorted(glob(join(seed_directory, "*")))
         station_xml = obspy.core.inventory.inventory.Inventory()
         waveform_read_status = None
 
@@ -64,7 +64,7 @@ def seed2asdf(seed_directory, cmt_path, output_path):
                 subprocess.call(command, shell=True)
 
                 station_xml_this_seed = obspy.core.inventory.inventory.Inventory()
-                allfiles = glob(join(dirpath, "*"))
+                allfiles = sorted(glob(join(dirpath, "*")))
                 for fname in allfiles:
                     inv_temp = obspy.read_inventory(fname)
                     # update essencial location information

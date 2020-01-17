@@ -18,7 +18,7 @@ def sac2asdf(sac_directory, response_directory, cmt_path, output_path):
         ds.add_quakeml(event_xml)
         event = ds.events[0]
         # read in waves
-        files = glob(join(sac_directory, "*"))
+        files = sorted(glob(join(sac_directory, "*")))
         station_xml = obspy.core.inventory.inventory.Inventory()
 
         for i, filename in enumerate(files):
@@ -26,7 +26,7 @@ def sac2asdf(sac_directory, response_directory, cmt_path, output_path):
             ds.add_waveforms(waveform_stream, tag="raw", event_id=event)
 
             # add stationxml
-            allfiles = glob(join(response_directory, "*"))
+            allfiles = sorted(glob(join(response_directory, "*")))
             for fname in allfiles:
                 station_xml_this_seed = obspy.core.inventory.inventory.Inventory()
                 inv_temp = obspy.read_inventory(fname)

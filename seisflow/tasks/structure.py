@@ -24,7 +24,7 @@ def init_structure(base, cmtfiles, ref, output, database):
     # ref_gll = join(ref, "DATA", "GLL")
     ref_values_from_mesher = join(ref, "OUTPUT_FILES", "values_from_mesher.h")
 
-    all_gcmt_ids = glob(join(cmtfiles, "*"))
+    all_gcmt_ids = sorted(glob(join(cmtfiles, "*")))
     for each_gcmtid_path in all_gcmt_ids:
         each_gcmtid = basename(each_gcmtid_path)
         # make running directory

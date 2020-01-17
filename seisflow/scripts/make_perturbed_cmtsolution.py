@@ -25,10 +25,10 @@ def load_cmtsolution(cmtsolution_path):
 
 def kernel(src_frechet_directory, cmtsolution_directory, output_directory, max_dxs_ratio):
     # we assume the gcmtids in src_frechet_directory and cmtsolution_directory are the same
-    all_files_frechet = glob(join(src_frechet_directory, "*"))
+    all_files_frechet = sorted(glob(join(src_frechet_directory, "*")))
     all_gcmtids_frechet = [basename(item).split(
         ".")[0] for item in all_files_frechet]
-    all_files_cmtsolution = glob(join(cmtsolution_directory, "*"))
+    all_files_cmtsolution = sorted(glob(join(cmtsolution_directory, "*")))
     all_gcmtids_cmtsolution = [basename(item).split(
         ".")[0] for item in all_files_cmtsolution]
     all_gcmtids = sorted(set(all_gcmtids_frechet) &

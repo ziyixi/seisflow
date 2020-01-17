@@ -5,7 +5,7 @@ from os.path import abspath, dirname, join
 
 
 def get_dirs(base):
-    return glob(join(base, "*"))
+    return sorted(glob(join(base, "*")))
 
 
 def get_scripts(thedirs, N_total, N_each, N_iter, nproc, run_mesh=True):

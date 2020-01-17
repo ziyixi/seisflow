@@ -71,7 +71,8 @@ def get_paths(green_raw_asdf_directory, green_perturbed_asdf_directory, data_asd
     get_paths: handle all the paths related part
     """
     # * get all the gcmtids used, use files in cmtsolution_directory as the reference
-    all_files_cmtsolution_directory = glob(join(cmtsolution_directory, "*"))
+    all_files_cmtsolution_directory = sorted(
+        glob(join(cmtsolution_directory, "*")))
     all_gcmtids = [basename(item) for item in all_files_cmtsolution_directory]
     all_gcmtids_this_rank = np.array_split(all_gcmtids, size)[rank]
     # * get green_raw_asdf_directory for this rank, convert to virasdf

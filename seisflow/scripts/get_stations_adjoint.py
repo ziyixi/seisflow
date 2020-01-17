@@ -24,7 +24,7 @@ if __name__ == "__main__":
     @click.option('--output_directory', required=True, type=str, help="output STATIONS_ADJOINT file's path")
     def main(stations_path, misfit_windows_directory, output_directory):
         stations = load_stations(stations_path)
-        all_files = glob(join(misfit_windows_directory, "*pkl"))
+        all_files = sorted(glob(join(misfit_windows_directory, "*pkl")))
         for each_file in all_files:
             gcmtid = basename(each_file).split(".")[0]
             each_misfit_windows = load_pickle(each_file)

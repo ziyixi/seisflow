@@ -13,7 +13,7 @@ if __name__ == "__main__":
     @click.option('--cmtsolution_directory', required=True, type=str, help="the cmtsolution files directory")
     @click.option('--base_directory', required=True, type=str, help="the simulation base directory")
     def main(cmtsolution_directory, base_directory):
-        all_files = glob(join(cmtsolution_directory, "*"))
+        all_files = sorted(glob(join(cmtsolution_directory, "*")))
         for each_file in all_files:
             gcmtid = basename(each_file)
             to_path = join(base_directory, gcmtid, "DATA", "CMTSOLUTION")

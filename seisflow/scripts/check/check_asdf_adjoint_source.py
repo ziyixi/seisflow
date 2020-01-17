@@ -18,7 +18,7 @@ def get_asdf_files_this_rank(adjoint_directory):
     """
     get asdf files to read this rank.
     """
-    all_files = glob(join(adjoint_directory, "*h5"))
+    all_files = sorted(glob(join(adjoint_directory, "*h5")))
     adjoint_files_this_rank = np.array_split(all_files, size)[rank]
     return adjoint_files_this_rank
 

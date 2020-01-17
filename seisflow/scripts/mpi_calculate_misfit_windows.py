@@ -59,7 +59,7 @@ def get_consider_surface(gcmtid, evdp):
 
 
 def get_gcmtids_this_rank(windows_directory):
-    all_files = glob(join(windows_directory, "*pkl"))
+    all_files = sorted(glob(join(windows_directory, "*pkl")))
     all_gcmtids = [basename(item).split(".")[0] for item in all_files]
     return np.array_split(all_gcmtids, size)[rank]
 

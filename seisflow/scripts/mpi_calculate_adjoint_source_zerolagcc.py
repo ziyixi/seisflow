@@ -23,7 +23,7 @@ rank = comm.Get_rank()
 
 
 def get_gcmtid_this_rank(misfit_windows_directory):
-    all_files = glob(join(misfit_windows_directory, "*pkl"))
+    all_files = sorted(glob(join(misfit_windows_directory, "*pkl")))
     files_used_this_rank = np.array_split(all_files, size)[rank]
     return files_used_this_rank
 

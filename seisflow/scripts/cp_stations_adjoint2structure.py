@@ -13,7 +13,7 @@ if __name__ == "__main__":
     @click.option('--stations_adjoint_directory', required=True, type=str, help="the stations_adjoint files directory")
     @click.option('--base_directory', required=True, type=str, help="the simulation base directory")
     def main(stations_adjoint_directory, base_directory):
-        all_files = glob(join(stations_adjoint_directory, "*"))
+        all_files = sorted(glob(join(stations_adjoint_directory, "*")))
         for each_file in all_files:
             gcmtid = basename(each_file)
             to_path = join(base_directory, gcmtid, "DATA", "STATIONS_ADJOINT")
