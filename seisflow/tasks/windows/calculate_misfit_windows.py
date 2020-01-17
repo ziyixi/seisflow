@@ -102,7 +102,12 @@ def calculate_misfit_windows(windows, consider_surface, data_virasdf_body, sync_
     """
     calculate_misfit_windows: calculate misfit windows.
     """
-    used_net_sta = get_used_net_sta(windows, data_virasdf_body)
+    used_net_sta_body = get_used_net_sta(windows, data_virasdf_body)
+    if (data_virasdf_surface == None):
+        used_net_sta_surface = used_net_sta_body
+    else:
+        used_net_sta_surface = get_used_net_sta(windows, data_virasdf_surface)
+    used_net_sta = sorted(set(used_net_sta_body) & set(used_net_sta_surface))
     misfit_windows = prepare_windows(windows, consider_surface, used_net_sta)
     misfit_windows = calculate_snr_cc_deltat(data_virasdf_body, sync_virasdf_body, data_virasdf_surface,
                                              sync_virasdf_surface, misfit_windows, first_arrival_zr, first_arrival_t, baz, consider_surface)
