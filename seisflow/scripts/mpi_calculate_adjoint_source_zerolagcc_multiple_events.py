@@ -1,5 +1,5 @@
 """
-mpi_calculate_adjoint_source_zerolagcc.py: calculate adjoint source for multiple events in parallel using MPI.
+mpi_calculate_adjoint_source_zerolagcc_multiple_events.py: calculate the adjoint source for multiple events used in the structure inversion.
 """
 from glob import glob
 from os.path import basename, join
@@ -8,8 +8,7 @@ import numpy as np
 import pyasdf
 from mpi4py import MPI
 
-from ..tasks.adjoint.calculate_adjoint_source_zerolagcc_one_event import \
-    calculate_adjoint_source_zerolagcc_one_event
+from ..tasks.adjoint.mpi_calculate_adjoint_source_zerolagcc_multiple_events import calculate_adjoint_source_zerolagcc_one_event_for_structure
 from ..utils.asdf_io import VirAsdf
 from ..utils.get_path import get_asdf_fnames
 from ..utils.load_files import load_first_arrival_baz_evdp, load_pickle
@@ -120,6 +119,8 @@ if __name__ == "__main__":
         files_number_this_rank = len(files_used_this_rank)
         _, _, _, evdp_dict = load_first_arrival_baz_evdp(
             data_info_directory)
+        # ! here we have to make sure the file number is 1 to collect the categorical weighting and summed weighting information.
+        assert files_number_this_rank == 1
         for index in range(files_number_this_rank):
             gcmtid = gcmtids_this_rank[index]
             misfit_windows = misfit_windows_this_rank[gcmtid]
@@ -143,8 +144,8 @@ if __name__ == "__main__":
             sync_virasdf_surface.read_asdf(sync_asdf_surface_path)
 
             # run
-            adjoint_source_zerolagcc = calculate_adjoint_source_zerolagcc_one_event(misfit_windows, stations, raw_sync_virasdf, snr_threshold, cc_threshold, deltat_threshold, body_band, surface_band,
-                                                                                    consider_surface, sync_virasdf_body, data_virasdf_body, sync_virasdf_surface, data_virasdf_surface)
+            adjoint_source_zerolagcc = calculate_adjoint_source_zerolagcc_one_event_for_structure(misfit_windows, stations, raw_sync_virasdf, snr_threshold, cc_threshold, deltat_threshold, body_band, surface_band,
+                                                                                                  consider_surface, sync_virasdf_body, data_virasdf_body, sync_virasdf_surface, data_virasdf_surface)
             save_adjoint_to_asdf(adjoint_source_zerolagcc,
                                  output_directory, gcmtid)
     main()

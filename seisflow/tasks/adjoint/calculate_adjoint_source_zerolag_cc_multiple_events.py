@@ -1,9 +1,14 @@
 """
-calculate_adjoint_source_zerolagcc_one_event: calculate the adjoint source for a single event.
+calculate_adjoint_source_zerolag_cc_multiple_events.py: calculate the adjoint source for multiple events. The only diffeence comparing with the script to calculate for a single
+event is that the category weighting is counted for all the events and the normalization is based on windows for all the event.
+
+The whole structure of the script will be the same as calculating for one event, except some mpi communication. So the functions must be called in parallel. Also for easy scripting, we will
+assume the processes is the same as the event number,
 """
 from collections import namedtuple
 
 import numpy as np
+from mpi4py import MPI
 
 from ...utils.load_files import get_stations_mapper
 from .adjoint_source_each_window_zerolagcc import \
@@ -11,8 +16,43 @@ from .adjoint_source_each_window_zerolagcc import \
 from .weight import (cal_category_weight, cal_cc_weight, cal_deltat_weight,
                      cal_geographical_weight, cal_snr_weight)
 
+comm = MPI.COMM_WORLD
+size = comm.Get_size()
+rank = comm.Get_rank()
 Weight = namedtuple(
     'Weight', ['snr', 'cc', 'deltat', 'geographical', 'category'])
+
+
+def mpi_collect_category_number(number_each_category):
+    """
+    collect the number of windows for each category of all the events.
+    """
+    number_each_category_all_events_list = comm.allgather(number_each_category)
+    comm.Barrier()
+    number_each_category_all_events = {
+        "z": 0,
+        "r": 0,
+        "t": 0,
+        "surface_z": 0,
+        "surface_r": 0,
+        "surface_t": 0
+    }
+    for number_each_category_each_event in number_each_category_all_events_list:
+        for each_category in number_each_category_each_event:
+            number_each_category_all_events[each_category] += number_each_category_each_event[each_category]
+    return number_each_category_all_events
+
+
+def mpi_collect_weight_normalize_factor(weight_normalize_factor):
+    """
+    sum the weight_normalize_factor for all the events
+    """
+    weight_normalize_factor_all_events_list = comm.allgather(
+        weight_normalize_factor)
+    comm.Barrier()
+    weight_normalize_factor_all_events = np.sum(
+        weight_normalize_factor_all_events_list)
+    return weight_normalize_factor_all_events
 
 
 def get_weights_for_all(misfit_windows, stations,  snr_threshold, cc_threshold, deltat_threshold, calculate_basic):
@@ -73,20 +113,24 @@ def get_weights_for_all(misfit_windows, stations,  snr_threshold, cc_threshold, 
                         number_each_category[each_category] += 1
         # get category weighting and update
         # here we should weight based on number of windows but not the number of usable stations.
+        # * collect all events information
+        number_each_category_all_events = mpi_collect_category_number(
+            number_each_category)
         weight_each_category = {}
-        for each_category in number_each_category:
+        for each_category in number_each_category_all_events:
             weight_each_category[each_category] = cal_category_weight(
-                number_each_category[each_category])
+                number_each_category_all_events[each_category])
         for net_sta in weights_for_all:
             for category in weights_for_all[net_sta]:
+                # * we will not use the category that not existing in this event
                 for index, each_weight in enumerate(weights_for_all[net_sta][category]):
                     weights_for_all[net_sta][category][index] = each_weight._replace(
                         category=weight_each_category[category])
     return weights_for_all
 
 
-def calculate_adjoint_source_zerolagcc_one_event(misfit_windows, stations, raw_sync_virasdf, snr_threshold, cc_threshold, deltat_threshold, body_band, surface_band,
-                                                 consider_surface, sync_virasdf_body, data_virasdf_body, sync_virasdf_surface, data_virasdf_surface):
+def calculate_adjoint_source_zerolagcc_one_event_for_structure(misfit_windows, stations, raw_sync_virasdf, snr_threshold, cc_threshold, deltat_threshold, body_band, surface_band,
+                                                               consider_surface, sync_virasdf_body, data_virasdf_body, sync_virasdf_surface, data_virasdf_surface):
     """
     calculate_adjoint_source_zerolagcc_one_event
         + misfit_windows: misfit_windows[net_sta][category_name] as Windows_collection
@@ -174,9 +218,12 @@ def calculate_adjoint_source_zerolagcc_one_event(misfit_windows, stations, raw_s
                         np.sin(np.deg2rad(theta))
                     adjoint_source_zerolagcc[net_sta][1, :] += t_adjoint_source * \
                         np.cos(np.deg2rad(theta))
+    # * we should collect weight_normalize_factor for all teh events and reset this value
+    weight_normalize_factor_all_events = mpi_collect_weight_normalize_factor(
+        weight_normalize_factor)
     # normalize the adjoint source
     for net_sta in adjoint_source_zerolagcc:
-        adjoint_source_zerolagcc[net_sta] /= weight_normalize_factor
+        adjoint_source_zerolagcc[net_sta] /= weight_normalize_factor_all_events
         # check if the adjoint source for this station is nan
         # now we have only seen the station HB.ZHX has some problem
         status = np.isfinite(adjoint_source_zerolagcc[net_sta]).all()

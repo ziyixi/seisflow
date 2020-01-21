@@ -19,7 +19,7 @@ def calculate_adjoint_source_raw(py, nproc, misfit_windows_directory, stations_p
     """
     At the first step, we should calculate the adjoint source for all the events.
     """
-    script = f"ibrun -n {nproc} {py} -m seisflow.scripts.mpi_calculate_adjoint_source_zerolagcc --misfit_windows_directory {misfit_windows_directory} --stations_path {stations_path} --raw_sync_directory {raw_sync_directory} --sync_directory {sync_directory} --data_directory {data_directory} --data_info_directory {data_info_directory} --output_directory {output_directory} --body_band {body_band} --surface_band {surface_band}; \n"
+    script = f"ibrun -n {nproc} {py} -m seisflow.scripts.mpi_calculate_adjoint_source_zerolagcc_single_event --misfit_windows_directory {misfit_windows_directory} --stations_path {stations_path} --raw_sync_directory {raw_sync_directory} --sync_directory {sync_directory} --data_directory {data_directory} --data_info_directory {data_info_directory} --output_directory {output_directory} --body_band {body_band} --surface_band {surface_band}; \n"
     return script
 
 
