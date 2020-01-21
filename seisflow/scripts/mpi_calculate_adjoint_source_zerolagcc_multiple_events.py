@@ -8,7 +8,7 @@ import numpy as np
 import pyasdf
 from mpi4py import MPI
 
-from ..tasks.adjoint.mpi_calculate_adjoint_source_zerolagcc_multiple_events import calculate_adjoint_source_zerolagcc_one_event_for_structure
+from ..tasks.adjoint.calculate_adjoint_source_zerolag_cc_multiple_events import calculate_adjoint_source_zerolagcc_one_event_for_structure
 from ..utils.asdf_io import VirAsdf
 from ..utils.get_path import get_asdf_fnames
 from ..utils.load_files import load_first_arrival_baz_evdp, load_pickle
