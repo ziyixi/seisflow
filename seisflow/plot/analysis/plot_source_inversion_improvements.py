@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import obspy
 import seaborn as sns
+import tqdm
 from matplotlib.backends.backend_pdf import PdfPages
 from obspy.imaging.beachball import beach
 
@@ -218,7 +219,7 @@ def plot_to_pdf(pdf_fname, cmts_directory, misfit_windows_collection, iterations
     rep_key = sorted(misfit_windows_collection.keys())[0]
     all_events = sorted(misfit_windows_collection[rep_key].keys())
     with PdfPages(pdf_fname) as pdf:
-        for each_event in all_events:
+        for each_event in tqdm.tqdm(all_events):
             # we should plot the beachball and plot the source parameter table here
             plot_source_parameters(
                 each_event, pdf, cmts_directory, iterations_list)
