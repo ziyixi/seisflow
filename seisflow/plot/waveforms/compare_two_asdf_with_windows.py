@@ -1,5 +1,5 @@
 """
-compare_two_asdf.py: Compare waveforms of two asdf files, also plot the windows if needed.
+compare_two_asdf_with_windows.py: compare two asdf files with windows.
 """
 import pickle
 from os.path import basename, join
@@ -15,6 +15,7 @@ import tqdm
 from recordtype import recordtype
 
 from ...utils.load_files import load_pickle
+from ...utils.setting import SURFACE_THRESHOLD
 
 label_size = 25
 mpl.rcParams['xtick.labelsize'] = label_size
@@ -27,6 +28,7 @@ def getinfo(info_dir, gcmtid):
     # we load gcarc and azimuth
     gcarc_path = join(info_dir, "extra.gcarc.pkl")
     azimuth_path = join(info_dir, "extra.az.pkl")
+    evdp_path = join(info_dir, "extra.evdp.pkl")
     # we load travel times
     p_path = join(info_dir, "traveltime.P.pkl")
     pp_path = join(info_dir, "traveltime.pP.pkl")
@@ -57,7 +59,10 @@ def getinfo(info_dir, gcmtid):
             "ss": result_readin["ss"][each_key],
             "scs": result_readin["scs"][each_key]
         }
-    return result
+    evdp_dict = load_pickle(evdp_path)[gcmtid]
+    rep_net_sta = list(evdp_dict.keys())[0]
+    evdp = evdp_dict[rep_net_sta]
+    return result, evdp
 
 
 def build_to_plot_traces(obs_ds, syn_ds, trace_length, info_dir):
@@ -70,7 +75,7 @@ def build_to_plot_traces(obs_ds, syn_ds, trace_length, info_dir):
     # for each item in keys, get info
     # since the window is selected according to the two asdf files, we can just use keys
     gcmtid = obs_ds.events[0].resource_id.id.split("/")[-2]
-    info_dict = getinfo(info_dir, gcmtid)
+    info_dict, evdp = getinfo(info_dir, gcmtid)
     for key in keys:
         axkey = key.replace(".", "_")
         tag_obs = obs_ds.waveforms[key].get_waveform_tags()[0]
@@ -96,7 +101,7 @@ def build_to_plot_traces(obs_ds, syn_ds, trace_length, info_dir):
 
         result[key] = to_plot_trace(
             obs_z, syn_z, obs_r, syn_r, obs_t, syn_t, info)
-    return result
+    return result, evdp
 
 
 def build_plottting_structure(plot_traces, azimuth_width):
@@ -119,20 +124,15 @@ def build_plottting_structure(plot_traces, azimuth_width):
     return result
 
 
-@click.command()
-@click.option('--obs_asdf', required=True, type=str)
-@click.option('--syn_asdf', required=True, type=str)
-@click.option('--azimuth_width', required=True, type=int)
-@click.option('--output_pdf', required=True, type=str)
-@click.option('--waves_perpage', required=True, type=int)
-@click.option('--trace_length', required=True, type=int)
-@click.option('--info_dir', required=True, type=str)
-@click.option('--use_tqdm', is_flag=True)
-def main(obs_asdf, syn_asdf, azimuth_width, output_pdf, waves_perpage, trace_length, info_dir, use_tqdm):
+def kernel(obs_asdf, syn_asdf, azimuth_width, output_pdf, waves_perpage,
+           trace_length, info_dir, misfit_windows_path, snr, cc, deltat, use_tqdm):
     obs_ds = pyasdf.ASDFDataSet(obs_asdf, mode="r", mpi=False)
     syn_ds = pyasdf.ASDFDataSet(syn_asdf, mode="r", mpi=False)
+    windows_dict = load_pickle(misfit_windows_path)
 
-    plot_traces = build_to_plot_traces(obs_ds, syn_ds, trace_length, info_dir)
+    plot_traces, evdp = build_to_plot_traces(
+        obs_ds, syn_ds, trace_length, info_dir)
+    gcmtid = obs_ds.events[0].resource_id.id.split("/")[-2]
     plotting_structure = build_plottting_structure(plot_traces, azimuth_width)
 
     # estimate the total pages
@@ -270,6 +270,8 @@ def main(obs_asdf, syn_asdf, azimuth_width, output_pdf, waves_perpage, trace_len
                     x_obs), "green", twin_label)
                 plot_travel_times(
                     axz2, "ss", info["ss"], np.max(x_obs), "black", twin_label)
+                plot_windows(axz, windows_dict, each_plot_id,
+                             "z", syn.stats.starttime, snr, cc, deltat, evdp)
                 twin_x = [item[0] for item in twin_label]
                 twin_name = [item[1] for item in twin_label]
                 axz2.set_xticks(twin_x)
@@ -289,6 +291,8 @@ def main(obs_asdf, syn_asdf, azimuth_width, output_pdf, waves_perpage, trace_len
                     x_obs), "green", twin_label)
                 plot_travel_times(
                     axr, "ss", info["ss"], np.max(x_obs), "black", twin_label)
+                plot_windows(axr, windows_dict, each_plot_id,
+                             "r", syn.stats.starttime, snr, cc, deltat, evdp)
                 twin_x = [item[0] for item in twin_label]
                 twin_name = [item[1] for item in twin_label]
                 axr2.set_xticks(twin_x)
@@ -304,6 +308,8 @@ def main(obs_asdf, syn_asdf, azimuth_width, output_pdf, waves_perpage, trace_len
                     axt, "ss", info["ss"], np.max(x_obs), "black", twin_label)
                 plot_travel_times(
                     axt, "scs", info["scs"], np.max(x_obs), "magenta", twin_label)
+                plot_windows(axt, windows_dict, each_plot_id,
+                             "t", syn.stats.starttime, snr, cc, deltat, evdp)
                 twin_x = [item[0] for item in twin_label]
                 twin_name = [item[1] for item in twin_label]
                 axt2.set_xticks(twin_x)
@@ -324,6 +330,24 @@ def main(obs_asdf, syn_asdf, azimuth_width, output_pdf, waves_perpage, trace_len
     del syn_ds
 
 
+@click.command()
+@click.option('--obs_asdf', required=True, type=str)
+@click.option('--syn_asdf', required=True, type=str)
+@click.option('--azimuth_width', required=True, type=int)
+@click.option('--output_pdf', required=True, type=str)
+@click.option('--waves_perpage', required=True, type=int)
+@click.option('--trace_length', required=True, type=int)
+@click.option('--info_dir', required=True, type=str)
+@click.option('--misfit_windows_path', required=True, type=str)
+@click.option('--snr', required=True, type=float)
+@click.option('--cc', required=True, type=float)
+@click.option('--deltat', required=True, type=float)
+@click.option('--use_tqdm', is_flag=True)
+def main(obs_asdf, syn_asdf, azimuth_width, output_pdf, waves_perpage, trace_length, info_dir, misfit_windows_path, snr, cc, deltat, use_tqdm):
+    kernel(obs_asdf, syn_asdf, azimuth_width, output_pdf, waves_perpage,
+           trace_length, info_dir, misfit_windows_path, snr, cc, deltat, use_tqdm)
+
+
 def plot_travel_times(ax, phasename, traveltime, length, thecolor, twin_label):
     if(traveltime == None):
         return
@@ -332,6 +356,43 @@ def plot_travel_times(ax, phasename, traveltime, length, thecolor, twin_label):
         ax.axvline(x=traveltime, color="g", linestyle='--', linewidth=3.0)
         # ax.text(traveltime, ylim[0]+(ylim[1]-ylim[0])*0.9, phasename)
         twin_label.append((traveltime, phasename))
+
+
+def plot_windows(ax, windows_dict, net_sta, component, starttime, snr, cc, deltat, evdp):
+    """
+    plot the windows in the given ax.
+    """
+    # firstly we have to get the windows to plot.
+    # ! note there is a possible bug that teh starttimes for the obs and syn are different due to the processing.
+    windows_net_sta = windows_dict[net_sta]
+    windows_to_plot_body = []
+    windows_to_plot_surface = []
+    if (component in windows_dict[net_sta]):
+        for each_window in windows_dict[net_sta][component].windows:
+            if((each_window.snr_energy >= snr) and (each_window.cc >= cc) and (np.abs(each_window.deltat) <= deltat)):
+                windows_to_plot_body.append(each_window)
+    if (("surface_" + component in windows_dict[net_sta]) and (evdp <= SURFACE_THRESHOLD)):
+        for each_window in windows_dict[net_sta]["surface_" + component].windows:
+            if((each_window.snr_energy >= snr) and (each_window.cc >= cc) and (np.abs(each_window.deltat) <= deltat)):
+                windows_to_plot_surface.append(each_window)
+    for each_window in windows_to_plot_body:
+        left_index = each_window.left - starttime
+        right_index = each_window.right - starttime
+        ax.axvspan(left_index, right_index, alpha=0.10, color='green')
+        # get plotting positions
+        xmin, xmax = ax.get_xlim()
+        x_text = (left_index - xmin) / (xmax - xmin)
+        ax.text(x_text, 0.83, f"snr:{each_window.snr_energy:.2f}\ncc:{each_window.cc:.2f}\ndeltat:{each_window.deltat:.2f}\nsimilarity:{each_window.similarity:.2f}",
+                transform=ax.transAxes, fontsize=25)
+    for each_window in windows_to_plot_surface:
+        left_index = each_window.left - starttime
+        right_index = each_window.right - starttime
+        ax.axvspan(left_index, right_index, alpha=0.10, color='yellow')
+        # get plotting positions
+        xmin, xmax = ax.get_xlim()
+        x_text = (left_index - xmin) / (xmax - xmin)
+        ax.text(x_text, 0.83, f"snr:{each_window.snr_energy:.2f}\ncc:{each_window.cc:.2f}\ndeltat:{each_window.deltat:.2f}\nsimilarity:{each_window.similarity:.2f}",
+                transform=ax.transAxes, fontsize=25)
 
 
 if __name__ == "__main__":
