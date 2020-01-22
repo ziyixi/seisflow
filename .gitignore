@@ -133,3 +133,6 @@ dmypy.json
 *.code-workspace
 test/*
 jupyter/*
+result/*
+.DS_Store/*
+.DS_Store

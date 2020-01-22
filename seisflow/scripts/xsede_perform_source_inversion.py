@@ -247,28 +247,28 @@ def source_inversion_single_step(iter_number, py, n_total, n_each, n_iter, nproc
     result = "date; "
     result += "module load boost/1.68; "
     result += "module load phdf5/1.8.16; "
-    # later we generate the cmt solution files for the green function
+    # later we generate the cmt solution files for the green function [specfem_cmtfiles->cmtfiles_directory/iter_next_cmt]
     result += generate_green_cmtsolutions(py,
                                           specfem_cmtfiles, iter_green1_cmt)
-    # make simulation dirs based on the green function
+    # make simulation dirs based on the green function [specfem_cmtfiles->cmtfiles_directory] o
     if(int(iter_number) == 1):
         init_structure(specfem_base, specfem_cmtfiles, specfem_ref,
                        specfem_output, specfem_database)
-    # here we generate the directory using specfem_cmtfiles, but have to change to iter_green1_cmt
+    # here we generate the directory using specfem_cmtfiles, but have to change to iter_green1_cmt [iter_green1_cmt->specfem_cmtfiles->cmtfiles_directory/iter_next_cmt]
     result += cp_cmtsolution2structure(py,
                                        iter_green1_cmt, specfem_base)
-    # change simulation type to forward
+    # change simulation type to forward [specfem_base->specfem_cmtfiles->cmtfiles_directory] o
     result += change_simulation_type(py, specfem_base, "forward")
-    # do forward simulation for green1
+    # do forward simulation for green1 [specfem_base->specfem_cmtfiles->cmtfiles_directory] o
     result += forward_task(base=specfem_base, N_total=n_total,
                            N_each=n_each, N_iter=n_iter, nproc=nproc, run_mesh=True)
     result += f"cd {current_directory}; \n"
-    # collect the sync to green1
+    # collect the sync to green1 [specfem_output->specfem_cmtfiles->cmtfiles_directory] o
     result += collect_sync_files(py, specfem_output, iter_green1_sync)
-    # convert green1 to conv1
+    # convert green1 to conv1 [iter_green1_sync->specfem_output->specfem_cmtfiles->cmtfiles_directory] o
     result += convert_green2conv_processed(py, n_total, specfem_cmtfiles, iter_green1_sync,
                                            iter_conv1_processed, waveform_length, taper_tmin_tmaxs, periods, sampling_rate)
-    # calculate the misfit windows
+    # calculate the misfit windows [iter_conv1_processed->iter_green1_sync->specfem_output->specfem_cmtfiles->cmtfiles_directory] o
     body_periods, surface_periods = periods.split("/")
     body_min_period, body_max_period = body_periods.split(",")
     surface_min_period, surface_max_period = surface_periods.split(",")
@@ -276,38 +276,38 @@ def source_inversion_single_step(iter_number, py, n_total, n_each, n_iter, nproc
     max_periods = f"{body_max_period},{surface_max_period}"
     result += calculate_misfit_windows(py, n_total, windows, iter_misfit_windows,
                                        min_periods, max_periods, data_processed, iter_conv1_processed, data_info)
-    # generate stations_adjoint directory and copy it to the data directory
+    # generate stations_adjoint directory and copy it to the data directory [iter_misfit_windows->iter_conv1_processed->iter_green1_sync->specfem_output->specfem_cmtfiles->cmtfiles_directory] o
     result += calculate_stations_adjoint(py, stations,
                                          iter_misfit_windows, specfem_stations_adjoint)
     result += cp_stations_adjoint2structure(py,
                                             specfem_stations_adjoint, specfem_base)
-    # calculate the adjoint source
+    # calculate the adjoint source [iter_misfit_windows->iter_conv1_processed->iter_green1_sync->specfem_output->specfem_cmtfiles->cmtfiles_directory] o
     result += calculate_adjoint_source_raw(py, n_total, iter_misfit_windows, stations, raw_sync, iter_conv1_processed,
                                            data_processed, data_info, iter_adjoint_source, body_periods, surface_periods)
-    # move the adjoint source back to the SEM folder
+    # move the adjoint source back to the SEM folder [iter_adjoint_source->iter_misfit_windows->iter_conv1_processed->iter_green1_sync->specfem_output->specfem_cmtfiles->cmtfiles_directory] o
     result += ln_adjoint_source_to_structure(py,
                                              iter_adjoint_source, specfem_base)
-    # change simulation type to the source inversion (type 2)
+    # change simulation type to the source inversion (type 2) [specfem_base->specfem_cmtfiles->cmtfiles_directory] o
     result += change_simulation_type(py, specfem_base, "source")
-    # do the adjoint simulation
+    # do the adjoint simulation [specfem_base->specfem_cmtfiles->cmtfiles_directory] o
     result += forward_task(base=specfem_base, N_total=n_total,
                            N_each=n_each, N_iter=n_iter, nproc=nproc, run_mesh=False)
     result += f"cd {current_directory}; \n"
-    # collect the src_frechet files
+    # collect the src_frechet files [specfem_output->specfem_cmtfiles->cmtfiles_directory] o
     result += collect_src_frechet_files(py, specfem_output, iter_src_frechets)
-    # make the perturbed green cmtsolutions
+    # make the perturbed green cmtsolutions [iter_src_frechets->specfem_output->specfem_cmtfiles->cmtfiles_directory & iter_green1_cmt->specfem_cmtfiles->cmtfiles_directory/iter_next_cmt] o
     result += make_perturbed_cmtsolution(py, iter_src_frechets,
                                          iter_green1_cmt, iter_green2_cmt)
-    # cp the perturbed cmtsolution to the simulation directory
+    # cp the perturbed cmtsolution to the simulation directory [iter_green2_cmt->above] o
     result += cp_cmtsolution2structure(py,
                                        iter_green2_cmt, specfem_base)
-    # change simulation type to forward
+    # change simulation type to forward [specfem_base] o
     result += change_simulation_type(py, specfem_base, "forward")
-    # do the forward simulation
+    # do the forward simulation [specfem_base] o
     result += forward_task(base=specfem_base, N_total=n_total,
                            N_each=n_each, N_iter=n_iter, nproc=nproc, run_mesh=False)
     result += f"cd {current_directory}; \n"
-    # collect the sync to green2
+    # collect the sync to green2 [specfem_output] o
     result += collect_sync_files(py, specfem_output, iter_green2_sync)
 
     # * now we can submit the job
