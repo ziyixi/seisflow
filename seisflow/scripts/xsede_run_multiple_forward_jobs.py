@@ -38,13 +38,13 @@ if __name__ == "__main__":
     @click.option('--ntotal', required=True, type=int, help="total number of events.")
     @click.option('--neach', required=True, type=int, help="number of running jobs at each iterations.")
     @click.option('--niter', required=True, type=int, help="number of iterations to run.")
-    @click.option('--nproc', required=True, type=int, help="number of mpi processes for the each event.")
+    @click.option('--nproc', required=True, type=int, help="number of mpi processes for each event.")
     @click.option('--nnode', required=True, type=int, help="total number of nodes used.")
     @click.option('--ntasks', required=True, type=int, help="total number of mpi processes.")
     @click.option('--partition', required=True, type=str, help="partition used, eg: skx-normal.")
     @click.option('--time', required=True, type=str, help="used in slurm format.")
     @click.option('--account', required=True, type=str, help="account used in the slurm system.")
-    def main(base, cmtfiles, ref, output, database, ntotal, neach, niter, nproc, nnode, ntasks, partition, time, account):
+    def main(base, ntotal, neach, niter, nproc, nnode, ntasks, partition, time, account):
         run_script = Run_multiple_forward_jobs(base=base,  N_total=ntotal,
                                                N_each=neach, N_iter=niter, nproc=nproc, N_node=nnode, ntasks=ntasks, partition=partition, time=time, account=account)
         run_script.run()
