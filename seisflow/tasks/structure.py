@@ -41,7 +41,7 @@ def init_structure(base, cmtfiles, ref, output, database):
             sh.unlink(join(working_dir, "DATA", "STATIONS_ADJOINT"))
         except:
             pass
-        sh.cp(join(ref, 'DATA', 'CMTSOLUTION'), join(
+        sh.cp(each_gcmtid_path, join(
             working_dir, "DATA", "CMTSOLUTION"))
         sh.cp(join(ref, 'DATA', 'STATIONS'), join(
             working_dir, "DATA", "STATIONS"))
