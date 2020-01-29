@@ -40,6 +40,9 @@ def mpi_collect_category_number(number_each_category):
     for number_each_category_each_event in number_each_category_all_events_list:
         for each_category in number_each_category_each_event:
             number_each_category_all_events[each_category] += number_each_category_each_event[each_category]
+    print("output category number")
+    print(number_each_category_all_events)
+    print("end output")
     return number_each_category_all_events
 
 
