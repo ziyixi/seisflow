@@ -9,7 +9,7 @@ from ..tasks import forward_task, init_structure
 
 class Run_multiple_forward_jobs(object):
     def __init__(self, base=None, N_total=None, N_each=None, N_iter=None,
-                 nproc=None, N_node=None, ntasks=None, partition=None, time=None, account=None):
+                 nproc=None, N_node=None, ntasks=None, partition=None, time=None, account=None, run_mesh=True):
         super().__init__()
         self.base = base
         self.N_total = N_total
@@ -21,10 +21,11 @@ class Run_multiple_forward_jobs(object):
         self.partition = partition
         self.time = time
         self.account = account
+        self.run_mesh = run_mesh
 
     def run(self):
         thecommand = forward_task(
-            base=self.base, N_total=self.N_total, N_each=self.N_each, N_iter=self.N_iter, nproc=self.nproc)
+            base=self.base, N_total=self.N_total, N_each=self.N_each, N_iter=self.N_iter, nproc=self.nproc, run_mesh=self.run_mesh)
         job_id = submit_job("forward", thecommand, self.N_node, self.ntasks,
                             self.partition, self.time, self.account, "stampede2")
         return job_id
@@ -44,9 +45,10 @@ if __name__ == "__main__":
     @click.option('--partition', required=True, type=str, help="partition used, eg: skx-normal.")
     @click.option('--time', required=True, type=str, help="used in slurm format.")
     @click.option('--account', required=True, type=str, help="account used in the slurm system.")
-    def main(base, ntotal, neach, niter, nproc, nnode, ntasks, partition, time, account):
+    @click.option('--run_mesh/--no-run_mesh', required=True, default=True)
+    def main(base, ntotal, neach, niter, nproc, nnode, ntasks, partition, time, account, run_mesh):
         run_script = Run_multiple_forward_jobs(base=base,  N_total=ntotal,
-                                               N_each=neach, N_iter=niter, nproc=nproc, N_node=nnode, ntasks=ntasks, partition=partition, time=time, account=account)
+                                               N_each=neach, N_iter=niter, nproc=nproc, N_node=nnode, ntasks=ntasks, partition=partition, time=time, account=account, run_mesh=run_mesh)
         run_script.run()
 
     main()
