@@ -1,0 +1,5 @@
+[TYPECHECK]
+generated-members=sh
+
+[FORMAT]
+max-line-length=240
