@@ -7,6 +7,8 @@ from os.path import basename, join
 
 import sh
 
+from ...slurm.submit_job import submit_job
+
 
 def construct_structure(database_directory, ref_directory, kernel_process_directory, input_model_directory):
     """
@@ -137,7 +139,13 @@ if __name__ == "__main__":
     @click.option('--input_model_directory', required=True, type=str, help="the input model directory")
     @click.option('--sigma_h', required=True, type=float, help="the value of sigma_h (km)")
     @click.option('--sigma_v', required=True, type=float, help="the value of sigma_v (km)")
-    def main(database_directory, ref_directory, kernel_process_directory, input_model_directory, sigma_h, sigma_v):
+    @click.option('--n_node', required=True, type=int, help="the number of nodes to use")
+    @click.option('--n_tasks', required=True, type=int, help="the number of tasks to run")
+    @click.option('--partition', required=True, type=str, help="the partion name, eg: skx-normal")
+    @click.option('--time', required=True, type=str, help="the time used for processing the kernels")
+    @click.option('--account', required=True, type=str, help="the account used in stampede2")
+    def main(database_directory, ref_directory, kernel_process_directory, input_model_directory, sigma_h, sigma_v, n_node, n_tasks,
+             partition, time, account):
         """
         The main program to do the processing manually.
         """
@@ -162,5 +170,7 @@ if __name__ == "__main__":
         # generate perturbed kernels with 0.01 step length for doing line search
         result += iter1_generate_perturbed_kernel(
             kernel_process_directory, 0.01)
-
+        # * now we can submit the job
+        submit_job("process_kernel", result, n_node, n_tasks,
+                   partition, time, account, "stampede2", depends_on=None)
     main()  # pylint: disable=no-value-for-parameter
