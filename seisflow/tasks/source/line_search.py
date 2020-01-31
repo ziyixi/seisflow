@@ -8,7 +8,6 @@ from functools import partial
 import numpy as np
 from bayes_opt import BayesianOptimization
 
-from ...utils.asdf_io import VirAsdf
 from ..adjoint.calculate_adjoint_source_zerolagcc_one_event import \
     get_weights_for_all
 from ..process.convolve_src_func_single_st import (conv_sf_and_st,

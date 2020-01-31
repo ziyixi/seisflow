@@ -1,5 +1,5 @@
 """
-process_kernel.py: submit a job to process kernel. Firstly do the kernel summation along with preconditioning, later smooth the kernel. In the last generate a new model with 0.01 perturbation for doing line search.
+process_kernel.py: submit a job to process kernel. Firstly do the kernel summation along with preconditioning, later smooth the kernel. In the last generate a new model with LINE_SEARCH_PERTURBATION perturbation for doing line search.
 """
 import sys
 from glob import glob
@@ -8,6 +8,7 @@ from os.path import basename, join
 import sh
 
 from ...slurm.submit_job import submit_job
+from ...utils.setting import LINE_SEARCH_PERTURBATION
 
 
 def construct_structure(database_directory, ref_directory, kernel_process_directory, input_model_directory):
@@ -167,9 +168,9 @@ if __name__ == "__main__":
         pyexec = sys.executable
         result += ln_smoothed_kernel_to_input_dir(
             pyexec, output_smooth_dir, kernel_process_directory)
-        # generate perturbed kernels with 0.01 step length for doing line search
+        # generate perturbed kernels with LINE_SEARCH_PERTURBATION step length for doing line search
         result += iter1_generate_perturbed_kernel(
-            kernel_process_directory, 0.01)
+            kernel_process_directory, LINE_SEARCH_PERTURBATION)
         # * now we can submit the job
         submit_job("process_kernel", result, n_node, n_tasks,
                    partition, time, account, "stampede2", depends_on=None)
