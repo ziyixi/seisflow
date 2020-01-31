@@ -1,8 +1,7 @@
 """
 xsede_perform_source_inversion.py: perform source inversion for several events.
 """
-from glob import glob
-from os.path import isdir, join
+from os.path import join
 
 import click
 import sh
@@ -243,7 +242,7 @@ def source_inversion_single_step(iter_number, py, n_total, n_each, n_iter, nproc
 
     # * step 1: generaet two green function asdf files.
     # init
-    current_directory = str(sh.pwd())[:-1]
+    current_directory = str(sh.pwd())[:-1]  # pylint: disable=not-callable
     result = "date; "
     result += "module load boost/1.68; "
     result += "module load phdf5/1.8.16; "
@@ -326,10 +325,10 @@ def source_inversion_single_step(iter_number, py, n_total, n_each, n_iter, nproc
                                  body_periods, surface_periods, taper_tmin_tmaxs,
                                  alpha_range, t0_range, tau_range)
     # * submit the line search job
-    line_search_job_id = submit_job(
+    submit_job(
         f"iter{iter_number}_step2_source", result, n_node_line_search, ntasks_line_search, partition_line_search,
         simulation_time_step2, account, "stampede2", depends_on=[cal_asdf_job_id])
 
 
 if __name__ == "__main__":
-    source_inversion_single_step()
+    source_inversion_single_step()  # pylint: disable=no-value-for-parameter

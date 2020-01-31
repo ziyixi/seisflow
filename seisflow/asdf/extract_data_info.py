@@ -1,25 +1,30 @@
-import pickle
+"""
+extract_data_info.py: the core function to extract data information.
+"""
 from collections import namedtuple
-from glob import glob
-from os.path import abspath, basename, dirname, join
 
 import numpy as np
-import obspy
 from obspy.geodetics import gps2dist_azimuth, kilometers2degrees
 from obspy.taup import TauPyModel
 
-phase_list = ["s", "S", "sS", "SS", "p", "P",
+PHASE_LIST = ["s", "S", "sS", "SS", "p", "P",
               "pP", "sP", "PP", "3.3kmps", "4.6kmps", "ScS"]
-Event_pair = namedtuple('Event_pair', ['gcmtid', 'lat', 'lon', 'dep', 'time'])
+EventPair = namedtuple('EventPair', ['gcmtid', 'lat', 'lon', 'dep', 'time'])
 
 
 def load_station_info(station_fname):
+    """
+    load_station_info: load stations information.
+    """
     # station file
     stations = np.loadtxt(station_fname, dtype=np.str)
     return stations
 
 
 def kernel(event_pair, stations=None):
+    """
+    kernel: the core function to get the information.
+    """
     model = TauPyModel(model="ak135")
     # for each station, we calculate the travel time
     result = {}
@@ -54,7 +59,7 @@ def kernel(event_pair, stations=None):
         stla = float(row[2])
         stlo = float(row[3])
         arrivals = model.get_travel_times_geo(
-            evdp, evla, evlo, stla, stlo, phase_list)
+            evdp, evla, evlo, stla, stlo, PHASE_LIST)
 
         gcarc_m, az, baz = gps2dist_azimuth(evla, evlo, stla, stlo)
         gcarc = kilometers2degrees(gcarc_m / 1000)
@@ -65,7 +70,7 @@ def kernel(event_pair, stations=None):
         for each_arrival in arrivals:
             name = each_arrival.name
             time = each_arrival.time
-            if ((name in phase_list)):
+            if ((name in PHASE_LIST)):
                 if (name == "p"):
                     name = "P"
                 if (name == "s"):
@@ -77,7 +82,7 @@ def kernel(event_pair, stations=None):
 
 
 def extract_data_info(gcmtid, evla, evlo, evdp, event_time, stations):
-    used_event_pair = Event_pair(
+    used_event_pair = EventPair(
         gcmtid=gcmtid, lat=evla, lon=evlo, dep=evdp, time=event_time)
     data_info = kernel(used_event_pair, stations=stations)
     return data_info

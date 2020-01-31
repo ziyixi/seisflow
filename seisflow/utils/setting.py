@@ -1,3 +1,7 @@
+"""
+setting.py: some constant values used by funtions.
+"""
+
 SURFACE_THRESHOLD = 150
 TOLERANCE_DIFF_TIME = 60
 RANDOM_STATE = 1
