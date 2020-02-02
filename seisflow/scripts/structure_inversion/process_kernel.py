@@ -11,7 +11,7 @@ from ...slurm.submit_job import submit_job
 from ...utils.setting import LINE_SEARCH_PERTURBATION
 
 
-def construct_structure(database_directory, ref_directory, kernel_process_directory, input_model_directory):
+def construct_structure(database_directory, ref_directory, sem_utils_directory, kernel_process_directory, input_model_directory):
     """
     construct_structure: construct the structure used in structure inversion.
     """
@@ -21,6 +21,9 @@ def construct_structure(database_directory, ref_directory, kernel_process_direct
           join(kernel_process_directory, "bin"))
     sh.ln("-s", join(ref_directory, "DATA"),
           join(kernel_process_directory, "DATA"))
+    # * construct the sem_utils_bin directory for sem_utils
+    sh.ln("-s", join(sem_utils_directory, "bin"),
+          join(kernel_process_directory, "sem_utils_bin"))
     # * kernels_list.txt
     all_database_paths = sorted(glob(join(database_directory, "*")))
     all_gcmtids = [basename(item) for item in all_database_paths]
@@ -77,17 +80,27 @@ def do_preconditioned_summation(kernel_process_directory):
     return result
 
 
-def do_smoothing(kernel_process_directory, sigma_h, sigma_v, input_dir, output_dir):
+def do_smoothing(kernel_process_directory, sigma_h, sigma_v, input_dir, output_dir, n_tasks):
     """
     do_smoothing: perform smoothing for the summed kernel. (use the workflow order in our lab)
     """
+    # * the commented part is for using smoother in specfem, which could be very slow
+    # result = ""
+    # to_smooth_kernel_names = [
+    #     "bulk_c_kernel", "bulk_betav_kernel", "bulk_betah_kernel", "eta_kernel"]
+    # current_path = str(sh.pwd())[:-1]  # pylint: disable=not-callable
+    # result += f"cd {kernel_process_directory};"
+    # for each_name in to_smooth_kernel_names:
+    #     result += f"ibrun ./bin/xsmooth_sem {sigma_h} {sigma_v} {each_name} {input_dir} {output_dir};"
+    # result += f"cd {current_path};\n"
+    # * if we use the smoother in sem_utils
     result = ""
     to_smooth_kernel_names = [
         "bulk_c_kernel", "bulk_betav_kernel", "bulk_betah_kernel", "eta_kernel"]
+    to_smooth_kernel_names = ",".join(to_smooth_kernel_names)
     current_path = str(sh.pwd())[:-1]  # pylint: disable=not-callable
     result += f"cd {kernel_process_directory};"
-    for each_name in to_smooth_kernel_names:
-        result += f"ibrun ./bin/xsmooth_sem {sigma_h} {sigma_v} {each_name} {input_dir} {output_dir};"
+    result += f"ibrun ./sem_utils_bin/xsem_smooth {n_tasks} {join(kernel_process_directory,'topo')} {input_dir} {to_smooth_kernel_names} {sigma_h} {sigma_v} {output_dir} _smooth;"
     result += f"cd {current_path};\n"
     return result
 
@@ -142,6 +155,7 @@ if __name__ == "__main__":
     @click.command()
     @click.option('--database_directory', required=True, type=str, help="the database directory")
     @click.option('--ref_directory', required=True, type=str, help="the reference specfem directory")
+    @click.option('--sem_utils_directory', required=True, type=str, help="the reference sem_utils directory")
     @click.option('--kernel_process_directory', required=True, type=str, help="the directory to be created to process the kernels")
     @click.option('--input_model_directory', required=True, type=str, help="the input model directory")
     @click.option('--sigma_h', required=True, type=float, help="the value of sigma_h (km)")
@@ -151,12 +165,12 @@ if __name__ == "__main__":
     @click.option('--partition', required=True, type=str, help="the partion name, eg: skx-normal")
     @click.option('--time', required=True, type=str, help="the time used for processing the kernels")
     @click.option('--account', required=True, type=str, help="the account used in stampede2")
-    def main(database_directory, ref_directory, kernel_process_directory, input_model_directory, sigma_h, sigma_v, n_node, n_tasks,
+    def main(database_directory, ref_directory, sem_utils_directory, kernel_process_directory, input_model_directory, sigma_h, sigma_v, n_node, n_tasks,
              partition, time, account):
         """
         The main program to do the processing manually.
         """
-        construct_structure(database_directory, ref_directory,
+        construct_structure(database_directory, ref_directory, sem_utils_directory,
                             kernel_process_directory, input_model_directory)
         # * prepare job script and submit the job in the later steps.
         result = ""
@@ -169,7 +183,7 @@ if __name__ == "__main__":
         input_smooth_dir = join(kernel_process_directory, "OUTPUT_SUM")
         output_smooth_dir = join(kernel_process_directory, "SMOOTHED_KERNEL")
         result += do_smoothing(kernel_process_directory,
-                               sigma_h, sigma_v, input_smooth_dir, output_smooth_dir)
+                               sigma_h, sigma_v, input_smooth_dir, output_smooth_dir, n_tasks)
         # ln smoothed kernels to the input directory
         pyexec = sys.executable
         result += ln_smoothed_kernel_to_input_dir(
