@@ -57,6 +57,8 @@ def construct_structure(database_directory, ref_directory, kernel_process_direct
     except sh.ErrorReturnCode_1:
         pass
     sh.ln("-s", rep_database_path, to_link_topo_path)
+    # link topo to DATABASES_MPI
+    sh.ln("-s", rep_database_path, join(kernel_process_directory, "DATABASES_MPI"))
     # make OUTPUT_MODEL
     sh.mkdir("-p", join(kernel_process_directory, "OUTPUT_MODEL"))
     # make smoothed directory
