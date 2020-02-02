@@ -82,10 +82,12 @@ def do_smoothing(kernel_process_directory, sigma_h, sigma_v, input_dir, output_d
     do_smoothing: perform smoothing for the summed kernel. (use the workflow order in our lab)
     """
     result = ""
-    to_smooth_kernel_names = "bulk_c_kernel,bulk_betav_kernel,bulk_betah_kernel,eta_kernel"
+    to_smooth_kernel_names = [
+        "bulk_c_kernel", "bulk_betav_kernel", "bulk_betah_kernel", "eta_kernel"]
     current_path = str(sh.pwd())[:-1]  # pylint: disable=not-callable
     result += f"cd {kernel_process_directory};"
-    result += f"ibrun ./bin/xsmooth_sem {sigma_h} {sigma_v} {to_smooth_kernel_names} {input_dir} {output_dir};"
+    for each_name in to_smooth_kernel_names:
+        result += f"ibrun ./bin/xsmooth_sem {sigma_h} {sigma_v} {each_name} {input_dir} {output_dir};"
     result += f"cd {current_path};\n"
     return result
 
