@@ -19,6 +19,8 @@ def construct_structure(database_directory, ref_directory, kernel_process_direct
     sh.mkdir("-p", kernel_process_directory)
     sh.ln("-s", join(ref_directory, "bin"),
           join(kernel_process_directory, "bin"))
+    sh.ln("-s", join(ref_directory, "DATA"),
+          join(kernel_process_directory, "DATA"))
     # * kernels_list.txt
     all_database_paths = sorted(glob(join(database_directory, "*")))
     all_gcmtids = [basename(item) for item in all_database_paths]
