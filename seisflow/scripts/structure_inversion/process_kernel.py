@@ -41,7 +41,7 @@ def construct_structure(database_directory, ref_directory, kernel_process_direct
     # INPUT_MODEL should be the gll directory
     to_link_input_model_path = join(kernel_process_directory, "INPUT_MODEL")
     try:
-        sh.unlink(to_link_input_kernels_path)
+        sh.unlink(to_link_input_model_path)
     except sh.ErrorReturnCode_1:
         pass
     sh.ln("-s", input_model_directory, to_link_input_model_path)
