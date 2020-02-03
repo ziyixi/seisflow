@@ -12,6 +12,8 @@ function generate_perturbation(target_basedir::String, reference_basedir::String
     model_gll_output = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
     @showprogress for iproc in 0:nproc - 1
         for tag in tags_splitted
+            # convert tag to String
+            tag = String(tag)
             sem_io_read_gll_file_1!(reference_basedir, iproc, tag, model_gll_reference)
             sem_io_read_gll_file_1!(target_basedir, iproc, tag, model_gll_target)
             
