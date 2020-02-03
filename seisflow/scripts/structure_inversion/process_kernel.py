@@ -113,7 +113,7 @@ def ln_smoothed_kernel_to_input_dir(pyexec, smooth_dir, kernel_process_directory
     # current_path = str(sh.pwd())[:-1]  # pylint: disable=not-callable
     current_path = str(sh.pwd())  # pylint: disable=not-callable
     result += f"cd {current_path};"
-    result += f"ibrun -n 1 {pyexec} -m seisflow.scripts.structure_inversion.ln_smoothed_kernel_to_input_dir --smooth_dir {smooth_dir} --kernel_process_directory {kernel_process_directory};"
+    result += f"{pyexec} -m seisflow.scripts.structure_inversion.ln_smoothed_kernel_to_input_dir --smooth_dir {smooth_dir} --kernel_process_directory {kernel_process_directory};"
     result += f"cd {current_path};\n"
     return result
 
@@ -128,8 +128,8 @@ def iter1_generate_perturbed_kernel(kernel_process_directory, perturbed_value):
     # when we run add_model_globe_tiso, INPUT_MODEL(from previous gll directory), INPUT_GRADIENT(from ln smooth), topo(from database) have all been established.
     result += f"ibrun ./bin/xadd_model_tiso {perturbed_value};"
     # we should move the kernel files in OUTPUT_MODEL to perturbed_{perturbed_value}_for_line_search
-    result += f"ibrun -n 1 mkdir -p perturbed_{perturbed_value}_for_line_search;"
-    result += f"ibrun -n 1 mv OUTPUT_MODEL/* perturbed_{perturbed_value}_for_line_search/;"
+    result += f"mkdir -p perturbed_{perturbed_value}_for_line_search;"
+    result += f"mv OUTPUT_MODEL/* perturbed_{perturbed_value}_for_line_search/;"
     result += f"cd {current_path};\n"
     return result
 
@@ -144,8 +144,8 @@ def update_model_given_step_length(kernel_process_directory, perturbed_value):
     # when we run add_model_globe_tiso, INPUT_MODEL(from previous gll directory), INPUT_GRADIENT(from ln smooth), topo(from database) have all been established.
     result += f"ibrun ./bin/xadd_model_tiso {perturbed_value};"
     # we should move the kernel files in OUTPUT_MODEL to perturbed_{perturbed_value}_for_next_iteration
-    result += f"ibrun -n 1 mkdir -p perturbed_{perturbed_value}_for_next_iteration;"
-    result += f"ibrun -n 1 mv OUTPUT_MODEL/* perturbed_{perturbed_value}_for_next_iteration/;"
+    result += f"mkdir -p perturbed_{perturbed_value}_for_next_iteration;"
+    result += f"mv OUTPUT_MODEL/* perturbed_{perturbed_value}_for_next_iteration/;"
     result += f"cd {current_path};\n"
     return result
 
