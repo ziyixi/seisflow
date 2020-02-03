@@ -26,7 +26,7 @@ function main()
     target_basedir = parsed_args["target_basedir"]
     reference_basedir = parsed_args["reference_basedir"]
     output_basedir = parsed_args["output_basedir"]
-    tags = parse(String, parsed_args["tags"])
+    tags = parsed_args["tags"]
     nproc = parse(Int64, parsed_args["nproc"])
     # get nspec
     mesh_info = sem_mesh_read(reference_basedir, 0)
