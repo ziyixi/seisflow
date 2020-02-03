@@ -110,7 +110,8 @@ def ln_smoothed_kernel_to_input_dir(pyexec, smooth_dir, kernel_process_directory
     ln_smoothed_kernel_to_input_dir: remove the flag smooth and link the smoothed kernels to the directory INPUT_GRADIENT.
     """
     result = ""
-    current_path = str(sh.pwd())[:-1]  # pylint: disable=not-callable
+    # current_path = str(sh.pwd())[:-1]  # pylint: disable=not-callable
+    current_path = str(sh.pwd())  # pylint: disable=not-callable
     result += f"cd {current_path};"
     result += f"ibrun -n 1 {pyexec} -m seisflow.scripts.structure_inversion.ln_smoothed_kernel_to_input_dir --smooth_dir {smooth_dir} --kernel_process_directory {kernel_process_directory};"
     result += f"cd {current_path};\n"
