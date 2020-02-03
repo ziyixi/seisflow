@@ -12,6 +12,8 @@ function parse_command_line()
             help = "the reference gll directory"
         "--output_basedir"
             help = "the output gll directory for perturbation"
+        "--tags"
+            help = "the tags, eg: alpha,beta"
         "--nproc"
             help = "number of processors the gll directory correspons to"
     end
@@ -24,12 +26,13 @@ function main()
     target_basedir = parsed_args["target_basedir"]
     reference_basedir = parsed_args["reference_basedir"]
     output_basedir = parsed_args["output_basedir"]
+    tags = parse(String, parsed_args["tags"])
     nproc = parse(Int64, parsed_args["nproc"])
     # get nspec
     mesh_info = sem_mesh_read(reference_basedir, 0)
     nspec = mesh_info.nspec
     # run generate_perturbation
-    generate_perturbation(target_basedir, reference_basedir, output_basedir, nproc, nspec)
+    generate_perturbation(target_basedir, reference_basedir, output_basedir, tags, nproc, nspec)
 end
 
 main()
