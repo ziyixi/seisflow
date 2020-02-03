@@ -106,7 +106,7 @@ def iter1_generate_perturbed_kernel(kernel_process_directory, perturbed_value):
     current_path = str(sh.pwd())[:-1]  # pylint: disable=not-callable
     result += f"cd {kernel_process_directory};"
     # when we run add_model_globe_tiso, INPUT_MODEL(from previous gll directory), INPUT_GRADIENT(from ln smooth), topo(from database) have all been established.
-    result += f"ibrun ./add_model_globe_tiso {perturbed_value};"
+    result += f"ibrun ./bin/xadd_model_tiso {perturbed_value};"
     # we should move the kernel files in OUTPUT_MODEL to perturbed_{perturbed_value}_for_line_search
     result += f"ibrun -n 1 mkdir -p perturbed_{perturbed_value}_for_line_search;"
     result += f"ibrun -n 1 mv OUTPUT_MODEL/* perturbed_{perturbed_value}_for_line_search/;"

@@ -197,6 +197,7 @@ def main(green_raw_asdf_directory, green_perturbed_asdf_directory, data_asdf_dir
          each_virasdf_data_surface, each_windows, each_src_frechet_path, each_cmtsolution_path, each_output_path) in each_virasdf_combined:
         # call the function of the line search
         # notice here the unit of depth is m, so we should divide it by 1000
+        # to avoid confusion, decide if use consider surface will be based on the data only.
         depth = each_virasdf_data_body.get_events(
         )[0].preferred_origin().depth / 1000.0
         gcmtid = basename(each_virasdf_data_body.asdf_path).split(".")[0]
