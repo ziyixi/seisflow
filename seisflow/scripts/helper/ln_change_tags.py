@@ -9,9 +9,9 @@ import sh
 
 
 @click.command()
-@click.option('--raw_directory', required=True, type=int, help="the directory where bin files are with the appending")
-@click.option('--output_directory', required=True, type=int, help="the output directory")
-@click.option('--tags', required=True, type=int, help="the bin file tags to select")
+@click.option('--raw_directory', required=True, type=str, help="the directory where bin files are with the appending")
+@click.option('--output_directory', required=True, type=str, help="the output directory")
+@click.option('--tags', required=True, type=str, help="the bin file tags to select")
 def main(raw_directory, output_directory, tags):
     """
     main: ln bin files and erase the corresponding tags.
