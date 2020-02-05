@@ -15,7 +15,6 @@ from ...utils.get_path import get_asdf_fnames
 
 comm = MPI.COMM_WORLD  # pylint: disable=c-extension-no-member
 size = comm.Get_size()
-size = comm.Get_size()
 rank = comm.Get_rank()
 
 
@@ -30,11 +29,12 @@ def get_event_this_rank(cmts_directory):
     return cmt_this_rank
 
 
-def get_consider_surface(evdp):
+def get_consider_surface(cmt_this_rank, evdp):
     """
     Get the status that if we should consider the surface wave.
     """
-    if (evdp <= SURFACE_THRESHOLD):
+    rep_net_sta = list(evdp[cmt_this_rank].keys())[0]
+    if (evdp[cmt_this_rank][rep_net_sta] <= SURFACE_THRESHOLD):
         return True
     else:
         return False
@@ -84,7 +84,7 @@ if __name__ == "__main__":
         first_arrival_zr, first_arrival_t, baz, evdp = load_first_arrival_baz_evdp(
             data_info_directory)
         # * get consider_surface
-        consider_surface = get_consider_surface(evdp)
+        consider_surface = get_consider_surface(cmt_this_rank, evdp)
         # * get virasdf
         min_periods = tuple(map(float, min_periods.split(",")))
         max_periods = tuple(map(float, max_periods.split(",")))
