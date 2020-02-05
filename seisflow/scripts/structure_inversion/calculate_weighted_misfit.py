@@ -94,8 +94,9 @@ if __name__ == "__main__":
         weighted_misfit = calculate_weighted_misfit(windows, consider_surface, data_virasdf_body, sync_virasdf_body, data_virasdf_surface, sync_virasdf_surface, first_arrival_zr, first_arrival_t, baz,
                                                     stations)
         # * print the result
-        print("=" * 20)
-        print(f"weighted misfit for all events: {weighted_misfit}")
-        print("=" * 20)
+        if(rank == 0):
+            print("=" * 20)
+            print(f"weighted misfit for all events: {weighted_misfit}")
+            print("=" * 20)
 
     main()  # pylint: disable=no-value-for-parameter
