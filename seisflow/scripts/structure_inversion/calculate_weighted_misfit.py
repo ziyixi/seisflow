@@ -86,8 +86,6 @@ if __name__ == "__main__":
         # * get consider_surface
         consider_surface = get_consider_surface(cmt_this_rank, evdp)
         # * get virasdf
-        min_periods = tuple(map(float, min_periods.split(",")))
-        max_periods = tuple(map(float, max_periods.split(",")))
         data_virasdf_body, sync_virasdf_body, data_virasdf_surface, sync_virasdf_surface = load_virasdf_files(
             cmt_this_rank, min_periods, max_periods, data_asdf_directory, sync_asdf_directory)
         # * get stations
