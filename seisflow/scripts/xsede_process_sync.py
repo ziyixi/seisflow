@@ -22,6 +22,8 @@ def get_scripts(run_files, N_iters, n_event_each_iteration, N_cores_each_event, 
     result = "date; "
     result += "module load boost/1.68;"
     result += "module load phdf5/1.8.16;"
+    result += "module remove python2/2.7.15; "
+    result += "module load mvapich2/2.3.1; "
     for iiter in range(N_iters):
         result += f"echo 'start iteration {iiter}'; "
         result += "date; "
