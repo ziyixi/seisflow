@@ -13,7 +13,8 @@ from ...utils.load_files import load_first_arrival_baz_evdp, load_windows
 from ...utils.setting import SURFACE_THRESHOLD
 from ...utils.get_path import get_asdf_fnames
 
-comm = MPI.COMM_WORLD
+comm = MPI.COMM_WORLD  # pylint: disable=c-extension-no-member
+size = comm.Get_size()
 size = comm.Get_size()
 rank = comm.Get_rank()
 
