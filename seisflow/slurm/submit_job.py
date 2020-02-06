@@ -1,7 +1,7 @@
 from .slurmpy import Slurm
 
 
-def submit_job(jobname, thecommand, N_node, ntasks, partition, time, account, hpc, depends_on=None):
+def submit_job(jobname, thecommand, N_node, ntasks, partition, time, account, , depends_on=None):
     """
     submit_job: a wrapper for slurmpy
         + N_node: total number of nodes used.

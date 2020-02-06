@@ -54,8 +54,6 @@ def mpi_collect_weight_normalize_factor(weight_normalize_factor):
     weight_normalize_factor_all_events_list = comm.allgather(
         weight_normalize_factor)
     comm.Barrier()
-    if (rank == 0):
-        print(weight_normalize_factor_all_events_list)
     weight_normalize_factor_all_events = np.sum(
         weight_normalize_factor_all_events_list)
     return weight_normalize_factor_all_events

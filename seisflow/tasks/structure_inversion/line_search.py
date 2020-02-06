@@ -50,7 +50,7 @@ def calculate_weighted_misfit(windows, consider_surface, data_virasdf_body, sync
     # * as we have to sum all the weighted misfits and normalization factors for all the event, we have to return two values
     if (Store.weight == None):
         if(rank == 1):
-            print("start to calculate misfit.")
+            print("start to calculate weight.")
         snr_threshold = tuple(map(float, SNR_THRESHOLD.split(",")))
         cc_threshold = tuple(map(float, CC_THRESHOLD.split(",")))
         deltat_threshold = tuple(map(float, DELTAT_THRESHOLD.split(",")))
@@ -98,8 +98,6 @@ def mpi_gather_summation_weighted_misfit(summation_weighted_misfit):
     summation_weighted_misfit_all_events_list = comm.allgather(
         summation_weighted_misfit)
     comm.Barrier()
-    if (rank == 0):
-        print(summation_weighted_misfit_all_events_list)
     summation_weighted_misfit_all_events = np.sum(
         summation_weighted_misfit_all_events_list)
     return summation_weighted_misfit_all_events
@@ -112,8 +110,6 @@ def mpi_gather_summation_weighting_factor(summation_weighting_factor):
     summation_weighting_factor_all_events_list = comm.allgather(
         summation_weighting_factor)
     comm.Barrier()
-    if (rank == 0):
-        print(summation_weighting_factor_all_events_list)
     summation_weighting_factor_all_events = np.sum(
         summation_weighting_factor_all_events_list)
     return summation_weighting_factor_all_events
