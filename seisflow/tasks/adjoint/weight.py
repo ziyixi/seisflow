@@ -114,6 +114,22 @@ def cal_geographical_weight(stations_mapper, used_net_sta_list, all_net_sta_list
     for each_net_sta in all_net_sta_list:
         if (each_net_sta not in used_net_sta_list):
             used_wt_dict[each_net_sta] = 0
+    # ! note, here is a bug in considering all the events that the geographical weighting is not comparable between different events
+    # ! so we should do a normalization here.
+    # ! it's reasonable to normalize with the number of stations
+    all_stations_number = matrix_size
+    store_keys = []
+    store_values = []
+    for k, v in used_wt_dict.items():
+        store_keys.append(k)
+        store_values.append(v)
+    store_keys = np.array(store_keys)
+    store_values = np.array(store_values)
+    summation_values = np.sum(store_values)
+    store_values = store_values / summation_values * all_stations_number
+    used_wt_dict = {}
+    for k, v in zip(store_keys, store_values):
+        used_wt_dict[k] = v
     return used_wt_dict
 
 

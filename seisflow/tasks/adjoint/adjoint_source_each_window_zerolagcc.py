@@ -44,7 +44,11 @@ def calculate_adjoint_source_each_window(mistit_window, raw_sync_asdf_trace, syn
     adjoint_source_windowed.data[:] = 0.0
     obs_filt_win = windowed_data_trace.data
     syn_filt_win = windowed_sync_trace.data
-    adjoint_source_windowed.data = (
+    # !
+    # ! note, here is an error. In tao's code, he is using cc as the so called misfit. Thus comparing with the paper,
+    # ! there will be no negative for the below formula. I am using the misfit, thus should add a minus. Fixed here!!
+    # !
+    adjoint_source_windowed.data = -(
         obs_filt_win - Aw * syn_filt_win) / Nw / syn_delta
     # apply taper and bandpass
     adjoint_source_windowed.taper(0.05, type="hann")
