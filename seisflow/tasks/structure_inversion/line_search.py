@@ -49,6 +49,8 @@ def calculate_weighted_misfit(windows, consider_surface, data_virasdf_body, sync
                                               data_virasdf_surface, sync_virasdf_surface, first_arrival_zr, first_arrival_t, baz)
     # * as we have to sum all the weighted misfits and normalization factors for all the event, we have to return two values
     if (Store.weight == None):
+        if(rank == 1):
+            print("start to calculate misfit.")
         snr_threshold = tuple(map(float, SNR_THRESHOLD.split(",")))
         cc_threshold = tuple(map(float, CC_THRESHOLD.split(",")))
         deltat_threshold = tuple(map(float, DELTAT_THRESHOLD.split(",")))

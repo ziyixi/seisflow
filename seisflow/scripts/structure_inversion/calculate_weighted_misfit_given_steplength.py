@@ -110,12 +110,16 @@ if __name__ == "__main__":
         # * get stations
         stations = np.loadtxt(stations_path, dtype=np.str)
         # * calculate the misfit
+        weighted_misfit_raw = calculate_weighted_misfit(windows, consider_surface, data_virasdf_body, sync_virasdf_body_raw, data_virasdf_surface, sync_virasdf_surface_raw, first_arrival_zr, first_arrival_t, baz,
+                                                        stations)
         weighted_misfit = calculate_weighted_misfit(windows, consider_surface, data_virasdf_body, sync_virasdf_body, data_virasdf_surface, sync_virasdf_surface, first_arrival_zr, first_arrival_t, baz,
                                                     stations)
         # * print the result
         if(rank == 0):
             print("=" * 20)
             print(f"step length: {step_length}")
+            print(
+                f"weighted misfit for all events[raw]: {weighted_misfit_raw}")
             print(f"weighted misfit for all events: {weighted_misfit}")
             print("=" * 20)
 
