@@ -98,6 +98,8 @@ def mpi_gather_summation_weighted_misfit(summation_weighted_misfit):
     summation_weighted_misfit_all_events_list = comm.allgather(
         summation_weighted_misfit)
     comm.Barrier()
+    if (rank == 0):
+        print(summation_weighted_misfit_all_events_list)
     summation_weighted_misfit_all_events = np.sum(
         summation_weighted_misfit_all_events_list)
     return summation_weighted_misfit_all_events
