@@ -115,6 +115,7 @@ if __name__ == "__main__":
         # * print the result
         if(rank == 0):
             print("=" * 20)
+            print(f"step length: {step_length}")
             print(f"weighted misfit for all events: {weighted_misfit}")
             print("=" * 20)
 
