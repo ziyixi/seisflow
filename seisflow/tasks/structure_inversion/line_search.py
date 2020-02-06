@@ -112,6 +112,8 @@ def mpi_gather_summation_weighting_factor(summation_weighting_factor):
     summation_weighting_factor_all_events_list = comm.allgather(
         summation_weighting_factor)
     comm.Barrier()
+    if (rank == 0):
+        print(summation_weighting_factor_all_events_list)
     summation_weighting_factor_all_events = np.sum(
         summation_weighting_factor_all_events_list)
     return summation_weighting_factor_all_events
