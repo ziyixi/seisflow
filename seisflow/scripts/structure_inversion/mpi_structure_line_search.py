@@ -98,13 +98,12 @@ if __name__ == "__main__":
     @click.option('--sync_raw_directory', required=True, type=str, help="the raw processed sync directory")
     @click.option('--sync_perturbed_directory', required=True, type=str, help="the perturbed processed sync directory")
     @click.option('--stations_path', required=True, type=str, help="the stations path in specfem format")
-    @click.option('--step_length', required=True, type=float, help=f"the step length used, assume the perturbation is {LINE_SEARCH_PERTURBATION:.3f}")
     @click.option('--min_periods', required=True, type=str, help="the min periods, i.e. min_body,min_surface")
     @click.option('--max_periods', required=True, type=str, help="the max periods, i.e. max_body,max_surface")
     @click.option('--search_range', required=True, type=str, help="the search range, eg: 0,0.03, should always from 0.")
     @click.option('--search_step', required=True, type=float, help="the searching step length, eg: 0.003, if minus searching range, -0.003")
     def main(cmts_directory, windows_directory, data_info_directory, data_asdf_directory, sync_raw_directory, sync_perturbed_directory,
-             stations_path, step_length, min_periods, max_periods, search_range, search_step):
+             stations_path,  min_periods, max_periods, search_range, search_step):
         """
         main: calculate the weighted misfit for all the events.
         """
