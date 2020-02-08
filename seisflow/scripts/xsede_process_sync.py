@@ -42,6 +42,22 @@ def get_scripts(run_files, N_iters, n_event_each_iteration, N_cores_each_event, 
     return result
 
 
+def kernel(sync_directory, output_directory,
+           n_iters, n_event_each_iteration, n_cores_each_event,
+           periods, waveform_length, sampling_rate, taper_tmin_tmaxs):
+    run_files = get_files(sync_directory)
+    all_scripts = []
+    py = sys.executable
+    for each_taper_tmin_tmax, each_period in zip(taper_tmin_tmaxs.split("/"), periods.split("/")):
+        min_period, max_period = each_period.split(",")
+        # note here we seprate different frequencies
+        scripts_to_run = get_scripts(run_files, n_iters, n_event_each_iteration, n_cores_each_event, py, min_period, max_period, waveform_length,
+                                     sampling_rate, output_directory, each_taper_tmin_tmax)
+        all_scripts.append(scripts_to_run)
+    to_submit_script = " ".join(all_scripts)
+    return to_submit_script
+
+
 if __name__ == "__main__":
     import click
 
@@ -62,16 +78,9 @@ if __name__ == "__main__":
     def main(sync_directory, output_directory,
              n_iters, n_node, n_event_each_iteration, n_cores_each_event, used_time,
              periods, waveform_length, sampling_rate, taper_tmin_tmaxs, partition, account):
-        run_files = get_files(sync_directory)
-        all_scripts = []
-        py = sys.executable
-        for each_taper_tmin_tmax, each_period in zip(taper_tmin_tmaxs.split("/"), periods.split("/")):
-            min_period, max_period = each_period.split(",")
-            # note here we seprate different frequencies
-            scripts_to_run = get_scripts(run_files, n_iters, n_event_each_iteration, n_cores_each_event, py, min_period, max_period, waveform_length,
-                                         sampling_rate, output_directory, each_taper_tmin_tmax)
-            all_scripts.append(scripts_to_run)
-        to_submit_script = " ".join(all_scripts)
+        to_submit_script = kernel(sync_directory, output_directory,
+                                  n_iters, n_event_each_iteration, n_cores_each_event,
+                                  periods, waveform_length, sampling_rate, taper_tmin_tmaxs)
         # submit_job("process_sync", to_submit_script, n_node, n_event *
         #            n_cores_each_event, None, used_time, None, "icer")
         submit_job("process_sync", to_submit_script,

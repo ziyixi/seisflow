@@ -150,6 +150,29 @@ def update_model_given_step_length(kernel_process_directory, perturbed_value):
     return result
 
 
+def kernel(kernel_process_directory, sigma_h, sigma_v, n_tasks):
+    # * prepare job script and submit the job in the later steps.
+    result = ""
+    result = "date; "
+    result += "module load boost/1.68; "
+    result += "module load phdf5/1.8.16;\n"
+    # sum kernels, hessians and do precondition
+    result += do_preconditioned_summation(kernel_process_directory)
+    # do smoothing
+    input_smooth_dir = join(kernel_process_directory, "OUTPUT_SUM")
+    output_smooth_dir = join(kernel_process_directory, "SMOOTHED_KERNEL")
+    result += do_smoothing(kernel_process_directory,
+                           sigma_h, sigma_v, input_smooth_dir, output_smooth_dir, n_tasks)
+    # ln smoothed kernels to the input directory
+    pyexec = sys.executable
+    result += ln_smoothed_kernel_to_input_dir(
+        pyexec, output_smooth_dir, kernel_process_directory)
+    # generate perturbed kernels with LINE_SEARCH_PERTURBATION step length for doing line search
+    result += iter1_generate_perturbed_kernel(
+        kernel_process_directory, LINE_SEARCH_PERTURBATION)
+    return result
+
+
 if __name__ == "__main__":
     import click
 
@@ -173,25 +196,7 @@ if __name__ == "__main__":
         """
         construct_structure(database_directory, ref_directory, sem_utils_directory,
                             kernel_process_directory, input_model_directory)
-        # * prepare job script and submit the job in the later steps.
-        result = ""
-        result = "date; "
-        result += "module load boost/1.68; "
-        result += "module load phdf5/1.8.16;\n"
-        # sum kernels, hessians and do precondition
-        result += do_preconditioned_summation(kernel_process_directory)
-        # do smoothing
-        input_smooth_dir = join(kernel_process_directory, "OUTPUT_SUM")
-        output_smooth_dir = join(kernel_process_directory, "SMOOTHED_KERNEL")
-        result += do_smoothing(kernel_process_directory,
-                               sigma_h, sigma_v, input_smooth_dir, output_smooth_dir, n_tasks)
-        # ln smoothed kernels to the input directory
-        pyexec = sys.executable
-        result += ln_smoothed_kernel_to_input_dir(
-            pyexec, output_smooth_dir, kernel_process_directory)
-        # generate perturbed kernels with LINE_SEARCH_PERTURBATION step length for doing line search
-        result += iter1_generate_perturbed_kernel(
-            kernel_process_directory, LINE_SEARCH_PERTURBATION)
+        result = kernel(kernel_process_directory, sigma_h, sigma_v, n_tasks)
         # * now we can submit the job
         submit_job("process_kernel", result, n_node, n_tasks,
                    partition, time, account, "stampede2", depends_on=None)
