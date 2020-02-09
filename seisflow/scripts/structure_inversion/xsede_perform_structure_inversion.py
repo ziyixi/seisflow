@@ -33,7 +33,7 @@ from .process_kernel import kernel as process_kernel
 @click.option('--last_step_kernel_directory', required=True, type=str, help="the last step smoothed kernel directory")
 @click.option('--stations_path', required=True, type=str, help="the stations path")
 @click.option('--sem_utils_directory', required=True, type=str, help="the sem_utils directory")
-@click.option('--past_raw_directory', required=True, type=str, help="raw directory in the last step")
+@click.option('', required=True, type=str, help="raw directory in the last step")
 @click.option('--n_total', required=True, type=int, help="the total number of events")
 @click.option('--n_each', required=True, type=int, help="number of events to run in each iteration")
 @click.option('--n_iter', required=True, type=int, help="the number of iterations to run")
@@ -77,7 +77,7 @@ def main(base_directory, cmts_directory, ref_directory, windows_directory, data_
     result += f"cd {current_path}; \n"
     # * collect the sync from the forward simulation
     result += collect_sync_files(
-        pyexec, {join(base_directory, 'output')}, join(base_directory, 'raw_sync'))
+        pyexec, join(base_directory, 'output'), join(base_directory, 'raw_sync'))
     # * process the sync
     result += get_process_sync_scripts(join(base_directory, "raw_sync"), join(base_directory, "processed_sync"), 1, n_total, nproc,
                                        periods, waveform_length, sampling_rate, taper_tmin_tmaxs, reference_directory=past_raw_directory)
@@ -150,7 +150,7 @@ def main(base_directory, cmts_directory, ref_directory, windows_directory, data_
     result += f"cd {current_path}; \n"
     # * collect the sync in the perturbation directory
     result += collect_sync_files(
-        pyexec, {join(base_directory, 'output')}, join(base_directory, 'perturbed_sync'))
+        pyexec, join(base_directory, 'output'), join(base_directory, 'perturbed_sync'))
     # * process the sync
     result += get_process_sync_scripts(join(base_directory, "perturbed_sync"), join(base_directory, "processed_perturbed_sync"), 1, n_total, nproc,
                                        periods, waveform_length, sampling_rate, taper_tmin_tmaxs)
