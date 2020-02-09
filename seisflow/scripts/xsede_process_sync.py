@@ -44,8 +44,11 @@ def get_scripts(run_files, N_iters, n_event_each_iteration, N_cores_each_event, 
 
 def kernel(sync_directory, output_directory,
            n_iters, n_event_each_iteration, n_cores_each_event,
-           periods, waveform_length, sampling_rate, taper_tmin_tmaxs):
-    run_files = get_files(sync_directory)
+           periods, waveform_length, sampling_rate, taper_tmin_tmaxs, reference_directory=None):
+    if(reference_directory == None):
+        run_files = get_files(sync_directory)
+    else:
+        run_files = get_files(reference_directory)
     all_scripts = []
     py = sys.executable
     for each_taper_tmin_tmax, each_period in zip(taper_tmin_tmaxs.split("/"), periods.split("/")):
