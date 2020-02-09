@@ -39,7 +39,7 @@ from .process_kernel import kernel as process_kernel
 @click.option('--nproc', required=True, type=int, help="the number of processes used for each event")
 @click.option('--n_node', required=True, type=int, help="the number of nodes used in simulation")
 @click.option('--partition', required=True, type=str, help="the partion name, eg: skx-normal")
-@click.option('--time', required=True, type=str, help="the time used in step 1")
+@click.option('--time_forward', required=True, type=str, help="the time used in step 1")
 @click.option('--account', required=True, type=str, help="the stampede2 account")
 @click.option('--n_node_process_kernel', required=True, type=int, help="the node number in step 2")
 @click.option('--time_process_kernel', required=True, type=str, help="the time used in step 2")
@@ -52,12 +52,13 @@ from .process_kernel import kernel as process_kernel
 @click.option('--sigma_v', required=True, type=float, help="the value of sigma_v (km)")
 def main(base_directory, cmts_directory, ref_directory, windows_directory, data_asdf_directory, data_info_directory, last_step_kernel_directory,
          stations_path, sem_utils_directory,
-         n_total, n_each, n_iter, nproc, n_node, partition, time, account, n_node_process_kernel, time_process_kernel, time_run_perturbation,
+         n_total, n_each, n_iter, nproc, n_node, partition, time_forward, account, n_node_process_kernel, time_process_kernel, time_run_perturbation,
          periods, waveform_length, sampling_rate, taper_tmin_tmaxs,
          sigma_h, sigma_v):
     """
     perform the structure inversion for the second iteration and later.
     """
+    time = time_forward
     # * we have to build the structure to perform the structure inversion.
     build_inversion_structure(base_directory, cmts_directory, ref_directory)
     # * ======================================================================================================================
