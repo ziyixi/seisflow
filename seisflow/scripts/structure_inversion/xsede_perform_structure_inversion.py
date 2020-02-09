@@ -7,15 +7,20 @@ from os.path import join
 import click
 import sh
 
-from ..build_structure import Build_structure
-from ...tasks import forward_task
-from ..xsede_process_sync import kernel as get_process_sync_scripts
 from ...slurm.submit_job import submit_job
-from ..xsede_perform_source_inversion import (calculate_misfit_windows, calculate_stations_adjoint, cp_stations_adjoint2structure,
-                                              ln_adjoint_source_to_structure, change_simulation_type, collect_sync_files)
-from .process_kernel import construct_structure as construct_process_kernel_structure
-from .process_kernel import kernel as process_kernel
+from ...tasks import forward_task
 from ...utils.setting import LINE_SEARCH_PERTURBATION
+from ..build_structure import Build_structure
+from ..xsede_perform_source_inversion import (calculate_misfit_windows,
+                                              calculate_stations_adjoint,
+                                              change_simulation_type,
+                                              collect_sync_files,
+                                              cp_stations_adjoint2structure,
+                                              ln_adjoint_source_to_structure)
+from ..xsede_process_sync import kernel as get_process_sync_scripts
+from .process_kernel import \
+    construct_structure as construct_process_kernel_structure
+from .process_kernel import kernel as process_kernel
 
 
 @click.command()
