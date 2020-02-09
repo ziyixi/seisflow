@@ -114,7 +114,7 @@ def main(base_directory, cmts_directory, ref_directory, windows_directory, data_
     result += adjoint_simulation_command
     result += f"cd {current_path}; \n"
     # * here we submit the first job
-    step1_jobid = submit_job("step1_structure", result, n_node, n_total *
+    step1_jobid = submit_job("step1_structure", result, n_node, n_each *
                              nproc, partition, time, account, "stampede2")
     # * ======================================================================================================================
     # * now we do the kernel processing part
@@ -155,7 +155,7 @@ def main(base_directory, cmts_directory, ref_directory, windows_directory, data_
                                        periods, waveform_length, sampling_rate, taper_tmin_tmaxs)
     result += f"cd {current_path}; \n"
     # * submit the job
-    submit_job("step3_structure", result, n_node, n_total *
+    submit_job("step3_structure", result, n_node, n_each *
                nproc, partition, time_run_perturbation, account, "stampede2", depends_on=[step2_jobid])
 
 
