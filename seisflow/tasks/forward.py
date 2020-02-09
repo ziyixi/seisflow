@@ -34,7 +34,7 @@ def get_scripts(thedirs, N_total, N_each, N_iter, nproc, run_mesh=True):
                     result += f"ibrun -n {nproc} -o {inc} ./bin/xmeshfem3D & "
             result += f"wait; "
             result += f"echo 'end iteration {iiter}'; "
-            result += f"date; "
+            result += f"date; \n"
 
     # for xspecfem3D
     result += f"echo 'start xspecfem3D'; "
