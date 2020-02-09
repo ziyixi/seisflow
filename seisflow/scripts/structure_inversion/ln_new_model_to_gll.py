@@ -24,10 +24,6 @@ def main(new_flag_dir, output_dir):
             continue
         new_fname = "_".join(base_fname_splitted[:-1]) + ".bin"
         to_ln_path = join(output_dir, new_fname)
-        try:
-            sh.unlink(to_ln_path)
-        except sh.ErrorReturnCode_1:
-            pass
         sh.ln("-s", each_smoothed_kernel_path, to_ln_path)
 
 

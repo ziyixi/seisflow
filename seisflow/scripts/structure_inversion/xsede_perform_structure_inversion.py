@@ -104,11 +104,9 @@ def main(base_directory, cmts_directory, ref_directory, windows_directory, data_
                                          join(base_directory, "misfit_windows"), join(base_directory, "stations_adjoint"))
     result += cp_stations_adjoint2structure(pyexec,
                                             join(base_directory, "stations_adjoint"), join(base_directory, "simulation"))
-    result += f"cd {current_path}; \n"
     # * change the simulation type to the type 3
     result += change_simulation_type(pyexec,
                                      {join(base_directory, 'simulation')}, "structure")
-    result += f"cd {current_path}; \n"
     # * do the adjoint simulation
     adjoint_simulation_command = forward_task(base=join(base_directory, "simulation"),
                                               N_total=n_total, N_each=n_each, N_iter=n_iter, nproc=nproc, run_mesh=False)
@@ -151,7 +149,6 @@ def main(base_directory, cmts_directory, ref_directory, windows_directory, data_
     # * collect the sync in the perturbation directory
     result += collect_sync_files(
         pyexec, {join(base_directory, 'output')}, join(base_directory, 'perturbed_sync'))
-    result += f"cd {current_path}; \n"
     # * process the sync
     result += get_process_sync_scripts(join(base_directory, "perturbed_sync"), join(base_directory, "processed_perturbed_sync"), 1, n_total, nproc,
                                        periods, waveform_length, sampling_rate, taper_tmin_tmaxs)
