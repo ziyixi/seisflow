@@ -20,9 +20,11 @@ def main(smooth_dir, kernel_process_directory):
     for each_smoothed_kernel_path in all_kernels:
         base_fname = basename(each_smoothed_kernel_path)
         base_fname_splitted = base_fname.split("_")
-        if base_fname_splitted[-1] != "smooth.bin":
-            raise Exception("check if the bin file is the smoothed kernels!")
-        new_fname = "_".join(base_fname_splitted[:-1]) + ".bin"
+        # if base_fname_splitted[-1] != "smooth.bin":
+        #     raise Exception("check if the bin file is the smoothed kernels!")
+        # new_fname = "_".join(base_fname_splitted[:-1]) + ".bin"
+        # * note since the following script need smooth flag, we just do a soft link here.
+        new_fname = "_".join(base_fname_splitted) + ".bin"
         to_ln_path = join(kernel_process_directory,
                           "INPUT_GRADIENT", new_fname)
         try:

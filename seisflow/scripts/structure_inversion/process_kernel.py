@@ -11,7 +11,7 @@ from ...slurm.submit_job import submit_job
 from ...utils.setting import LINE_SEARCH_PERTURBATION
 
 
-def construct_structure(database_directory, ref_directory, sem_utils_directory, kernel_process_directory, input_model_directory):
+def construct_structure(database_directory, ref_directory, sem_utils_directory, kernel_process_directory, input_model_directory, last_step_kernel=None):
     """
     construct_structure: construct the structure used in structure inversion.
     """
@@ -66,6 +66,11 @@ def construct_structure(database_directory, ref_directory, sem_utils_directory, 
     sh.mkdir("-p", join(kernel_process_directory, "OUTPUT_MODEL"))
     # make smoothed directory
     sh.mkdir("-p", join(kernel_process_directory, "SMOOTHED_KERNEL"))
+    # * mkdir for the last step kernels
+    if (last_step_kernel != None):
+        sh.mkdir("-p", join(kernel_process_directory, "KERNELS"))
+        sh.ln("-s", last_step_kernel,
+              join(kernel_process_directory, "KERNELS", "OUTPUT_SUM.old"))
 
 
 def do_preconditioned_summation(kernel_process_directory):
@@ -134,6 +139,22 @@ def iter1_generate_perturbed_kernel(kernel_process_directory, perturbed_value):
     return result
 
 
+def itern_generate_perturbed_kernel(kernel_process_directory, perturbed_value):
+    """
+    itern_generate_perturbed_kernel: generate the perturbed model for the following steps.
+    """
+    result = ""
+    current_path = str(sh.pwd())[:-1]  # pylint: disable=not-callable
+    result += f"cd {kernel_process_directory};"
+    # when we run add_model_globe_tiso, INPUT_MODEL(from previous gll directory), INPUT_GRADIENT(from ln smooth), topo(from database) have all been established.
+    result += f"ibrun ./bin/xadd_model_tiso_cg {perturbed_value};"
+    # we should move the kernel files in OUTPUT_MODEL to perturbed_{perturbed_value}_for_line_search
+    result += f"mkdir -p perturbed_{perturbed_value}_for_line_search;"
+    result += f"mv OUTPUT_MODEL/* perturbed_{perturbed_value}_for_line_search/;"
+    result += f"cd {current_path};\n"
+    return result
+
+
 def update_model_given_step_length(kernel_process_directory, perturbed_value):
     """
     update_model_given_step_length: update the model by optimized step length.
@@ -150,7 +171,7 @@ def update_model_given_step_length(kernel_process_directory, perturbed_value):
     return result
 
 
-def kernel(kernel_process_directory, sigma_h, sigma_v, n_tasks):
+def kernel(kernel_process_directory, sigma_h, sigma_v, n_tasks, itern=False):
     # * prepare job script and submit the job in the later steps.
     result = ""
     result = "date; "
@@ -168,8 +189,12 @@ def kernel(kernel_process_directory, sigma_h, sigma_v, n_tasks):
     result += ln_smoothed_kernel_to_input_dir(
         pyexec, output_smooth_dir, kernel_process_directory)
     # generate perturbed kernels with LINE_SEARCH_PERTURBATION step length for doing line search
-    result += iter1_generate_perturbed_kernel(
-        kernel_process_directory, LINE_SEARCH_PERTURBATION)
+    if(not itern):
+        result += iter1_generate_perturbed_kernel(
+            kernel_process_directory, LINE_SEARCH_PERTURBATION)
+    else:
+        result += itern_generate_perturbed_kernel(
+            kernel_process_directory, LINE_SEARCH_PERTURBATION)
     return result
 
 

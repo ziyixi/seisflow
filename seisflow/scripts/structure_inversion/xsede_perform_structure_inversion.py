@@ -30,6 +30,7 @@ from .process_kernel import kernel as process_kernel
 @click.option('--windows_directory', required=True, type=str, help="the windows directory")
 @click.option('--data_asdf_directory', required=True, type=str, help="the processed data directory")
 @click.option('--data_info_directory', required=True, type=str, help="the data info directory")
+@click.option('--last_step_kernel_directory', required=True, type=str, help="the last step smoothed kernel directory")
 @click.option('--stations_path', required=True, type=str, help="the stations path")
 @click.option('--sem_utils_directory', required=True, type=str, help="the sem_utils directory")
 @click.option('--n_total', required=True, type=int, help="the total number of events")
@@ -49,13 +50,13 @@ from .process_kernel import kernel as process_kernel
 @click.option('--taper_tmin_tmaxs', required=True, type=str, help="the taper time bands: minp1,maxp1/minp2,maxp2/...")
 @click.option('--sigma_h', required=True, type=float, help="the value of sigma_h (km)")
 @click.option('--sigma_v', required=True, type=float, help="the value of sigma_v (km)")
-def main(base_directory, cmts_directory, ref_directory, windows_directory, data_asdf_directory, data_info_directory,
+def main(base_directory, cmts_directory, ref_directory, windows_directory, data_asdf_directory, data_info_directory, last_step_kernel_directory,
          stations_path, sem_utils_directory,
          n_total, n_each, n_iter, nproc, n_node, partition, time, account, n_node_process_kernel, time_process_kernel, time_run_perturbation,
          periods, waveform_length, sampling_rate, taper_tmin_tmaxs,
          sigma_h, sigma_v):
     """
-    main: the main function combining all the parts together.
+    perform the structure inversion for the second iteration and later.
     """
     # * we have to build the structure to perform the structure inversion.
     build_inversion_structure(base_directory, cmts_directory, ref_directory)
@@ -128,10 +129,12 @@ def main(base_directory, cmts_directory, ref_directory, windows_directory, data_
     kernel_process_directory = join(base_directory, "process_kernel")
     input_model_directory = join(ref_directory, "DATA", "GLL")
     construct_process_kernel_structure(
-        join(base_directory, "database"), ref_directory, sem_utils_directory, kernel_process_directory, input_model_directory)
+        join(base_directory,
+             "database"), ref_directory, sem_utils_directory, kernel_process_directory,
+        input_model_directory, last_step_kernel=last_step_kernel_directory)
     # * now perform the structure inversion
     result += process_kernel(join(base_directory,
-                                  "process_kernel"), sigma_h, sigma_v, n_total)
+                                  "process_kernel"), sigma_h, sigma_v, n_total, itern=True)
     # * now submit the job to process the kernel
     step2_jobid = submit_job("step2_structure", result, n_node_process_kernel, n_total, partition, time_process_kernel,
                              account, "stampede2", depends_on=[step1_jobid])
