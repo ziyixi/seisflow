@@ -153,7 +153,7 @@ def main(base_directory, cmts_directory, ref_directory, windows_directory, data_
         pyexec, join(base_directory, 'output'), join(base_directory, 'perturbed_sync'))
     # * process the sync
     result += get_process_sync_scripts(join(base_directory, "perturbed_sync"), join(base_directory, "processed_perturbed_sync"), 1, n_total, nproc,
-                                       periods, waveform_length, sampling_rate, taper_tmin_tmaxs)
+                                       periods, waveform_length, sampling_rate, taper_tmin_tmaxs, reference_directory=past_raw_directory)
     result += f"cd {current_path}; \n"
     # * submit the job
     submit_job("step3_structure", result, n_node, n_each *
