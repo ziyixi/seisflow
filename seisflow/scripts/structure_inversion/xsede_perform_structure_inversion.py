@@ -33,7 +33,7 @@ from .process_kernel import kernel as process_kernel
 @click.option('--last_step_kernel_directory', required=True, type=str, help="the last step smoothed kernel directory")
 @click.option('--stations_path', required=True, type=str, help="the stations path")
 @click.option('--sem_utils_directory', required=True, type=str, help="the sem_utils directory")
-@click.option('', required=True, type=str, help="raw directory in the last step")
+@click.option('--past_raw_directory', required=True, type=str, help="raw directory in the last step")
 @click.option('--n_total', required=True, type=int, help="the total number of events")
 @click.option('--n_each', required=True, type=int, help="number of events to run in each iteration")
 @click.option('--n_iter', required=True, type=int, help="the number of iterations to run")
