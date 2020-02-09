@@ -65,11 +65,9 @@ def main(base_directory, cmts_directory, ref_directory, windows_directory, data_
     result = "date; \n"
     pyexec = sys.executable
     current_path = str(sh.pwd())[:-1]  # pylint: disable=not-callable
-    result += f"cd {current_path}; \n"
     # * change the flags to -F
     result += change_simulation_type(pyexec,
                                      {join(base_directory, 'simulation')}, "forward_save")
-    result += f"cd {current_path}; \n"
     # * submit the forward simulation job
     forward_simulation_command = forward_task(base=join(base_directory, "simulation"),
                                               N_total=n_total, N_each=n_each, N_iter=n_iter, nproc=nproc, run_mesh=True)
@@ -78,7 +76,6 @@ def main(base_directory, cmts_directory, ref_directory, windows_directory, data_
     # * collect the sync from the forward simulation
     result += collect_sync_files(
         pyexec, {join(base_directory, 'output')}, join(base_directory, 'raw_sync'))
-    result += f"cd {current_path}; \n"
     # * process the sync
     result += get_process_sync_scripts(join(base_directory, "raw_sync"), join(base_directory, "processed_sync"), 1, n_total, nproc,
                                        periods, waveform_length, sampling_rate, taper_tmin_tmaxs)
@@ -93,7 +90,6 @@ def main(base_directory, cmts_directory, ref_directory, windows_directory, data_
                                        windows_directory, join(
                                            base_directory, "misfit_windows"), min_periods, max_periods,
                                        data_asdf_directory, join(base_directory, "processed_sync"), data_info_directory)
-    result += f"cd {current_path}; \n"
     # * calculate the adjoint source, and ln it to the sem directory
     result += calculate_adjoint_source(pyexec, n_total,
                                        join(base_directory, "misfit_windows"), stations_path, join(
@@ -103,7 +99,6 @@ def main(base_directory, cmts_directory, ref_directory, windows_directory, data_
                                        join(base_directory, "adjoint_source"), body_periods, surface_periods)
     result += ln_adjoint_source_to_structure(pyexec,
                                              join(base_directory, "adjoint_source"), join(base_directory, "simulation"))
-    result += f"cd {current_path}; \n"
     # * generate STATIONS_ADJOINT and cp it to the simulation directory
     result += calculate_stations_adjoint(pyexec, stations_path,
                                          join(base_directory, "misfit_windows"), join(base_directory, "stations_adjoint"))
