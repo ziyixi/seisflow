@@ -4,16 +4,21 @@ xsede_process_sync.py: process the synthetics on stampede2.
 
 import sys
 from glob import glob
-from os.path import join
+from os.path import join, basename
 
 from ..slurm import submit_job
 
 
-def get_files(base_dir):
+def get_files(base_dir, ref_dir):
     """
     get_files: get all the asdf files in base_dir.
     """
-    return sorted(glob(join(base_dir, "*h5")))
+    allfiles = sorted(glob(join(base_dir, "*h5")))
+    # we should use the head of ref_dir and the base of the globbed files
+    result = []
+    for each_file in allfiles:
+        result.append(join(ref_dir, basename(each_file)))
+    return result
 
 
 def get_scripts(run_files, N_iters, n_event_each_iteration, N_cores_each_event, PY, min_periods, max_periods, waveform_length,
@@ -46,9 +51,9 @@ def kernel(sync_directory, output_directory,
            n_iters, n_event_each_iteration, n_cores_each_event,
            periods, waveform_length, sampling_rate, taper_tmin_tmaxs, reference_directory=None):
     if(reference_directory == None):
-        run_files = get_files(sync_directory)
+        run_files = get_files(sync_directory, sync_directory)
     else:
-        run_files = get_files(reference_directory)
+        run_files = get_files(reference_directory, sync_directory)
     all_scripts = []
     py = sys.executable
     for each_taper_tmin_tmax, each_period in zip(taper_tmin_tmaxs.split("/"), periods.split("/")):
