@@ -14,21 +14,6 @@ from HinetPy import Client, win32
 from loguru import logger
 
 
-def get_username_password():
-    """
-    get username and password from the system env.
-    """
-    try:
-        username = os.environ['USERNAME']
-    except KeyError:
-        raise Exception("check username!")
-    try:
-        password = os.environ['PASSWORD']
-    except KeyError:
-        raise Exception("check password!")
-    return username, password
-
-
 def init_client(username, password):
     """
     init client and check status.
@@ -76,14 +61,15 @@ def extract_sac(data, ctable, processes):
 @click.option('--cmts_directory', required=True, type=str, help="the cmts directory path")
 @click.option('--output_directory', required=True, type=str, help="the output directory path")
 @click.option('--processes', required=True, type=int, help="the number of processes to use in extracting sac, 0 means using all.")
-def main(logfile, cmts_directory, output_directory, processes):
+@click.option('--username', required=True, type=str, help="the username for the hinet website.")
+@click.option('--password', required=True, type=str, help="the password for the hinet website.")
+def main(logfile, cmts_directory, output_directory, processes, username, password):
     """
     Download Hinet waveforms based on cmtsolution files.
     """
     # * set up logging
     logger.add(logfile, format="{time} {level} {message}", level="INFO")
     # * start the client
-    username, password = get_username_password()
     client = init_client(username, password)
     logger.info("start to download.")
     # * here we get the cmtsolution files paths
