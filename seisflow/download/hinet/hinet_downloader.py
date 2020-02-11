@@ -95,6 +95,8 @@ def main(logfile, cmts_directory, output_directory, processes, username, passwor
         else:
             logger.error(f"skip {basename(each_cmt_file)}")
     # * now we start to extract the sac and pz info, store them in different subdirs.
+    # ! note there is a bug here, if we restart the application, the previous data will not be extracted.
+    # ! in the future, I should there should be a file about the extracted files.
     for data, ctable in zip(data_list, ctable_list):
         extract_sac(data, ctable, processes)
         logger.success(f"extract {data}")
