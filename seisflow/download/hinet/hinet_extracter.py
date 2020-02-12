@@ -2,7 +2,7 @@
 hinet_extracter.py: extract hinet data to sac and pz files.
 """
 from glob import glob
-from os.path import join, isdir
+from os.path import join, isdir, dirname
 
 import click
 import sh
