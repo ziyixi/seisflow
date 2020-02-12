@@ -42,8 +42,8 @@ def main(data_directory, processes):
     to_extract_event_directories = sorted(
         set(all_event_directories)-set(extreacted_event_directories))
     for each_data_directory in to_extract_event_directories:
-        ctable = glob(each_data_directory, "*ch")[0]
-        data = glob(each_data_directory, "*cnt")[0]
+        ctable = glob(join(each_data_directory, "*ch"))[0]
+        data = glob(join(each_data_directory, "*cnt"))[0]
         extract_sac(data, ctable, processes)
         with open(join(data_directory, "extract.filelist"), "a") as file:
             file.write(each_data_directory+"\n")
