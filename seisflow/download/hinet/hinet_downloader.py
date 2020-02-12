@@ -1,7 +1,6 @@
 """
 hinet_downloader.py: download the hinet data based on HinetPy.
 """
-import os
 from datetime import timedelta
 from glob import glob
 from os.path import basename, dirname, join
