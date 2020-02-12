@@ -28,7 +28,7 @@ def extract_sac(data, ctable, processes):
 
 @click.command()
 @click.option('--data_directory', required=True, type=str, help="the data directory")
-@click.option('--processes', required=True, type=str, help="the number of processes to use")
+@click.option('--processes', required=True, type=int, help="the number of processes to use")
 def main(data_directory, processes):
     """
     extrct the data from the downloaded database.
