@@ -79,7 +79,8 @@ def main(base_directory, cmts_directory, ref_directory, windows_directory, data_
     result += collect_sync_files(
         pyexec, join(base_directory, 'output'), join(base_directory, 'raw_sync'))
     # * process the sync
-    result += get_process_sync_scripts(join(base_directory, "raw_sync"), join(base_directory, "processed_sync"), 1, n_total, nproc,
+    n_cores_each_event = nproc*n_each//n_total
+    result += get_process_sync_scripts(join(base_directory, "raw_sync"), join(base_directory, "processed_sync"), 1, n_total, n_cores_each_event,
                                        periods, waveform_length, sampling_rate, taper_tmin_tmaxs, reference_directory=past_raw_directory)
     result += f"cd {current_path}; \n"
     # * calculate the misfit windows
