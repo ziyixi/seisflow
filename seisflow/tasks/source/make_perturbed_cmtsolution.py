@@ -13,11 +13,13 @@ def add_src_frechet(src_frechet, cmtsolution, max_dxs_ratio):
         [data[0], data[3], data[4]],
         [data[3], data[1], data[5]],
         [data[4], data[5], data[2]]
-    ])*1e7
+    ]) * 1e7
+    # ! note here we have a bug, the output of specfem should be de,dn,-dz, to change to dr,dtheta,dphi, we have to
+    # ! change dp,-dt,-dr to dr,dt,dp
     dchi_dxs = np.array([
-        -data[6],  # as the result is for depth
-        data[7],
-        data[8]
+        -data[8],
+        -data[7],
+        data[6]
     ])
     # do the normalization as in tao's sem_utils
     # the final result will be the same regardless the factor
