@@ -1,5 +1,5 @@
 using ArgParse
-include("../specfem_gll.jl/tasks/perturbation_bin_file.jl")
+include("../specfem_gll.jl/tasks/numerical_operation_on_bin_file.jl")
 include("../specfem_gll.jl/src/utils/readfiles.jl")
 
 function parse_command_line()

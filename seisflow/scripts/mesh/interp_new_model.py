@@ -118,5 +118,8 @@ def run_retrive_model(index, tags, database_list, base_directory):
     """
     Retrive the real final model from the model perturbation.
     """
+    # target basedir is the last interpolated model
     target_basedir = join(base_directory, "interpolation",
                           f"{database_list[-2,0]}__and__{database_list[-1,0]}")
+    # we have to keep all the reference_basedir the same (or cases like correction), use the first reference
+    reference_basedir = database_list[0, 2]
