@@ -141,7 +141,15 @@ def iter1_generate_perturbed_kernel(kernel_process_directory, perturbed_value):
     return result
 
 
-def itern_generate_perturbed_kernel(kernel_process_directory, perturbed_value):
+def ln_new_model_to_gll(py, new_flag_dir, output_dir):
+    """
+    make up the new gll directory based on the OUTPUT_MODEL.
+    """
+    script = f"{py} -m seisflow.scripts.structure_inversion.ln_new_model_to_gll --new_flag_dir {new_flag_dir} --output_dir {output_dir}; \n"
+    return script
+
+
+def itern_generate_perturbed_kernel(kernel_process_directory, perturbed_value, pyexec):
     """
     itern_generate_perturbed_kernel: generate the perturbed model for the following steps.
     """
@@ -152,7 +160,11 @@ def itern_generate_perturbed_kernel(kernel_process_directory, perturbed_value):
     result += f"ibrun ./bin/xadd_model_tiso_cg {perturbed_value};"
     # we should move the kernel files in OUTPUT_MODEL to perturbed_{perturbed_value}_for_line_search
     result += f"mkdir -p perturbed_{perturbed_value}_for_line_search;"
+    result += f"mkdir -p gll_for_perturbed_{perturbed_value}_for_line_search;"
     result += f"mv OUTPUT_MODEL/* perturbed_{perturbed_value}_for_line_search/;"
+    # ! here we have to make the gll directory
+    result += ln_new_model_to_gll(pyexec, join(kernel_process_directory,
+                                               f"perturbed_{perturbed_value}_for_line_search"), join(kernel_process_directory, f"gll_for_perturbed_{perturbed_value}_for_line_search"))
     result += f"cd {current_path};\n"
     return result
 
@@ -196,7 +208,7 @@ def kernel(kernel_process_directory, sigma_h, sigma_v, n_tasks, itern=False):
             kernel_process_directory, LINE_SEARCH_PERTURBATION)
     else:
         result += itern_generate_perturbed_kernel(
-            kernel_process_directory, LINE_SEARCH_PERTURBATION)
+            kernel_process_directory, LINE_SEARCH_PERTURBATION, pyexec)
     return result
 
 
