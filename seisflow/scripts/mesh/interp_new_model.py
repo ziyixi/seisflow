@@ -64,6 +64,7 @@ def run_generate_model_perturbation(name, nproc, tags, base_directory):
     """
     generate the model perturbation. (the jobs should be run in parallel)
     """
+    # ! notice the ending of the function is &
     julia_path = get_julia("scripts/get_perturbation.jl")
     result = ""
     # * init parameters
@@ -72,13 +73,40 @@ def run_generate_model_perturbation(name, nproc, tags, base_directory):
     reference_basedir = join(base_directory, "reference", name)
     mesh_basedir = join(base_directory, "mesh", name)
     output_basedir = join(base_directory, "perturbation", name)
-    result += f"julia {julia_path} --target_basedir {target_basedir} --reference_basedir {reference_basedir} --mesh_basedir {mesh_basedir} \
+    # * set up the command
+    result += f"julia '{julia_path}' --target_basedir {target_basedir} --reference_basedir {reference_basedir} --mesh_basedir {mesh_basedir} \
         --output_basedir {output_basedir} --tags {tags} --nproc {nproc} & \n"
     return result
 
 
-def run_interpolation(index, database_list, base_directory):
+def run_interpolation(index, model_tags, database_list, base_directory):
     """
-    run the interpolation command for the perturbed model.
+    run the interpolation command for the perturbed model, old: index, new: index+1.
     """
-    julia_path = get_julia("scripts/get_perturbation.jl")
+    # ! notice the ending of the function is ;
+    julia_path = get_julia("specfem_gll.jl/src/program/xsem_interp_mesh2.jl")
+    result = ""
+    # * init parameters
+    database_list_old = database_list[index]
+    database_list_new = database_list[index+1]
+    nproc_old = int(database_list_old[4])
+    nproc_new = int(database_list_new[4])
+    old_mesh_dir = database_list_old[3]
+    new_mesh_dir = database_list_new[3]
+    # for the model dir, we should ref to the perturbation
+    old_name = database_list_old[0]
+    new_name = database_list_new[0]
+    # notice, our old model dir would be the interpolated one if possible
+    if(index == 0):
+        old_model_dir = join(base_directory, "perturbation", old_name)
+    else:
+        past_name = database_list[index - 1, 0]
+        old_model_dir = join(base_directory, "interpolation",
+                             f"{past_name}__and__{old_name}")
+    new_model_dir = join(base_directory, "perturbation", new_name)
+    output_dir = join(base_directory, "interpolation",
+                      f"{old_name}__and__{new_name}")
+    # * now we construct the command
+    result += f"ibrun julia '{julia_path}' --nproc_old {nproc_old} --old_mesh_dir {old_mesh_dir} --old_model_dir {old_model_dir} --nproc_new {nproc_new} --new_mesh_dir {new_mesh_dir} \
+        --new_model_dir {new_model_dir} --model_tags {model_tags} --output_dir {output_dir}; \n"
+    return result

@@ -27,13 +27,15 @@ end
 """
 generate the real vaue bin file based on reference model and perturbation bin file
 """
-function generate_real(target_basedir::String, reference_basedir::String, output_basedir::String, nproc::Int64, nspec::Int64)
-    tags = ["vph","vpv","vsh","vsv","eta","qmu","rho"]
+function generate_real(target_basedir::String, reference_basedir::String, output_basedir::String, tags::String, nproc::Int64, nspec::Int64)
+    tags_splitted = split(tags, ",")
     model_gll_reference = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
     model_gll_target = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
     model_gll_output = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
     @showprogress for iproc in 0:nproc - 1
-        for tag in tags
+        for tag in tags_splitted
+            # convert tag to String
+            tag = String(tag)
             sem_io_read_gll_file_1!(reference_basedir, iproc, tag, model_gll_reference)
             sem_io_read_gll_file_1!(target_basedir, iproc, tag, model_gll_target)
             

@@ -100,6 +100,8 @@ def do_smoothing(kernel_process_directory, sigma_h, sigma_v, input_dir, output_d
     # result += f"cd {current_path};\n"
     # * if we use the smoother in sem_utils
     result = ""
+    # * load the required netcdf module
+    result += "module load netcdf; \n"
     to_smooth_kernel_names = [
         "bulk_c_kernel", "bulk_betav_kernel", "bulk_betah_kernel", "eta_kernel"]
     to_smooth_kernel_names = ",".join(to_smooth_kernel_names)
