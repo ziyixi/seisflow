@@ -60,7 +60,7 @@ def init_structure(base_directory, database_list):
                             f"{name_this}__and__{name_next}"))
 
 
-def run_generate_model_perturbation(name, nproc, tags, base_directory):
+def run_generate_model_perturbation_kernel(index, tags, database_list, base_directory):
     """
     generate the model perturbation. (the jobs should be run in parallel)
     """
@@ -68,7 +68,8 @@ def run_generate_model_perturbation(name, nproc, tags, base_directory):
     julia_path = get_julia("scripts/get_perturbation.jl")
     result = ""
     # * init parameters
-    nproc = int(nproc)
+    nproc = int(database_list[index, 4])
+    name = database_list[index, 0]
     target_basedir = join(base_directory, "absolute", name)
     reference_basedir = join(base_directory, "reference", name)
     mesh_basedir = join(base_directory, "mesh", name)
@@ -79,12 +80,13 @@ def run_generate_model_perturbation(name, nproc, tags, base_directory):
     return result
 
 
-def run_interpolation(index, model_tags, database_list, base_directory):
+def run_interpolation(index, tags, database_list, base_directory):
     """
     run the interpolation command for the perturbed model, old: index, new: index+1.
     """
     # ! notice the ending of the function is ;
     julia_path = get_julia("specfem_gll.jl/src/program/xsem_interp_mesh2.jl")
+    model_tags = tags
     result = ""
     # * init parameters
     database_list_old = database_list[index]
@@ -110,3 +112,11 @@ def run_interpolation(index, model_tags, database_list, base_directory):
     result += f"ibrun julia '{julia_path}' --nproc_old {nproc_old} --old_mesh_dir {old_mesh_dir} --old_model_dir {old_model_dir} --nproc_new {nproc_new} --new_mesh_dir {new_mesh_dir} \
         --new_model_dir {new_model_dir} --model_tags {model_tags} --output_dir {output_dir}; \n"
     return result
+
+
+def run_retrive_model(index, tags, database_list, base_directory):
+    """
+    Retrive the real final model from the model perturbation.
+    """
+    target_basedir = join(base_directory, "interpolation",
+                          f"{database_list[-2,0]}__and__{database_list[-1,0]}")

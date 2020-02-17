@@ -11,7 +11,7 @@ from ...slurm.submit_job import submit_job
 from ...utils.setting import LINE_SEARCH_PERTURBATION
 
 
-def construct_structure(database_directory, ref_directory, sem_utils_directory, kernel_process_directory, input_model_directory, last_step_kernel=None):
+def construct_structure(database_directory, ref_directory, sem_utils_directory, kernel_process_directory, input_model_directory, last_step_model_update=None):
     """
     construct_structure: construct the structure used in structure inversion.
     """
@@ -67,9 +67,9 @@ def construct_structure(database_directory, ref_directory, sem_utils_directory, 
     # make smoothed directory
     sh.mkdir("-p", join(kernel_process_directory, "SMOOTHED_KERNEL"))
     # * mkdir for the last step kernels
-    if (last_step_kernel != None):
+    if (last_step_model_update != None):
         sh.mkdir("-p", join(kernel_process_directory, "KERNELS"))
-        sh.ln("-s", last_step_kernel,
+        sh.ln("-s", last_step_model_update,
               join(kernel_process_directory, "KERNELS", "OUTPUT_SUM.old"))
 
 
