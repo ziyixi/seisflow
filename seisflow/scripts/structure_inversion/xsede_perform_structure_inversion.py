@@ -132,7 +132,7 @@ def main(base_directory, cmts_directory, ref_directory, windows_directory, data_
     result += process_kernel(join(base_directory,
                                   "process_kernel"), sigma_h, sigma_v, n_total, itern=True)
     # * now submit the job to process the kernel
-    step2_jobid = submit_job("step2_structure", result, n_node_process_kernel, n_total, partition, time_process_kernel,
+    step2_jobid = submit_job("step2_structure", result, n_node_process_kernel, nproc, partition, time_process_kernel,
                              account, "stampede2", depends_on=[step1_jobid])
     # * ======================================================================================================================
     # * now we use the generated perturbed model to do a forward simulation
