@@ -1,10 +1,14 @@
 """
 interp_new_model.py: combine several models as a new hybrid model.
 """
-import numpy as np
-from ... import get_julia
-import sh
 from os.path import join
+
+import click
+import numpy as np
+import sh
+
+from ... import get_julia
+from ...slurm.submit_job import submit_job
 
 
 def load_databases_list(database_list_path):
@@ -53,11 +57,10 @@ def init_structure(base_directory, database_list):
         sh.mkdir("-p", join(base_directory, "perturbation", name))
     # * generate the interpolation directories
     n_model = database_list.shape[0]
-    for imodel in range(n_model - 1):
-        name_this = database_list[imodel, 0]
-        name_next = database_list[imodel, 1]
+    for imodel in range(1, n_model):
+        names = database_list[:(imodel+1), 0]
         sh.mkdir("-p", join(base_directory, "interpolation",
-                            f"{name_this}__and__{name_next}"))
+                            "__and__".join(names)))
 
 
 def run_generate_model_perturbation_kernel(index, tags, database_list, base_directory):
@@ -82,44 +85,94 @@ def run_generate_model_perturbation_kernel(index, tags, database_list, base_dire
 
 def run_interpolation(index, tags, database_list, base_directory):
     """
-    run the interpolation command for the perturbed model, old: index, new: index+1.
+    run the interpolation command for the perturbed model, old: index+1, new: index.
     """
     # ! notice the ending of the function is ;
     julia_path = get_julia("specfem_gll.jl/src/program/xsem_interp_mesh2.jl")
-    model_tags = tags
     result = ""
-    # * init parameters
-    database_list_old = database_list[index]
-    database_list_new = database_list[index+1]
-    nproc_old = int(database_list_old[4])
-    nproc_new = int(database_list_new[4])
-    old_mesh_dir = database_list_old[3]
-    new_mesh_dir = database_list_new[3]
-    # for the model dir, we should ref to the perturbation
-    old_name = database_list_old[0]
-    new_name = database_list_new[0]
-    # notice, our old model dir would be the interpolated one if possible
-    if(index == 0):
-        old_model_dir = join(base_directory, "perturbation", old_name)
+    # * we can get the values used in the command
+    # * new
+    nproc_new = int(database_list[0, 4])
+    new_mesh_dir = join(base_directory, "mesh", database_list[0, 0])
+    if (index == 0):
+        new_model_dir = join(
+            base_directory, "perturbation", database_list[index, 0])
     else:
-        past_name = database_list[index - 1, 0]
-        old_model_dir = join(base_directory, "interpolation",
-                             f"{past_name}__and__{old_name}")
-    new_model_dir = join(base_directory, "perturbation", new_name)
-    output_dir = join(base_directory, "interpolation",
-                      f"{old_name}__and__{new_name}")
+        names = database_list[: (index + 1), 0]
+        new_model_dir = join(base_directory, "interpolation",
+                             "__and__".join(names))
+    # * old
+    nproc_old = int(database_list[index + 1, 4])
+    old_mesh_dir = join(base_directory, "mesh", database_list[index + 1, 0])
+    old_model_dir = join(base_directory, "perturbation",
+                         database_list[index + 1, 0])
     # * now we construct the command
+    output_names = database_list[: (index + 2), 0]
+    output_dir = join(base_directory, "interpolation",
+                      "__and__".join(output_names))
     result += f"ibrun julia '{julia_path}' --nproc_old {nproc_old} --old_mesh_dir {old_mesh_dir} --old_model_dir {old_model_dir} --nproc_new {nproc_new} --new_mesh_dir {new_mesh_dir} \
-        --new_model_dir {new_model_dir} --model_tags {model_tags} --output_dir {output_dir}; \n"
+        --new_model_dir {new_model_dir} --model_tags {tags} --output_dir {output_dir}; \n"
     return result
 
 
-def run_retrive_model(index, tags, database_list, base_directory):
+def run_retrive_model(tags, database_list, base_directory):
     """
     Retrive the real final model from the model perturbation.
     """
     # target basedir is the last interpolated model
     target_basedir = join(base_directory, "interpolation",
-                          f"{database_list[-2,0]}__and__{database_list[-1,0]}")
+                          "__and__".join(database_list[:, 0]))
     # we have to keep all the reference_basedir the same (or cases like correction), use the first reference
-    reference_basedir = database_list[0, 2]
+    reference_basedir = join(base_directory, "reference", database_list[0, 0])
+    mesh_basedir = join(base_directory, "mesh", database_list[0, 0])
+    output_basedir = join(base_directory, "generated")
+    nproc = int(database_list[0, 4])
+    # * build up the command
+    julia_path = get_julia("scripts/retrive_model.jl")
+    result = ""
+    result += f"julia '{julia_path}' --target_basedir {target_basedir} --reference_basedir {reference_basedir} --mesh_basedir {mesh_basedir} --output_basedir {output_basedir}  \
+        --tags {tags} --nproc {nproc};\n "
+    return result
+
+
+@click.command()
+@click.option('--base_directory', required=True, type=str, help="the base interpolation directory")
+@click.option('--database_list_path', required=True, type=str, help="the database_list file path")
+@click.option('--tags', required=True, type=str, help="the tags to interpolate, eg: vsv,vsh")
+@click.option('--n_node', required=True, type=int, help="the number of nodes to use")
+@click.option('--ntasks', required=True, type=int, help="the number of tasks to use")
+@click.option('--partition', required=True, type=str, help="the partition to use, eg: skx-normal")
+@click.option('--time', required=True, type=str, help="the job time")
+@click.option('--account', required=True, type=str, help="the stampede2 account")
+def main(base_directory, database_list_path, tags, n_node, ntasks,
+         partition, time, account):
+    """
+    Build up the hybrid model depends on previous gll models.
+    """
+    database_list = load_databases_list(database_list_path)
+    # ! note we should reset the values in constants.jl
+    result = "date; \n"
+    # * firstly we generate the structure of this workflow.
+    init_structure(base_directory, database_list)
+    # * then we generate the model perturbations.
+    nmodel, _ = database_list.shape
+    for imodel in range(nmodel):
+        result += run_generate_model_perturbation_kernel(
+            imodel, tags, database_list, base_directory)
+    result += "wait; \n"
+    result += "date; \n"
+    # * we interpolate the model in order.
+    for imodel in range(nmodel - 1):
+        result += run_interpolation(imodel, tags,
+                                    database_list, base_directory)
+        result += "date; \n"
+    # * now we retrive the model to the absolute values
+    result += run_retrive_model(tags, database_list, base_directory)
+    result += "date; \n"
+    # * now we submit the job
+    submit_job("interp", result, n_node, ntasks,
+               partition, time, account, "stampede2")
+
+
+if __name__ == "__main__":
+    main()  # pylint: disable=no-value-for-parameter

@@ -6,7 +6,7 @@ include("../utils/readfiles.jl")
 include("../utils/kdtree.jl")
 include("../utils/parse_commandline.jl")
 
-# ! this program use Float64, which may cause the out of memory problem when In values_from_mesh.h 
+# ! this program uses Float64, which may cause the out of memory problem when In values_from_mesh.h 
 # ! approximate total number of points in entire mesh > 151837623.000000.
 function run_interp(myrank::Int64, nrank::Int64, command_args::Dict{String,Any})
     # * init some variables
