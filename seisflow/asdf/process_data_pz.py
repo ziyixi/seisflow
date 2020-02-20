@@ -192,7 +192,6 @@ def process_single_event(min_periods, max_periods, taper_tmin_tmax, asdf_filenam
             # overlap the previous trace
             status_code = check_st_numberlap(st, inv)
             if (status_code == -1):
-                print("a")
                 return
             elif(status_code == 0):
                 pass
@@ -201,7 +200,6 @@ def process_single_event(min_periods, max_periods, taper_tmin_tmax, asdf_filenam
                 try:
                     st.merge(method=1, fill_value=0, interpolation_samples=0)
                 except:
-                    print("a")
                     return
             else:
                 raise Exception("unknown status code")
@@ -210,7 +208,6 @@ def process_single_event(min_periods, max_periods, taper_tmin_tmax, asdf_filenam
             if(status_code == 0):
                 pass
             elif (status_code == -1):
-                print("b")
                 return
             else:
                 raise Exception("unknown status code")
@@ -228,7 +225,6 @@ def process_single_event(min_periods, max_periods, taper_tmin_tmax, asdf_filenam
             st.detrend("linear")
 
             if (st == None):
-                print("c")
                 return
             # sac has already removed mean after removing the response.
 
@@ -247,7 +243,6 @@ def process_single_event(min_periods, max_periods, taper_tmin_tmax, asdf_filenam
                 baz = func_correct_cea(
                     baz, inv, event_time, correction_data)
             if (baz == None):
-                print("d")
                 return
 
             # we have to limit baz to be in [0,360)
@@ -259,10 +254,8 @@ def process_single_event(min_periods, max_periods, taper_tmin_tmax, asdf_filenam
                 try:
                     st.rotate(method="NE->RT", back_azimuth=baz)
                 except:
-                    print("e")
                     return
             else:
-                print("f")
                 return
             # bandpass filter
             st.filter("bandpass", freqmin=1.0/max_period,

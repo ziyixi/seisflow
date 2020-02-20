@@ -41,6 +41,8 @@ def sac2asdf_hinet(sac_directory, cmt_path, output_path):
                 tr.stats.channel = channel_mapper[tr.stats.channel]
             except KeyError:
                 continue
+            # we have to consider the time difference in Japan
+            tr.stats.starttime = tr.stats.starttime-9*60*60
             # * add the waveforms
             tr.data = np.require(tr.data, dtype="float32")
             ds.add_waveforms(tr, tag="raw", event_id=event)
