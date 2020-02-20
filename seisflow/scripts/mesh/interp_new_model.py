@@ -162,6 +162,7 @@ def main(base_directory, database_list_path, tags, n_node, ntasks,
     result += "date; \n"
     # * we interpolate the model in order.
     for imodel in range(nmodel - 1):
+        # the nproc should be corresponding to the nproc of the first row.
         result += run_interpolation(imodel, tags,
                                     database_list, base_directory)
         result += "date; \n"

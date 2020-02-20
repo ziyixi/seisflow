@@ -10,7 +10,7 @@ from obspy.core.inventory.inventory import Inventory
 
 
 def sac2asdf(sac_directory, response_directory, cmt_path, output_path):
-    with pyasdf.ASDFDataSet(output_path, mode="w", compression=None) as ds:
+    with pyasdf.ASDFDataSet(output_path, mode="w", compression=None, mpi=False) as ds:
         # read in eventxml
         event_xml = obspy.read_events(cmt_path)
         # add eventxml to ds
