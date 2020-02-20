@@ -36,7 +36,10 @@ def sac2asdf_hinet(sac_directory, cmt_path, output_path):
                 "N": "HHN",
                 "E": "HHE"
             }
-            tr.stats.channel = channel_mapper[tr.stats.channel]
+            try:
+                tr.stats.channel = channel_mapper[tr.stats.channel]
+            except KeyError:
+                continue
             # * add the waveforms
             ds.add_waveforms(tr, tag="raw", event_id=event)
             # * handle the stationxml
@@ -59,7 +62,8 @@ def sac2asdf_hinet(sac_directory, cmt_path, output_path):
                 sta_collection[sta].channels.append(cha)
         # * now we can add all the sta to net
         for sta in sta_collection:
-            net.stations.append(sta_collection[sta])
+            if(len(sta_collection[sta].channels) == 3):
+                net.stations.append(sta_collection[sta])
         # * we can add net to station_xml
         inv.networks.append(net)
         # * now we can add inv to asdf
