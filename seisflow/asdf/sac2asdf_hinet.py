@@ -2,11 +2,12 @@
 sac2asdf_hinet.py: convert the sac files to the asdf format, not storing the response information. (as it's PZ)
 """
 from glob import glob
-from os.path import join, basename
+from os.path import basename, join
 
+import numpy as np
 import obspy
 import pyasdf
-from obspy.core.inventory import Inventory, Network, Station, Channel
+from obspy.core.inventory import Channel, Inventory, Network, Station
 
 
 def sac2asdf_hinet(sac_directory, cmt_path, output_path):
@@ -19,7 +20,7 @@ def sac2asdf_hinet(sac_directory, cmt_path, output_path):
         # read in waves
         files = sorted(glob(join(sac_directory, "*")))
         inv = Inventory()  # pylint: disable=no-value-for-parameter
-        net = Network(code="N", stations=[])
+        net_inv = Network(code="N", stations=[])
         # * we should sort files based on the station names
         sta_collection = {}
         # * here we add the waveforms along with the process of building the inventory
@@ -41,6 +42,7 @@ def sac2asdf_hinet(sac_directory, cmt_path, output_path):
             except KeyError:
                 continue
             # * add the waveforms
+            tr.data = np.require(tr.data, dtype="float32")
             ds.add_waveforms(tr, tag="raw", event_id=event)
             # * handle the stationxml
             cha = Channel(
@@ -63,8 +65,8 @@ def sac2asdf_hinet(sac_directory, cmt_path, output_path):
         # * now we can add all the sta to net
         for sta in sta_collection:
             if(len(sta_collection[sta].channels) == 3):
-                net.stations.append(sta_collection[sta])
+                net_inv.stations.append(sta_collection[sta])
         # * we can add net to station_xml
-        inv.networks.append(net)
+        inv.networks.append(net_inv)
         # * now we can add inv to asdf
         ds.add_stationxml(inv)
