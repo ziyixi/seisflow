@@ -1,13 +1,12 @@
 """
-sac2asdf: convert sac files to the asdf format. Station Response file should be in RESP format.
+sac2asdf: convert sac files to the asdf format. 
 """
-import subprocess
-import tempfile
 from glob import glob
 from os.path import join
 
 import obspy
 import pyasdf
+from obspy.core.inventory.inventory import Inventory
 
 
 def sac2asdf(sac_directory, response_directory, cmt_path, output_path):
@@ -19,16 +18,16 @@ def sac2asdf(sac_directory, response_directory, cmt_path, output_path):
         event = ds.events[0]
         # read in waves
         files = sorted(glob(join(sac_directory, "*")))
-        station_xml = obspy.core.inventory.inventory.Inventory()
+        station_xml = Inventory()  # pylint: disable=no-value-for-parameter
 
-        for i, filename in enumerate(files):
+        for filename in files:
             waveform_stream = obspy.read(filename)
             ds.add_waveforms(waveform_stream, tag="raw", event_id=event)
 
             # add stationxml
             allfiles = sorted(glob(join(response_directory, "*")))
             for fname in allfiles:
-                station_xml_this_seed = obspy.core.inventory.inventory.Inventory()
+                station_xml_this_seed = Inventory()  # pylint: disable=no-value-for-parameter
                 inv_temp = obspy.read_inventory(fname)
                 # update essencial location information
                 inv_temp = update_info(inv_temp, waveform_stream)

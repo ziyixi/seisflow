@@ -10,7 +10,8 @@ class Sac2Asdf():
         self.output_path = output_path
 
     def run(self):
-        sac2asdf(sac_directory, response_directory, cmt_path, output_path)
+        sac2asdf(self.sac_directory, self.response_directory,
+                 self.cmt_path, self.output_path)
 
 
 if __name__ == "__main__":
@@ -26,4 +27,4 @@ if __name__ == "__main__":
             sac_directory, response_directory, cmt_path, output_path)
         run_script.run()
 
-    main()
+    main()  # pylint: disable=no-value-for-parameter

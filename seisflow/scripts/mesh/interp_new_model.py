@@ -79,7 +79,7 @@ def run_generate_model_perturbation_kernel(index, tags, database_list, base_dire
     output_basedir = join(base_directory, "perturbation", name)
     # * set up the command
     result += f"ibrun -n 1 julia '{julia_path}' --target_basedir {target_basedir} --reference_basedir {reference_basedir} --mesh_basedir {mesh_basedir} \
-        --output_basedir {output_basedir} --tags {tags} --nproc {nproc} & \n"
+        --output_basedir {output_basedir} --tags {tags} --nproc {nproc} ; \n"
     return result
 
 
@@ -159,7 +159,6 @@ def main(base_directory, database_list_path, tags, n_node, ntasks,
     for imodel in range(nmodel):
         result += run_generate_model_perturbation_kernel(
             imodel, tags, database_list, base_directory)
-    result += "wait; \n"
     result += "date; \n"
     # * we interpolate the model in order.
     for imodel in range(nmodel - 1):

@@ -135,3 +135,5 @@ jupyter/*
 result/*
 .DS_Store/*
 .DS_Store
+gmt/*
+data/*
