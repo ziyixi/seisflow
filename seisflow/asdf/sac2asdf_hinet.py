@@ -39,6 +39,12 @@ def sac2asdf_hinet(sac_directory, cmt_path, output_path):
             tr.stats.channel = channel_mapper[tr.stats.channel]
             # * add the waveforms
             ds.add_waveforms(tr, tag="raw", event_id=event)
+            # ! debug
+            try:
+                a = tr.stats.stla
+            except:
+                print(tr.stats)
+                exit()
             # * handle the stationxml
             cha = Channel(
                 code=tr.stats.channel,
