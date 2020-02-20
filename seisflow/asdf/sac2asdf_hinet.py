@@ -39,19 +39,13 @@ def sac2asdf_hinet(sac_directory, cmt_path, output_path):
             tr.stats.channel = channel_mapper[tr.stats.channel]
             # * add the waveforms
             ds.add_waveforms(tr, tag="raw", event_id=event)
-            # ! debug
-            try:
-                a = tr.stats.stla
-            except:
-                print(tr.stats)
-                exit()
             # * handle the stationxml
             cha = Channel(
                 code=tr.stats.channel,
                 location_code="",
-                latitude=tr.stats.stla,
-                longitude=tr.stats.stlo,
-                elevation=tr.stats.stel,
+                latitude=tr.stats.sac.stla,
+                longitude=tr.stats.sac.stlo,
+                elevation=tr.stats.sac.stel,
                 depth=0.0,
                 sample_rate=tr.stats.sampling_rate)
             if (sta in sta_collection):
@@ -59,9 +53,9 @@ def sac2asdf_hinet(sac_directory, cmt_path, output_path):
             else:
                 sta_collection[sta] = Station(
                     code=sta,
-                    latitude=tr.stats.stla,
-                    longitude=tr.stats.stlo,
-                    elevation=tr.stats.stel)
+                    latitude=tr.stats.sac.stla,
+                    longitude=tr.stats.sac.stlo,
+                    elevation=tr.stats.sac.stel)
                 sta_collection[sta].channels.append(cha)
         # * now we can add all the sta to net
         for sta in sta_collection:
