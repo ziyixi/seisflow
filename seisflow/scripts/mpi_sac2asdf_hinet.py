@@ -21,7 +21,7 @@ def unzip_single_event(event_directory):
     """
     current_path = str(sh.pwd())[:-1]  # pylint: disable=not-callable
     sh.cd(event_directory)
-    sh.tar("xvf", "PZ.tar.gz")
+    sh.tar("xvf", "SAC.tar.gz")
     sh.cd(current_path)
 
 
@@ -31,7 +31,7 @@ def rm_single_event(event_directory):
     """
     current_path = str(sh.pwd())[:-1]  # pylint: disable=not-callable
     sh.cd(event_directory)
-    sh.rm("-rf", "PZ")
+    sh.rm("-rf", "SAC")
     sh.cd(current_path)
 
 
@@ -49,15 +49,16 @@ def convert_this_rank(directories_this_rank, cmt_directory, output_directory):
     """
     convert the sac files to the asdf format in this rank.
     """
-    for event_directory in directories_this_rank:
-        unzip_single_event(event_directory)
-        gcmtid = basename(event_directory)
+    for each_directory in directories_this_rank:
+        unzip_single_event(each_directory)
+        gcmtid = basename(each_directory)
         cmt_path = join(cmt_directory, gcmtid)
         output_path = join(output_directory, gcmtid)
+        event_directory = join(each_directory, "SAC")
         run_script = Sac2Asdf(
             event_directory, cmt_path, output_path)
         run_script.run()
-        rm_single_event(event_directory)
+        rm_single_event(each_directory)
 
 
 if __name__ == "__main__":
