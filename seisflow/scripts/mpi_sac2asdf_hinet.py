@@ -53,7 +53,7 @@ def convert_this_rank(directories_this_rank, cmt_directory, output_directory):
         unzip_single_event(each_directory)
         gcmtid = basename(each_directory)
         cmt_path = join(cmt_directory, gcmtid)
-        output_path = join(output_directory, gcmtid)
+        output_path = join(output_directory, gcmtid+".h5")
         event_directory = join(each_directory, "SAC")
         run_script = Sac2Asdf(
             event_directory, cmt_path, output_path)
