@@ -39,7 +39,7 @@ def get_directories_this_rank(base_directory):
     """
     get directories to convert in this rank.
     """
-    all_directories = sorted(glob(base_directory, "*"))
+    all_directories = sorted(glob(join(base_directory, "*")))
     all_directories = [item for item in all_directories if isdir(item)]
     directories_this_rank = np.array_split(all_directories, size)[rank]
     return directories_this_rank
