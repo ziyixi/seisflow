@@ -26,19 +26,26 @@ def sac2asdf(sac_directory, response_directory, cmt_path, output_path):
             waveform_stream = obspy.read(filename)
             ds.add_waveforms(waveform_stream, tag="raw", event_id=event)
 
-            # add stationxml
-            allfiles = sorted(glob(join(response_directory, "*")))
-            for fname in allfiles:
-                station_xml_this_seed = Inventory()  # pylint: disable=no-value-for-parameter
-                inv_temp = obspy.read_inventory(fname)
-                # update essencial location information
-                inv_temp = update_info(inv_temp, waveform_stream)
-                if(inv_temp == None):
-                    continue
-                station_xml_this_seed += inv_temp
+        #     # add stationxml
+        #     allfiles = sorted(glob(join(response_directory, "*")))
+        #     station_xml_this_seed = Inventory()  # pylint: disable=no-value-for-parameter
+        #     for fname in allfiles:
+        #         inv_temp = obspy.read_inventory(fname)
+        #         # update essencial location information
+        #         inv_temp = update_info(inv_temp, waveform_stream)
+        #         if(inv_temp == None):
+        #             continue
+        #         station_xml_this_seed += inv_temp
 
-            station_xml += station_xml_this_seed
+        #     station_xml += station_xml_this_seed
 
+        # ds.add_stationxml(station_xml)
+
+        # add stationxml
+        allfiles = sorted(glob(join(response_directory, "*")))
+        for fname in allfiles:
+            inv_temp = obspy.read_inventory(fname)
+            station_xml += inv_temp
         ds.add_stationxml(station_xml)
 
 
