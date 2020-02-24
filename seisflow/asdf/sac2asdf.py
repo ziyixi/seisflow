@@ -45,6 +45,11 @@ def sac2asdf(sac_directory, response_directory, cmt_path, output_path):
         allfiles = sorted(glob(join(response_directory, "*")))
         for fname in allfiles:
             inv_temp = obspy.read_inventory(fname)
+            rep_usable_channel = inv_temp.get_contents()["channels"][0]
+            net, sta, _, _ = rep_usable_channel.split(".")
+            thekey = f"{net}.{sta}"
+            waveform_stream = ds.waveforms[thekey].raw
+            inv_temp = update_info(inv_temp, waveform_stream)
             station_xml += inv_temp
         ds.add_stationxml(station_xml)
 
@@ -57,7 +62,14 @@ def update_info(inv, waveform_stream):
         if(status == False):
             for thewave in waveform_stream:
                 waveid = thewave.id
-                if(waveid == channel):
+                waveid_split = waveid.split(".")
+                channel_split = channel.split(".")
+                waveid_key = ".".join(
+                    [waveid_split[0], waveid_split[1], waveid_split[3]])
+                channel_key = ".".join(
+                    [channel_split[0], channel_split[1], channel_split[3]])
+                # we assume the location id will not change the lle
+                if(waveid_key == channel_key):
                     status = True
                     inv[0][0].latitude = thewave.stats.sac.stla
                     inv[0][0].longitude = thewave.stats.sac.stlo
