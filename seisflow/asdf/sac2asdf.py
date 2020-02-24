@@ -21,9 +21,13 @@ def sac2asdf(sac_directory, response_directory, cmt_path, output_path):
         # we should select files
         files = [item for item in files if isfile(item)]
         station_xml = Inventory()  # pylint: disable=no-value-for-parameter
-
+        stream_mapper = {}
         for filename in files:
             waveform_stream = obspy.read(filename)
+            waveid = waveform_stream[0].id
+            net, sta, _, _ = waveid.split(".")
+            thekey = f"{net}.{sta}"
+            stream_mapper[thekey] = waveform_stream
             ds.add_waveforms(waveform_stream, tag="raw", event_id=event)
 
         #     # add stationxml
@@ -48,7 +52,7 @@ def sac2asdf(sac_directory, response_directory, cmt_path, output_path):
             rep_usable_channel = inv_temp.get_contents()["channels"][0]
             net, sta, _, _ = rep_usable_channel.split(".")
             thekey = f"{net}.{sta}"
-            waveform_stream = ds.waveforms[thekey].raw
+            waveform_stream = stream_mapper[thekey]
             inv_temp = update_info(inv_temp, waveform_stream)
             station_xml += inv_temp
         ds.add_stationxml(station_xml)
