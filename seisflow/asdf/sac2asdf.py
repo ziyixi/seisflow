@@ -2,7 +2,7 @@
 sac2asdf: convert sac files to the asdf format. 
 """
 from glob import glob
-from os.path import join
+from os.path import join, isfile
 
 import obspy
 import pyasdf
@@ -18,6 +18,8 @@ def sac2asdf(sac_directory, response_directory, cmt_path, output_path):
         event = ds.events[0]
         # read in waves
         files = sorted(glob(join(sac_directory, "*")))
+        # we should select files
+        files = [item for item in files if isfile(item)]
         station_xml = Inventory()  # pylint: disable=no-value-for-parameter
 
         for filename in files:
