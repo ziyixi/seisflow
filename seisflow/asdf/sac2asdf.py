@@ -69,9 +69,9 @@ def update_info(inv, waveform_stream):
                 waveid_split = waveid.split(".")
                 channel_split = channel.split(".")
                 waveid_key = ".".join(
-                    [waveid_split[0], waveid_split[1], waveid_split[3]])
+                    [waveid_split[0], waveid_split[1]])
                 channel_key = ".".join(
-                    [channel_split[0], channel_split[1], channel_split[3]])
+                    [channel_split[0], channel_split[1]])
                 # we assume the location id will not change the lle
                 if(waveid_key == channel_key):
                     status = True
