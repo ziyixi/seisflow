@@ -10,19 +10,23 @@ function generate_perturbation(target_basedir::String, reference_basedir::String
     tags_splitted = split(tags, ",")
     p = Progress(nproc)
     @threads for iproc in 0:nproc - 1
-        model_gll_reference = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
-        model_gll_target = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
-        model_gll_output = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
-        for tag in tags_splitted
-            # convert tag to String
-            tag = String(tag)
-            sem_io_read_gll_file_1!(reference_basedir, iproc, tag, model_gll_reference)
-            sem_io_read_gll_file_1!(target_basedir, iproc, tag, model_gll_target)
-            
-            model_gll_output = (model_gll_target .- model_gll_reference) ./ model_gll_reference
-            sem_io_write_gll_file_1(output_basedir, iproc, tag, model_gll_output)
-        end
+        kernel_generate_perturbation(target_basedir, reference_basedir, output_basedir, tags, iproc, nspec)
         next!(p)
+    end
+end
+
+function kernel_generate_perturbation(target_basedir::String, reference_basedir::String, output_basedir::String, tags::String, iproc::Int64, nspec::Int64)
+    model_gll_reference = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
+    model_gll_target = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
+    model_gll_output = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
+    for tag in tags_splitted
+        # convert tag to String
+        tag = String(tag)
+        sem_io_read_gll_file_1!(reference_basedir, iproc, tag, model_gll_reference)
+        sem_io_read_gll_file_1!(target_basedir, iproc, tag, model_gll_target)
+            
+        model_gll_output = (model_gll_target .- model_gll_reference) ./ model_gll_reference
+        sem_io_write_gll_file_1(output_basedir, iproc, tag, model_gll_output)
     end
 end
 
