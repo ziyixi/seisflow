@@ -12,7 +12,7 @@ function generate_perturbation(target_basedir::String, reference_basedir::String
     model_gll_target = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
     model_gll_output = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
     p = Progress(nproc)
-    @threads for iproc in 0:nproc - 1
+    for iproc in 0:nproc - 1
         for tag in tags_splitted
             # convert tag to String
             tag = String(tag)
