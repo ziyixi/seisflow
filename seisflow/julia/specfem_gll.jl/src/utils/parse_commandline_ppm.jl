@@ -2,7 +2,7 @@ using ArgParse
 
 function parse_commandline()
     s = ArgParseSettings(description = """This program is used to generate profile lines""")
-    @add_arg_table s begin
+    @add_arg_table! s begin
         """--nproc_old"""
         help = "number of slices of the old mesh"
         arg_type = Int64

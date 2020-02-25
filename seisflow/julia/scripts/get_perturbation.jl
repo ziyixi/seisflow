@@ -5,7 +5,7 @@ include("../specfem_gll.jl/src/utils/readfiles.jl")
 function parse_command_line()
     s = ArgParseSettings()
 
-    @add_arg_table s begin
+    @add_arg_table! s begin
         "--target_basedir"
             help = "the target gll directory"
         "--reference_basedir"

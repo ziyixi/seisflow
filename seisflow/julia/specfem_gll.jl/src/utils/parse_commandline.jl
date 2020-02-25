@@ -6,7 +6,7 @@ function parse_commandline()
     use two values: ANGULAR_WIDTH_XI_IN_DEGREES_VAL, NEX_XI_VAL
     3) the new_model is used as the background model where the
     old mesh doesn't cover""")
-    @add_arg_table s begin
+    @add_arg_table! s begin
         "--nproc_old"
         help = "number of slices of the old mesh"
         arg_type = Int64
