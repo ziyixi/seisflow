@@ -75,6 +75,7 @@ def update_info(inv, waveform_stream):
                 # we assume the location id will not change the lle
                 if(waveid_key == channel_key):
                     status = True
+                    # note here we only update the station part of the inv, use with cautious!
                     inv[0][0].latitude = thewave.stats.sac.stla
                     inv[0][0].longitude = thewave.stats.sac.stlo
                     inv[0][0].elevation = thewave.stats.sac.stel

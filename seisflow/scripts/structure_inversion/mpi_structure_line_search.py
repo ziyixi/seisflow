@@ -1,17 +1,19 @@
 """
 mpi_structure_line_search.py: perform the structure line search in parallel for all the events.
 """
+import sys
 from glob import glob
 from os.path import basename, join
 
 import numpy as np
 from mpi4py import MPI
 
-from ...tasks.structure_inversion.line_search import calculate_weighted_misfit, get_perturbed_vir_sync
+from ...tasks.structure_inversion.line_search import (
+    calculate_weighted_misfit, get_perturbed_vir_sync)
 from ...utils.asdf_io import VirAsdf
-from ...utils.load_files import load_first_arrival_baz_evdp, load_windows
-from ...utils.setting import SURFACE_THRESHOLD, LINE_SEARCH_PERTURBATION
 from ...utils.get_path import get_data_asdf_fnames, get_sync_asdf_fnames
+from ...utils.load_files import load_first_arrival_baz_evdp, load_windows
+from ...utils.setting import LINE_SEARCH_PERTURBATION, SURFACE_THRESHOLD
 
 comm = MPI.COMM_WORLD  # pylint: disable=c-extension-no-member
 size = comm.Get_size()
@@ -130,6 +132,9 @@ if __name__ == "__main__":
             search_misfit_result.append(
                 do_search(each_search_step, windows, consider_surface, data_virasdf_body, data_virasdf_surface, sync_virasdf_body_raw, sync_virasdf_body_perturbed,
                           sync_virasdf_surface_raw, sync_virasdf_surface_perturbed, stations, first_arrival_zr, first_arrival_t, baz))
+            print(
+                f"step: {each_search_step}; misfit: {search_misfit_result[-1]}")
+            sys.stdout.flush()
         # * print the result
         if (rank == 0):
             search_misfit_result = np.array(search_misfit_result)
