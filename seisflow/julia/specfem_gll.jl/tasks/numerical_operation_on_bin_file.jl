@@ -20,7 +20,6 @@ function generate_perturbation(target_basedir::String, reference_basedir::String
             sem_io_read_gll_file_1!(target_basedir, iproc, tag, model_gll_target)
             
             model_gll_output = (model_gll_target .- model_gll_reference) ./ model_gll_reference
-            @assert count(isnan.(model_gll_output)) == 0
             sem_io_write_gll_file_1(output_basedir, iproc, tag, model_gll_output)
         end
         next!(p)
@@ -44,7 +43,6 @@ function generate_real(target_basedir::String, reference_basedir::String, output
             sem_io_read_gll_file_1!(target_basedir, iproc, tag, model_gll_target)
             
             model_gll_output = model_gll_reference .* (1 .+ model_gll_target)
-            @assert count(isnan.(model_gll_output)) == 0
             sem_io_write_gll_file_1(output_basedir, iproc, tag, model_gll_output)
         end
         next!(p)
@@ -68,7 +66,6 @@ function generate_difference(target_basedir::String, reference_basedir::String, 
             sem_io_read_gll_file_1!(target_basedir, iproc, tag, model_gll_target)
             
             model_gll_output = model_gll_target .- model_gll_reference
-            @assert count(isnan.(model_gll_output)) == 0
             sem_io_write_gll_file_1(output_basedir, iproc, tag, model_gll_output)
         end
         next!(p)
@@ -90,7 +87,6 @@ function minus_sign(target_basedir::String, output_basedir::String, tags::String
             sem_io_read_gll_file_1!(target_basedir, iproc, tag, model_gll_target)
             
             model_gll_output = -model_gll_target
-            @assert count(isnan.(model_gll_output)) == 0
             sem_io_write_gll_file_1(output_basedir, iproc, tag, model_gll_output)
         end
         next!(p)
