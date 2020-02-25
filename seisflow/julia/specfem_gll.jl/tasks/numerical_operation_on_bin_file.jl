@@ -7,7 +7,6 @@ using Base.Threads
 generate perturbation file according to the reference bin file
 """
 function generate_perturbation(target_basedir::String, reference_basedir::String, output_basedir::String, tags::String, nproc::Int64, nspec::Int64)
-    tags_splitted = split(tags, ",")
     p = Progress(nproc)
     @threads for iproc in 0:nproc - 1
         kernel_generate_perturbation(target_basedir, reference_basedir, output_basedir, tags, iproc, nspec)
@@ -16,6 +15,7 @@ function generate_perturbation(target_basedir::String, reference_basedir::String
 end
 
 function kernel_generate_perturbation(target_basedir::String, reference_basedir::String, output_basedir::String, tags::String, iproc::Int64, nspec::Int64)
+    tags_splitted = split(tags, ",")
     model_gll_reference = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
     model_gll_target = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
     model_gll_output = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
