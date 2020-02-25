@@ -8,11 +8,11 @@ generate perturbation file according to the reference bin file
 """
 function generate_perturbation(target_basedir::String, reference_basedir::String, output_basedir::String, tags::String, nproc::Int64, nspec::Int64)
     tags_splitted = split(tags, ",")
-    model_gll_reference = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
-    model_gll_target = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
-    model_gll_output = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
     p = Progress(nproc)
-    for iproc in 0:nproc - 1
+    @threads for iproc in 0:nproc - 1
+        model_gll_reference = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
+        model_gll_target = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
+        model_gll_output = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
         for tag in tags_splitted
             # convert tag to String
             tag = String(tag)
@@ -31,11 +31,11 @@ generate the real vaue bin file based on reference model and perturbation bin fi
 """
 function generate_real(target_basedir::String, reference_basedir::String, output_basedir::String, tags::String, nproc::Int64, nspec::Int64)
     tags_splitted = split(tags, ",")
-    model_gll_reference = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
-    model_gll_target = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
-    model_gll_output = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
     p = Progress(nproc)
     @threads for iproc in 0:nproc - 1
+        model_gll_reference = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
+        model_gll_target = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
+        model_gll_output = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
         for tag in tags_splitted
             # convert tag to String
             tag = String(tag)
@@ -54,11 +54,11 @@ calculate the difference between two sets of gll files.
 """
 function generate_difference(target_basedir::String, reference_basedir::String, output_basedir::String, tags::String, nproc::Int64, nspec::Int64)
     tags_splitted = split(tags, ",")
-    model_gll_reference = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
-    model_gll_target = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
-    model_gll_output = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
     p = Progress(nproc)
     @threads for iproc in 0:nproc - 1
+        model_gll_reference = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
+        model_gll_target = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
+        model_gll_output = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
         for tag in tags_splitted
             # convert tag to String
             tag = String(tag)
@@ -77,10 +77,10 @@ calculate the model with the minus sign
 """
 function minus_sign(target_basedir::String, output_basedir::String, tags::String, nproc::Int64, nspec::Int64)
     tags_splitted = split(tags, ",")
-    model_gll_target = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
-    model_gll_output = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
     p = Progress(nproc)
     @threads for iproc in 0:nproc - 1
+        model_gll_target = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
+        model_gll_output = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
         for tag in tags_splitted
             # convert tag to String
             tag = String(tag)
