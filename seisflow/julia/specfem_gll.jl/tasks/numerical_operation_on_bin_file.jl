@@ -119,10 +119,13 @@ function kernel_generate_new(old_basedir::String, per_basedir::String, output_ba
     for tag in tags_splitted
         # convert tag to String
         tag = String(tag)
-        sem_io_read_gll_file_1!(old_basedir, iproc, tag, model_gll_old)
-        sem_io_read_gll_file_1!(per_basedir, iproc, tag, model_gll_per)
+        tag_old=tag*"_new"
+        sem_io_read_gll_file_1!(old_basedir, iproc, tag_old, model_gll_old)
+        # modify tag here
+        tag_per="d"*tag*tag
+        sem_io_read_gll_file_1!(per_basedir, iproc, tag_per, model_gll_per)
             
         model_gll_output = model_gll_old.*(exp.(model_gll_per))
-        sem_io_write_gll_file_1(output_basedir, iproc, tag, model_gll_output)
+        sem_io_write_gll_file_1(output_basedir, iproc, tag_old, model_gll_output)
     end
 end
