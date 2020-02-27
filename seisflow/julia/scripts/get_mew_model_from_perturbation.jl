@@ -35,7 +35,7 @@ function main()
     mesh_info = sem_mesh_read(mesh_basedir, 0)
     nspec = mesh_info.nspec
     # run generate_new
-    generate_new(target_basedir, reference_basedir, output_basedir, tags, nproc, nspec)
+    generate_new(old_basedir, per_basedir, output_basedir, tags, nproc, nspec)
 end
 
 main()
