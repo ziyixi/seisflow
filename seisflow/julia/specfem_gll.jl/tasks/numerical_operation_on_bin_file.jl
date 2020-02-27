@@ -103,9 +103,7 @@ get new model from the perturbation.
 function generate_new(old_basedir::String, per_basedir::String, output_basedir::String, tags::String, nproc::Int64, nspec::Int64)
     p = Progress(nproc)
     @threads for iproc in 0:nproc - 1
-        try
-            kernel_generate_new(old_basedir, per_basedir, output_basedir, tags, iproc, nspec)
-        catch e
+        kernel_generate_new(old_basedir, per_basedir, output_basedir, tags, iproc, nspec)
         end
         next!(p)
     end
@@ -117,16 +115,18 @@ function kernel_generate_new(old_basedir::String, per_basedir::String, output_ba
     model_gll_old = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
     model_gll_output = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
     for tag in tags_splitted
-        # convert tag to String
-        tag = String(tag)
-        tag_old=tag*"_new"
-        sem_io_read_gll_file_1!(old_basedir, iproc, tag_old, model_gll_old)
-        # modify tag here
-        tag_per="d"*tag*tag
-        sem_io_read_gll_file_1!(per_basedir, iproc, tag_per, model_gll_per)
-            
-        model_gll_output = model_gll_old.*(exp.(model_gll_per))
-        sem_io_write_gll_file_1(output_basedir, iproc, tag_old, model_gll_output)
+        try
+            # convert tag to String
+            tag = String(tag)
+            tag_old=tag*"_new"
+            sem_io_read_gll_file_1!(old_basedir, iproc, tag_old, model_gll_old)
+            # modify tag here
+            tag_per="d"*tag*tag
+            sem_io_read_gll_file_1!(per_basedir, iproc, tag_per, model_gll_per)
+                
+            model_gll_output = model_gll_old.*(exp.(model_gll_per))
+            sem_io_write_gll_file_1(output_basedir, iproc, tag_old, model_gll_output)
+        catch e
     end
 end
 
