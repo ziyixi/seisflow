@@ -129,3 +129,15 @@ function kernel_generate_new(old_basedir::String, per_basedir::String, output_ba
         sem_io_write_gll_file_1(output_basedir, iproc, tag_old, model_gll_output)
     end
 end
+
+"""
+Compare two models.
+"""
+function compare_model(target_basedir::String, reference_basedir::String,tag::String,  nspec::Int64,iproc::Int64)
+    model_gll_target = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
+    model_gll_reference = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
+    sem_io_read_gll_file_1!(target_basedir, iproc, tag, model_gll_target)
+    sem_io_read_gll_file_1!(reference_basedir, iproc, tag, model_gll_reference)
+    model_diff=model_gll_target.-model_gll_reference
+    @info "max difference" maximum(model_diff)
+end
