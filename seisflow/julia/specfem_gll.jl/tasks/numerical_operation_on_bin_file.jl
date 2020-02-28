@@ -104,7 +104,6 @@ function generate_new(old_basedir::String, per_basedir::String, output_basedir::
     p = Progress(nproc)
     @threads for iproc in 0:nproc - 1
         kernel_generate_new(old_basedir, per_basedir, output_basedir, tags, iproc, nspec)
-        end
         next!(p)
     end
 end
