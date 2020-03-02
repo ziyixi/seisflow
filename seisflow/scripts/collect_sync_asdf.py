@@ -18,7 +18,11 @@ def move_all_files(all_files, output_directory):
         fname_splitter = each_file.split("/")
         gcmtid = fname_splitter[-2]
         output_path = join(output_directory, f"{gcmtid}.h5")
-        sh.mv(each_file, output_path)
+        # when use this script to collect asdf files that the running program has been breaked
+        try:
+            sh.mv(each_file, output_path)
+        except sh.ErrorReturnCode_1:
+            pass
 
 
 if __name__ == "__main__":
