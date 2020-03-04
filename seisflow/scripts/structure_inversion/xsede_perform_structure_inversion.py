@@ -80,6 +80,9 @@ def main(base_directory, cmts_directory, ref_directory, windows_directory, data_
         pyexec, join(base_directory, 'output'), join(base_directory, 'raw_sync'))
     # * process the sync
     n_cores_each_event = nproc*n_each//n_total
+    # ! note here mvapich2 may have the problem of "time out". No better solution, try  to use 24 cores here.
+    if(n_cores_each_event > 24):
+        n_cores_each_event = 24
     result += get_process_sync_scripts(join(base_directory, "raw_sync"), join(base_directory, "processed_sync"), 1, n_total, n_cores_each_event,
                                        periods, waveform_length, sampling_rate, taper_tmin_tmaxs, reference_directory=past_raw_directory)
     result += f"cd {current_path}; \n"
