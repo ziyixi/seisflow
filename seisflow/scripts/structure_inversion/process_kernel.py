@@ -163,6 +163,8 @@ def itern_generate_perturbed_kernel(kernel_process_directory, perturbed_value, p
     result += f"mkdir -p gll_for_perturbed_{perturbed_value}_for_line_search;"
     result += f"mv OUTPUT_MODEL/* perturbed_{perturbed_value}_for_line_search/;"
     # ! here we have to make the gll directory
+    # fix a bug here, as ln_new_model_to_gll will call seisflow
+    result += f"cd {current_path};\n"
     result += ln_new_model_to_gll(pyexec, join(kernel_process_directory,
                                                f"perturbed_{perturbed_value}_for_line_search"), join(kernel_process_directory, f"gll_for_perturbed_{perturbed_value}_for_line_search"))
     result += f"cd {current_path};\n"
