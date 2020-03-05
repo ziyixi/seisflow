@@ -146,7 +146,7 @@ def main(base_directory, cmts_directory, ref_directory, windows_directory, data_
     result += f"cd {current_path}; \n"
     # * for all events in the simulation dir, change the GLL soft link
     result += replace_gll_link(pyexec, join(base_directory,
-                                            "simulation"), join(base_directory, "process_kernel", f"perturbed_{LINE_SEARCH_PERTURBATION}_for_line_search"))
+                                            "simulation"), join(base_directory, "process_kernel", f"gll_for_perturbed_{LINE_SEARCH_PERTURBATION}_for_line_search"))
     # * run the forward simulation job
     perturbation_simulation_command = forward_task(base=join(base_directory, "simulation"),
                                                    N_total=n_total, N_each=n_each, N_iter=n_iter, nproc=nproc, run_mesh=True)
