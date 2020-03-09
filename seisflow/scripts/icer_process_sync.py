@@ -50,10 +50,10 @@ if __name__ == "__main__":
     @click.option('--waveform_length', required=True, type=str, help="the length of the waveform to cut")
     @click.option('--sampling_rate', required=True, type=int, help="the sampling rate to use")
     @click.option('--taper_tmin_tmaxs', required=True, type=str, help="the taper time bands: minp1,maxp1/minp2,maxp2/...")
-    def main(sync_directory, output_directory,
+    def main(data_directory, output_directory,
              n_iters, n_node, n_cores_each_node, py, used_time,
              periods, waveform_length, sampling_rate, taper_tmin_tmaxs):
-        run_files = get_files(sync_directory)
+        run_files = get_files(data_directory)
         all_scripts = []
         for each_taper_tmin_tmax, each_period in zip(taper_tmin_tmaxs.split("/"), periods.split("/")):
             min_period, max_period = each_period.split(",")
