@@ -41,7 +41,7 @@ if __name__ == "__main__":
     import click
 
     @click.command()
-    @click.option('--sync_directory', required=True, type=str, help="the raw sync directory")
+    @click.option('--data_directory', required=True, type=str, help="the raw data directory")
     @click.option('--output_directory', required=True, type=str, help="the processed sync directory")
     @click.option('--n_iters', required=True, type=int, help="iterations to run")
     @click.option('--n_node', required=True, type=int, help="number of nodes to be used")
