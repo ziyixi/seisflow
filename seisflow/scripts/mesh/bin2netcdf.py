@@ -21,9 +21,10 @@ def bin2ppm(nproc_old, model_tags, region, npts, nproc,
     result = ""
     julia_path = get_julia("specfem_gll.jl/src/program/get_ppm_model.jl")
     latnproc, lonnproc = map(int, nproc.split("/"))
-    nproc_ppm2netcdf = latnproc*lonnproc
-    result += f"ibrun -n {nproc_ppm2netcdf} julia '{julia_path}' --nproc_old {nproc_old} --old_mesh_dir {old_mesh_dir} --old_model_dir {old_model_dir} --model_tags {model_tags} --output_file {output_dir} \
-            --region {region} --npts {npts} --nproc {nproc}; \n"
+    nproc_ppm2netcdf = latnproc * lonnproc
+    # ! note there is a issue of precompiling the code in a race condition, refer to https://github.com/simonbyrne/PkgLock.jl to solve the problem
+    result += "julia --project -e 'push!(LOAD_PATH, \"@pkglock\"); using PkgLock; PkgLock.instantiate_precompile()'\n"
+    result += f"ibrun -n {nproc_ppm2netcdf} julia '{julia_path}' --nproc_old {nproc_old} --old_mesh_dir {old_mesh_dir} --old_model_dir {old_model_dir} --model_tags {model_tags} --output_file {output_dir} --region {region} --npts {npts} --nproc {nproc}; \n"
     return result
 
 
@@ -34,7 +35,7 @@ def ppm2netcdf(base_dir, region, npts, nproc, parameters, out_path, history):
     result = ""
     pyexec = sys.executable
     result += f"{pyexec} -m seisflow.scripts.mesh.convert_txt_output_2_netcdf --base_dir {base_dir} --region {region} --npts {npts} --nproc {nproc} \
-        --parameters {parameters} --out_path {out_path} --history {history}; \n"
+        --parameters {parameters} --out_path {out_path} --history '{history}''; \n"
     return result
 
 
