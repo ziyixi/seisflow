@@ -35,7 +35,7 @@ def ppm2netcdf(base_dir, region, npts, nproc, parameters, out_path, history):
     result = ""
     pyexec = sys.executable
     result += f"{pyexec} -m seisflow.scripts.mesh.convert_txt_output_2_netcdf --base_dir {base_dir} --region {region} --npts {npts} --nproc {nproc} \
-        --parameters {parameters} --out_path {out_path} --history '{history}''; \n"
+        --parameters {parameters} --out_path {out_path} --history '{history}'; \n"
     return result
 
 
