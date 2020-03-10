@@ -3,7 +3,7 @@ bin2netcdf.py: submit a job to convert the mesh bin files to the netcdf file.
 """
 
 import sys
-from os.path import dirname, join
+from os.path import basename, dirname, join
 
 import click
 import sh
@@ -22,7 +22,7 @@ def bin2ppm(nproc_old, model_tags, region, npts, nproc,
     latnproc, lonnproc = map(int, nproc.split("/"))
     nproc_ppm2netcdf = latnproc * lonnproc
     # ! note there is a issue of precompiling the code in a race condition, refer to https://github.com/simonbyrne/PkgLock.jl to solve the problem
-    result += "julia --project -e 'push!(LOAD_PATH, \"@pkglock\"); using PkgLock; PkgLock.instantiate_precompile()'\n"
+    # result += "julia --project -e 'push!(LOAD_PATH, \"@pkglock\"); using PkgLock; PkgLock.instantiate_precompile()'\n"
     result += f"ibrun -n {nproc_ppm2netcdf} julia '{julia_path}' --nproc_old {nproc_old} --old_mesh_dir {old_mesh_dir} --old_model_dir {old_model_dir} --model_tags {model_tags} --output_file {output_dir} --region {region} --npts {npts} --nproc {nproc}; \n"
     return result
 
@@ -59,7 +59,7 @@ def main(nproc_old, model_tags, region, npts, nproc, n_node, history, partition,
     """
     # * firstly we have to make a tmp file to store the
     # temp_directory = tempfile.mkdtemp()
-    temp_directory = join(dirname(output_path), ".data")
+    temp_directory = join(dirname(output_path), "."+basename(output_path))
     sh.mkdir("-p", temp_directory)
     # * generate the ppm model
     result = ""
