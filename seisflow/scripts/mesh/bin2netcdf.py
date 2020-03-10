@@ -3,8 +3,7 @@ bin2netcdf.py: submit a job to convert the mesh bin files to the netcdf file.
 """
 
 import sys
-import tempfile
-from os.path import join
+from os.path import dirname, join
 
 import click
 import sh
@@ -59,7 +58,9 @@ def main(nproc_old, model_tags, region, npts, nproc, n_node, history, partition,
     submit a job to convert the mesh bin files to the netcdf file.
     """
     # * firstly we have to make a tmp file to store the
-    temp_directory = tempfile.mkdtemp()
+    # temp_directory = tempfile.mkdtemp()
+    temp_directory = join(dirname(output_path), ".data")
+    sh.mkdir("-p", temp_directory)
     # * generate the ppm model
     result = ""
     result += "date; \n"
