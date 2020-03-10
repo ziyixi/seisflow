@@ -64,7 +64,10 @@ def main(nproc_old, model_tags, region, npts, nproc, n_node, history, partition,
     # * generate the ppm model
     result = ""
     result += "date; \n"
-    result += bin2ppm(nproc_old, model_tags, region, npts, nproc,
+    # bin2ppm npts use nlat/nlon/ndep
+    nlon, nlat, ndep = npts.split("/")
+    npts_bin2ppm = "/".join([nlat, nlon, ndep])
+    result += bin2ppm(nproc_old, model_tags, region, npts_bin2ppm, nproc,
                       old_mesh_dir, old_model_dir, temp_directory)
     # * convert to netcdf model
     # region in bin2ppm: lon1/lat1/lon2/lat2/dep1/dep2; region in ppm2netcdf: minlon/maxlon/minlat/maxlat/mindep/maxdep
