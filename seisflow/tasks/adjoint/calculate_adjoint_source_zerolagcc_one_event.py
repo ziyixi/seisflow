@@ -119,6 +119,11 @@ def calculate_adjoint_source_zerolagcc_one_event(misfit_windows, stations, raw_s
     rep_trace = rep_sync_wg["st"][0]
     adjoint_source_length = len(rep_trace.data)
 
+    # ! fix a bug, when the event time of raw_sync_virasdf and sync_virasdf_body are different, we have to consider raw_sync_asdf_trace_adjust_time
+    true_event_time = sync_virasdf_body.get_events()[0].preferred_origin().time
+    raw_event_time = raw_sync_virasdf.get_events()[0].preferred_origin().time
+    raw_sync_asdf_trace_adjust_time = true_event_time-raw_event_time
+
     for net_sta in weights_for_all:
         # in the order of E,T,Z
         adjoint_source_zerolagcc[net_sta] = np.zeros(
@@ -153,7 +158,7 @@ def calculate_adjoint_source_zerolagcc_one_event(misfit_windows, stations, raw_s
                 data_asdf_trace = data_wg["st"].select(
                     component=component)[0]
                 each_adjoint_trace = calculate_adjoint_source_each_window(
-                    each_misfit_window, raw_sync_asdf_trace, sync_asdf_trace, data_asdf_trace, mintime, maxtime)
+                    each_misfit_window, raw_sync_asdf_trace, sync_asdf_trace, data_asdf_trace, mintime, maxtime, raw_sync_asdf_trace_adjust_time=raw_sync_asdf_trace_adjust_time)
 
                 if (component == "Z"):
                     adjoint_source_zerolagcc[net_sta][2, :] += each_adjoint_trace.data * \
