@@ -119,7 +119,7 @@ def source_line_search(py, nproc, green_raw_asdf_directory, green_perturbed_asdf
 
 
 def make_source_inversion_directory(iter_number, inversion_directory, cmtfiles_directory, ref_directory, data_directory, windows_directory,
-                                    data_info_directory, stations_path, raw_sync_directory):
+                                    data_info_directory, stations_path, raw_sync_directory, manual_mv):
     """
     make the running directory for the source inversion.
     """
@@ -173,7 +173,7 @@ def make_source_inversion_directory(iter_number, inversion_directory, cmtfiles_d
         sh.mv(windows_directory, windows)
         sh.mv(data_info_directory, data_info)
         sh.mv(raw_sync_directory, raw_sync)
-    elif (int(iter_number) > 1):
+    elif ((int(iter_number) > 1) and (not manual_mv)):
         sh.rm("-rf", specfem_cmtfiles)
         iter_last_cmt = join(inversion_directory, "cmts",
                              f"iter{int(iter_number)-1}_next_cmtsolutions")
@@ -224,12 +224,13 @@ def make_source_inversion_directory(iter_number, inversion_directory, cmtfiles_d
 @click.option('--alpha_range', required=True, type=str, help="the line search range for alpha")
 @click.option('--t0_range', required=True, type=str, help="the line search range for t0")
 @click.option('--tau_range', required=True, type=str, help="the line search range for tau, use 'fixed' if no change")
+@click.option('--manual_mv/--no-manual_mv', required=False, default=False, help="for new iterations, if mv the cmt files manually")
 def source_inversion_single_step(iter_number, py, n_total, n_each, n_iter, nproc, n_node, ntasks, partition, simulation_time_step1, account,
                                  n_node_line_search, ntasks_line_search, partition_line_search, simulation_time_step2,
                                  inversion_directory, cmtfiles_directory, ref_directory, data_directory, windows_directory, data_info_directory, stations_path,
                                  raw_sync_directory,
                                  waveform_length, taper_tmin_tmaxs, periods, sampling_rate,
-                                 alpha_range, t0_range, tau_range):
+                                 alpha_range, t0_range, tau_range, manual_mv):
     """
     perform the source inversion for one step.
     """
@@ -238,7 +239,7 @@ def source_inversion_single_step(iter_number, py, n_total, n_each, n_iter, nproc
      iter_conv1_processed, iter_misfit_windows, iter_adjoint_source, iter_src_frechets, iter_green2_cmt,
      iter_green2_sync, iter_next_cmt) = make_source_inversion_directory(
         iter_number, inversion_directory, cmtfiles_directory, ref_directory, data_directory, windows_directory, data_info_directory, stations_path,
-        raw_sync_directory)
+        raw_sync_directory, manual_mv)
 
     # * step 1: generaet two green function asdf files.
     # init
