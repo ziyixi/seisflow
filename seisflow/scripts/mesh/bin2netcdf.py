@@ -3,7 +3,7 @@ bin2netcdf.py: submit a job to convert the mesh bin files to the netcdf file.
 """
 
 import sys
-from os.path import basename, dirname, join
+from os.path import basename, dirname, join, expanduser
 
 import click
 import sh
@@ -63,6 +63,15 @@ def main(nproc_old, model_tags, region, npts, nproc, n_node, history, partition,
     sh.mkdir("-p", temp_directory)
     # * generate the ppm model
     result = ""
+    # ! fix MPI cache issue
+    home = expanduser("~")
+    julia_path = join(home, ".julia")
+    result += f"export JULIA_DEPOT_PATH={julia_path}\n"
+    result += f"TMPDIR=`mktemp -d`\n"
+    result += f"mkdir '$TMPDIR/compiled'\n"
+    # if use v1.1
+    result += f"rsync -au '$JULIA_DEPOT_PATH/compiled/v1.1' '$TMPDIR/compiled/'\n"
+    result += f"export JULIA_DEPOT_PATH='$TMPDIR:$JULIA_DEPOT_PATH'\n"
     result += "date; \n"
     # bin2ppm npts use nlat/nlon/ndep
     nlon, nlat, ndep = npts.split("/")

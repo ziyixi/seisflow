@@ -1,10 +1,11 @@
 """
 plot_vertical_cross_section_from_netcdf.py: plot the vertical cross section from the netcdf file.
 """
-from scipy.io import netcdf
-from scipy.interpolate import RegularGridInterpolator
-import numpy as np
+import click
 import matplotlib.pyplot as plt
+import numpy as np
+from scipy.interpolate import RegularGridInterpolator
+from scipy.io import netcdf
 
 
 def generate_vcs_mesh(lon1, lat1, lon2, lat2, dep1, dep2, rh, rdep, theta_label):
@@ -54,8 +55,8 @@ def extract_data_v(netcdf_data, lon1, lat1, lon2, lat2, dep1, dep2, rh, rdep, th
     return mesh_theta, mesh_dep, plot_values
 
 
-def plot_v(lat1, lat2, lon1, lon2, theta_label, mesh_theta, mesh_dep, plot_values):
-    fig = plt.figure(figsize=(20, 14))
+def plot_v(lat1, lat2, lon1, lon2, dep2, theta_label, mesh_theta, mesh_dep, plot_values, vmin, vmax):
+    fig = plt.figure()
     ax = fig.add_subplot(111, polar=True)
     if(theta_label == "lat"):
         lat2, lat1 = min(lat1, lat2), max(lat1, lat2)
@@ -68,13 +69,35 @@ def plot_v(lat1, lat2, lon1, lon2, theta_label, mesh_theta, mesh_dep, plot_value
         ax.set_thetamax(lon1)
         ax.set_theta_zero_location("N", offset=-(lon1+lon2)/2)
     ax.set_rorigin(6371)
-    ax.set_rlim(bottom=800, top=0)
-    # ax.scatter(40,300,s=100)
+    ax.set_rlim(bottom=dep2, top=0)
 
     contourf_ = ax.pcolormesh(np.deg2rad(
-        mesh_theta), mesh_dep, plot_values, cmap=plt.cm.seismic_r, vmin=-0.06, vmax=0.06)
-    # plt.colorbar(contourf_)
+        mesh_theta), mesh_dep, plot_values, cmap=plt.cm.jet_r, vmin=vmin, vmax=vmax)  # pylint: disable=no-member
     plt.colorbar(contourf_, orientation='horizontal', fraction=0.046, pad=-0.4)
-    ax.set_ylabel('Depth(km)', size=20)
 
     plt.show()
+
+
+@click.command()
+@click.option('--netcdf_file', required=True, type=str, help="the netcdf file")
+@click.option('--parameter', required=True, type=str, help="the parameter to plot")
+@click.option('--vmin', required=True, type=float, help="the min colorbar threshold")
+@click.option('--vmax', required=True, type=float, help="the max colorbar threshold")
+@click.option('--region', required=True, type=str, help="plot region, lon1/lat1/lon2/lat2/dep1/dep2")
+@click.option('--rh', required=True, type=float, help="the horizontal resolution")
+@click.option('--rdep', required=True, type=float, help="the vertical resolution")
+@click.option('--theta_label', required=True, type=str, help="can be lat or lon")
+def main(netcdf_file, parameter, vmin, vmax, region, rh, rdep, theta_label):
+    with netcdf.netcdf_file(netcdf_file, 'r') as f:
+        interpolating_function = get_interp_function(
+            f, parameter, method="linear")
+        lon1, lat1, lon2, lat2, dep1, dep2 = map(float, region.split("/"))
+        mesh_theta, mesh_dep, array_to_interpolate = generate_vcs_mesh(
+            lon1, lat1, lon2, lat2, dep1, dep2, rh, rdep, theta_label)
+        plot_values = interpolating_function(array_to_interpolate)
+        plot_v(lat1, lat2, lon1, lon2, dep2, theta_label,
+               mesh_theta, mesh_dep, plot_values, vmin, vmax)
+
+
+if __name__ == "__main__":
+    main()  # pylint: disable=no-value-for-parameter
