@@ -70,10 +70,11 @@ def plot_v(lat1, lat2, lon1, lon2, dep2, theta_label, mesh_theta, mesh_dep, plot
         ax.set_theta_zero_location("N", offset=-(lon1+lon2)/2)
     ax.set_rorigin(6371)
     ax.set_rlim(bottom=dep2, top=0)
+    plt.subplots_adjust(bottom=0.2)
 
     contourf_ = ax.pcolormesh(np.deg2rad(
         mesh_theta), mesh_dep, plot_values, cmap=plt.cm.jet_r, vmin=vmin, vmax=vmax)  # pylint: disable=no-member
-    plt.colorbar(contourf_, orientation='horizontal', fraction=0.046, pad=-0.4)
+    plt.colorbar(contourf_, orientation='horizontal', fraction=0.046, pad=0.0)
 
     plt.show()
 
