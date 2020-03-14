@@ -15,7 +15,7 @@ def add_src_frechet(src_frechet, cmtsolution, max_dxs_ratio):
         [data[4], data[5], data[2]]
     ]) * 1e7
     # ! note here we have a bug, the output of specfem should be de,dn,-dz, to change to dr,dtheta,dphi, we have to
-    # ! change dp,-dt,-dr to dr,dt,dp
+    # ! change dp,-dt,-dr to dr,dt,dp (-ddep,-dlat,dlon)
     dchi_dxs = np.array([
         -data[8],
         -data[7],
@@ -40,8 +40,9 @@ def add_src_frechet(src_frechet, cmtsolution, max_dxs_ratio):
         scale_factor = max_dxs_ratio/(np.sum(dchi_dxs_ratio**2))**0.5
     dxs_ratio = scale_factor * dchi_dxs_ratio
     dmt_ratio = scale_factor * dchi_dmt_ratio
-    dxs = R_earth * dxs_ratio
-    dmt = m0 * dmt_ratio
+    # ! note we should add minus here, tao's kernel is opposite with mine
+    dxs = -R_earth * dxs_ratio
+    dmt = -m0 * dmt_ratio
 
     # * add to the raw CMTSOLUTION
     # firstly we have to rely on x,y,z to convert the coordinate (not a sphere)
