@@ -40,13 +40,11 @@ def add_src_frechet(src_frechet, cmtsolution, max_dxs_ratio):
         scale_factor = max_dxs_ratio/(np.sum(dchi_dxs_ratio**2))**0.5
     dxs_ratio = scale_factor * dchi_dxs_ratio
     dmt_ratio = scale_factor * dchi_dmt_ratio
-    # ! note we should add minus here, tao's kernel is opposite with mine
-    dxs = -R_earth * dxs_ratio
-    dmt = -m0 * dmt_ratio
+    dxs = R_earth * dxs_ratio
+    dmt = m0 * dmt_ratio
 
     # * add to the raw CMTSOLUTION
     # firstly we have to rely on x,y,z to convert the coordinate (not a sphere)
-    geod = pyproj.Geod(ellps='WGS84')
     ecef = pyproj.Proj(proj='geocent', ellps='WGS84', datum='WGS84')
     lla = pyproj.Proj(proj='latlong', ellps='WGS84', datum='WGS84')
     lat = cmtsolution.preferred_origin().latitude
