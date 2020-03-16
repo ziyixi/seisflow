@@ -75,6 +75,9 @@ def build_to_plot_traces(obs_ds, syn_ds, trace_length, info_dir):
     # for each item in keys, get info
     # since the window is selected according to the two asdf files, we can just use keys
     gcmtid = obs_ds.events[0].resource_id.id.split("/")[-2]
+    # ! fix a possible bug
+    if (gcmtid == "smi:local"):
+        gcmtid = obs_ds.events[0].resource_id.id.split("/")[-1].split("#")[0]
     info_dict, evdp = getinfo(info_dir, gcmtid)
     for key in keys:
         axkey = key.replace(".", "_")
