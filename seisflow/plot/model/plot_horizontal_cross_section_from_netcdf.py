@@ -42,6 +42,8 @@ def plot_h(mesh_lon, mesh_lat, data, parameter, depth, vmin, vmax, region):
     # in general disable it, since the map boundary excludes some part of China.
     ax.add_feature(cartopy.feature.BORDERS)
     plt.colorbar(orientation='horizontal', fraction=0.046, pad=0.04)
+    # plt.plot([135, 150], [35, 50])
+    # plt.plot([130, 145], [40, 35])
     plt.grid()
     plt.title(f"{parameter} at {depth}km")
 
@@ -58,6 +60,7 @@ def plot_h(mesh_lon, mesh_lat, data, parameter, depth, vmin, vmax, region):
 def main(netcdf_file, parameter, depth, vmin, vmax, region):
     f = netcdf.netcdf_file(netcdf_file, 'r')
     mesh_lon, mesh_lat, data = extract_data(f, depth, parameter)
+    print(np.nanmin(data), np.nanmax(data))
     plot_h(mesh_lon, mesh_lat, data, parameter, depth, vmin, vmax, region)
 
 

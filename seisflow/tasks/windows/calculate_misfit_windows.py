@@ -44,25 +44,26 @@ def prepare_windows(windows_used_event,  consider_surface, used_net_sta):
             old_windows_surface_r = windows_used_event[net_sta]["surface_r"].windows
             old_windows_surface_t = windows_used_event[net_sta]["surface_t"].windows
         # update to the new_windows
-        for each_window in old_windows_z:
-            new_windows[net_sta]["z"].append_window(
-                Misfit_window(each_window))
-        for each_window in old_windows_r:
-            new_windows[net_sta]["r"].append_window(
-                Misfit_window(each_window))
+        # for each_window in old_windows_z:
+        #     new_windows[net_sta]["z"].append_window(
+        #         Misfit_window(each_window))
+        # for each_window in old_windows_r:
+        #     new_windows[net_sta]["r"].append_window(
+        #         Misfit_window(each_window))
         for each_window in old_windows_t:
-            new_windows[net_sta]["t"].append_window(
-                Misfit_window(each_window))
-        if (consider_surface):
-            for each_window in old_windows_surface_z:
-                new_windows[net_sta]["surface_z"].append_window(
+            if("S" in each_window.phases):
+                new_windows[net_sta]["t"].append_window(
                     Misfit_window(each_window))
-            for each_window in old_windows_surface_r:
-                new_windows[net_sta]["surface_r"].append_window(
-                    Misfit_window(each_window))
-            for each_window in old_windows_surface_t:
-                new_windows[net_sta]["surface_t"].append_window(
-                    Misfit_window(each_window))
+        # if (consider_surface):
+        #     for each_window in old_windows_surface_z:
+        #         new_windows[net_sta]["surface_z"].append_window(
+        #             Misfit_window(each_window))
+        #     for each_window in old_windows_surface_r:
+        #         new_windows[net_sta]["surface_r"].append_window(
+        #             Misfit_window(each_window))
+        #     for each_window in old_windows_surface_t:
+        #         new_windows[net_sta]["surface_t"].append_window(
+        #             Misfit_window(each_window))
     return new_windows
 
 
