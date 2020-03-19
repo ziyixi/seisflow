@@ -59,6 +59,7 @@ def calculate_weighted_misfit(windows, consider_surface, data_virasdf_body, sync
         # note get_weights_for_all is from weighting calculation for multiple events, thus use mpi here. [parallel]
         Store.weight = get_weights_for_all(misfit_windows, stations, snr_threshold,
                                            cc_threshold, deltat_threshold, calculate_basic)
+        print(Store.weight)
     summation_weighted_misfit = 0
     summation_weighting_factor = 0
     for net_sta in misfit_windows:
