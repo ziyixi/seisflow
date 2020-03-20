@@ -19,6 +19,9 @@ def calculate_adjoint_source_each_window(mistit_window, raw_sync_asdf_trace, syn
         (true_windowed_sync_time - sync_asdf_trace.stats.starttime) / sync_asdf_trace.stats.delta)
     # ! fix a bug here, note there is possibility that the event time of raw_sync_asdf_trace and sync_asdf_trace is different,
     # ! which means sync_asdf_trace is not directly from raw_sync_asdf_trace
+
+    # ! note here we introduce another bug, if offset_unwindowed_raw<0 due to raw_sync_asdf_trace_adjust_time, there will be a problem
+    # ! to fix it,
     offset_unwindowed_raw = round(
         (sync_asdf_trace.stats.starttime-(raw_sync_asdf_trace.stats.starttime+raw_sync_asdf_trace_adjust_time))/(raw_sync_asdf_trace.stats.delta))
 
@@ -68,8 +71,15 @@ def calculate_adjoint_source_each_window(mistit_window, raw_sync_asdf_trace, syn
     len_adjoint_source_unwindowed = len(adjoint_source_unwindowed.data)
     adjoint_source_final = raw_sync_asdf_trace.copy()
     adjoint_source_final.data[:] = 0.0
-    adjoint_source_final.data[offset_unwindowed_raw:
-                              offset_unwindowed_raw+len_adjoint_source_unwindowed] = adjoint_source_unwindowed.data
+    # * fix rhe bug when offset_unwindowed_raw<0
+    if(offset_unwindowed_raw >= 0):
+        adjoint_source_final.data[offset_unwindowed_raw:
+                                  offset_unwindowed_raw + len_adjoint_source_unwindowed] = adjoint_source_unwindowed.data
+    else:
+        # we assume [-offset,0] has no adjoint source
+        offset = -offset_unwindowed_raw
+        adjoint_source_final.data[0:
+                                  offset_unwindowed_raw + len_adjoint_source_unwindowed] = adjoint_source_unwindowed.data[offset:]
     # * fix the problem of nan, in case the data value are all 0.
     if (np.isnan(mistit_window.snr_energy)):
         adjoint_source_final.data[:] = 0.0
