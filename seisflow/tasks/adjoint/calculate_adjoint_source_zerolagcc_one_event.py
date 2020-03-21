@@ -146,7 +146,9 @@ def calculate_adjoint_source_zerolagcc_one_event(misfit_windows, stations, raw_s
                 wdeltat = each_weight.deltat
                 wsnr = each_weight.snr
                 wcategory = each_weight.category
-                wgeographical = each_weight.geographical
+                # wgeographical = each_weight.geographical
+                # ! sync test, set geo weighting as 1
+                wgeographical = 1.0
                 weight_normalize_factor += wcc * wdeltat * wsnr * wcategory * wgeographical
 
                 # calculate each_adjoint_trace
