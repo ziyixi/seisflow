@@ -73,7 +73,7 @@ def plot_v(lat1, lat2, lon1, lon2, dep2, theta_label, mesh_theta, mesh_dep, plot
     plt.subplots_adjust(bottom=0.2)
     print(np.min(plot_values), np.max(plot_values))
     contourf_ = ax.pcolormesh(np.deg2rad(
-        mesh_theta), mesh_dep, plot_values, cmap=plt.cm.jet_r, vmin=vmin, vmax=vmax)  # pylint: disable=no-member
+        mesh_theta), mesh_dep, (plot_values), cmap=plt.cm.jet_r, vmin=vmin, vmax=vmax)  # pylint: disable=no-member
     plt.colorbar(contourf_, orientation='horizontal', fraction=0.046, pad=0.0)
 
     plt.show()

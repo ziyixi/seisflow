@@ -98,8 +98,10 @@ def get_weights_for_all(misfit_windows, stations,  snr_threshold, cc_threshold, 
         for net_sta in weights_for_all:
             for category in weights_for_all[net_sta]:
                 for index, each_weight in enumerate(weights_for_all[net_sta][category]):
+                    # weights_for_all[net_sta][category][index] = each_weight._replace(
+                    #     geographical=geographical_weight_dict[net_sta])
                     weights_for_all[net_sta][category][index] = each_weight._replace(
-                        geographical=geographical_weight_dict[net_sta])
+                        geographical=1.0)
 
         # * get the number of items for each category
         # firstly we get all the category names
