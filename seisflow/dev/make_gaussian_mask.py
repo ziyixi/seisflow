@@ -15,7 +15,7 @@ def make_gaussian_mask(base_dir, sem_bin_dir, output_dir, nproc):
         mesh_dir = join(each_event_dir, "DATABASES_MPI")
         source_xyz_list = join(each_event_dir, "OUTPUT_FILES", "mask.xyz")
         out_dir = join(output_dir, gcmtid)
-        result += f"mkdir -p {out_dir} ;"
+        result += f"mkdir -p {out_dir} ; date; "
         out_name = "mask_source"
         result += f"echo 'mask source for iter{index}:{gcmtid}' ; ibrun {command} {nproc} {mesh_dir} {source_xyz_list} {out_dir} {out_name}; "
     return result
