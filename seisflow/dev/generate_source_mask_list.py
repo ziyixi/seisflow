@@ -20,6 +20,7 @@ def main(base_directory, source_mask, receiver_mask):
         receiver_mask_vtk_path = join(
             each_event_dir, "OUTPUT_FILES", "receiver.vtk")
         source_mask = np.loadtxt(source_mask_vtk_path, skiprows=5)
+        source_mask = np.array([source_mask])
         source_mask_append = np.ones((source_mask.shape[0], 1)) * source_mask
         source_mask = np.hstack([source_mask, source_mask_append])
         receiver_mask = np.loadtxt(receiver_mask_vtk_path, skiprows=5)
