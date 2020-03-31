@@ -6,7 +6,7 @@ from os.path import join, basename
 
 
 def make_gaussian_mask(base_dir, sem_bin_dir, nproc):
-    all_event_dirs = glob(join(base_dir, "*"))
+    all_event_dirs = sorted(glob(join(base_dir, "*")))
     command = join(sem_bin_dir, "xsem_make_gaussian_mask")
     result = ""
     result += "module load netcdf; "
