@@ -40,13 +40,13 @@ def generate_vcs_mesh(lon1, lat1, lon2, lat2, dep1, dep2, rh, rdep, theta_label)
     return mesh_theta, mesh_dep, array_to_interpolate
 
 
-def get_interp_function(netcdf_data, parameter, method="nearest"):
+def get_interp_function(netcdf_data, parameter, method="linear"):
     interpolating_function = RegularGridInterpolator(
-        (netcdf_data.variables["longitude"][:], netcdf_data.variables["latitude"][:], netcdf_data.variables["depth"][:]), netcdf_data.variables[parameter][:], method=method)
+        (netcdf_data.variables["longitude"][:], netcdf_data.variables["latitude"][:], netcdf_data.variables["depth"][:]), netcdf_data.variables[parameter][:], method=method, bounds_error=False)
     return interpolating_function
 
 
-def extract_data_v(netcdf_data, lon1, lat1, lon2, lat2, dep1, dep2, rh, rdep, theta_label, parameter, method="nearest"):
+def extract_data_v(netcdf_data, lon1, lat1, lon2, lat2, dep1, dep2, rh, rdep, theta_label, parameter, method="linear"):
     mesh_theta, mesh_dep, array_to_interpolate = generate_vcs_mesh(
         lon1, lat1, lon2, lat2, dep1, dep2, rh, rdep, theta_label)
     interpolating_function = get_interp_function(
@@ -57,6 +57,8 @@ def extract_data_v(netcdf_data, lon1, lat1, lon2, lat2, dep1, dep2, rh, rdep, th
 
 def plot_v(lat1, lat2, lon1, lon2, dep1, dep2, theta_label, mesh_theta, mesh_dep, plot_values, vmin, vmax, flat):
     fig = plt.figure()
+    print("min", np.nanmin(plot_values))
+    print("max", np.nanmax(plot_values))
     if (flat):
         ax = fig.add_subplot(111)
         if(theta_label == "lat"):
@@ -71,6 +73,8 @@ def plot_v(lat1, lat2, lon1, lon2, dep1, dep2, theta_label, mesh_theta, mesh_dep
         ax.set_ylim(ax.get_ylim()[::-1])
         plt.colorbar(contourf_, orientation='horizontal',
                      fraction=0.046, pad=0.1)
+        plt.xlabel(theta_label+" (°)")
+        plt.ylabel("depth (km)")
     else:
         ax = fig.add_subplot(111, polar=True)
         if(theta_label == "lat"):
