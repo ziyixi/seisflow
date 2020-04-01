@@ -10,7 +10,7 @@ import click
 
 @click.command()
 @click.option('--base_directory', required=True, type=str, help="the base simulation directory")
-@click.option('--source_mask_directory', required=True, type=float, help="the source mask directory")
+@click.option('--source_mask_directory', required=True, type=str, help="the source mask directory")
 def replace_source(base_directory, source_mask_directory):
     all_events_dir = glob(join(base_directory, "*"))
     for each_event_dir in tqdm.tqdm(all_events_dir):
