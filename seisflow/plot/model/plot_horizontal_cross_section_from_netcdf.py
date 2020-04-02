@@ -18,7 +18,7 @@ def extract_data(f, depth, parameter):
     depth_pos = depth_pos[0][0]
     data = f.variables[parameter][:, :, depth_pos].copy()
     # we usually use a large value to represent nan.
-    data[data > 100] = np.nan
+    data[data > 9000] = np.nan
     mesh_lon, mesh_lat = np.meshgrid(
         f.variables["longitude"][:], f.variables["latitude"][:], indexing="ij")
     return mesh_lon, mesh_lat, data
@@ -27,6 +27,7 @@ def extract_data(f, depth, parameter):
 def plot_h(mesh_lon, mesh_lat, data, parameter, depth, vmin, vmax, region):
     plt.figure()
     ax = plt.axes(projection=ccrs.PlateCarree())
+    print(np.nanmin(data), np.nanmax(data))
     plt.pcolormesh(mesh_lon, mesh_lat, data,
                    transform=ccrs.PlateCarree(), vmin=vmin, vmax=vmax, cmap=plt.cm.jet_r)  # pylint: disable=no-member
     ax.coastlines()

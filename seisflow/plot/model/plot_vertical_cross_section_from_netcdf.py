@@ -113,6 +113,7 @@ def main(netcdf_file, parameter, vmin, vmax, region, rh, rdep, theta_label, flat
         mesh_theta, mesh_dep, array_to_interpolate = generate_vcs_mesh(
             lon1, lat1, lon2, lat2, dep1, dep2, rh, rdep, theta_label)
         plot_values = interpolating_function(array_to_interpolate)
+        plot_values[plot_values > 10] = np.nan
         plot_v(lat1, lat2, lon1, lon2, dep1, dep2, theta_label,
                mesh_theta, mesh_dep, plot_values, vmin, vmax, flat)
 

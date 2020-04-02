@@ -33,7 +33,8 @@ from .process_kernel import kernel as process_kernel
 @click.option('--last_step_model_update_directory', required=True, type=str, help="the last step smoothed kernel directory")
 @click.option('--stations_path', required=True, type=str, help="the stations path")
 @click.option('--sem_utils_directory', required=True, type=str, help="the sem_utils directory")
-@click.option('--past_raw_directory', required=True, type=str, help="raw directory in the last step")
+@click.option('--past_raw_directory', required=True, type=str, help="raw directory in the last step (only used to specify the events)")
+@click.option('--source_mask_directory', required=False, default="", type=str, help="the source mask directory")
 @click.option('--n_total', required=True, type=int, help="the total number of events")
 @click.option('--n_each', required=True, type=int, help="number of events to run in each iteration")
 @click.option('--n_iter', required=True, type=int, help="the number of iterations to run")
@@ -52,7 +53,7 @@ from .process_kernel import kernel as process_kernel
 @click.option('--sigma_h', required=True, type=float, help="the value of sigma_h (km)")
 @click.option('--sigma_v', required=True, type=float, help="the value of sigma_v (km)")
 def main(base_directory, cmts_directory, ref_directory, windows_directory, data_asdf_directory, data_info_directory, last_step_model_update_directory,
-         stations_path, sem_utils_directory, past_raw_directory,
+         stations_path, sem_utils_directory, past_raw_directory, source_mask_directory,
          n_total, n_each, n_iter, nproc, n_node, partition, time_forward, account, n_node_process_kernel, time_process_kernel, time_run_perturbation,
          periods, waveform_length, sampling_rate, taper_tmin_tmaxs,
          sigma_h, sigma_v):
@@ -131,6 +132,9 @@ def main(base_directory, cmts_directory, ref_directory, windows_directory, data_
         join(base_directory,
              "database"), ref_directory, sem_utils_directory, kernel_process_directory,
         input_model_directory, last_step_model_update=last_step_model_update_directory)
+    # * firstly we replace the source mask
+    result += replace_source_mask(pyexec, join(base_directory,
+                                               'simulation'), source_mask_directory)
     # * now perform the structure inversion
     result += process_kernel(join(base_directory,
                                   "process_kernel"), sigma_h, sigma_v, nproc, itern=True)
@@ -212,6 +216,14 @@ def replace_gll_link(py, simulation_directory, new_gll_directory):
     replace all gll links.
     """
     script = f"{py} -m seisflow.scripts.structure_inversion.replace_gll_link --simulation_directory {simulation_directory} --new_gll_directory {new_gll_directory}; \n"
+    return script
+
+
+def replace_source_mask(py, base_directory, source_mask_directory):
+    """
+    replace source masks.
+    """
+    script = f"{py} -m seisflow.scripts.structure_inversion.replace_source_mask --base_directory {base_directory} --source_mask_directory {source_mask_directory}; \n"
     return script
 
 
