@@ -18,7 +18,7 @@ def extract_data(f, depth, parameter):
     depth_pos = depth_pos[0][0]
     data = f.variables[parameter][:, :, depth_pos].copy()
     # we usually use a large value to represent nan.
-    data[data > 9000] = np.nan
+    data[data > 90000] = np.nan
     mesh_lon, mesh_lat = np.meshgrid(
         f.variables["longitude"][:], f.variables["latitude"][:], indexing="ij")
     return mesh_lon, mesh_lat, data

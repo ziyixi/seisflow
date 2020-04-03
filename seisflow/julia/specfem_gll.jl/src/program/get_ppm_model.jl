@@ -128,7 +128,7 @@ function run_interp(command_args::Dict{String,Any}, comm::MPI.Comm)
 
     model_interp_this_rank = zeros(nmodel, ngll_new_this_rank)
     # make model_interp_this_rank as 99999 to remove the poitns that hasn't been interpolated
-    model_interp_this_rank .= 99999.0
+    model_interp_this_rank .= 9999999.0
 
     # * loop each slices of the old mesh
     flag = true
