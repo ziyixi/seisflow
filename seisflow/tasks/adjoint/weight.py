@@ -125,6 +125,9 @@ def cal_geographical_weight(stations_mapper, used_net_sta_list, all_net_sta_list
         store_values.append(v)
     store_keys = np.array(store_keys)
     store_values = np.array(store_values)
+    # # if we restrict the maximum to be 10 times of the smallest
+    # min_val = np.min(store_values[store_values > 0])
+    # store_values[store_values > 10*min_val] = 10*min_val
     summation_values = np.sum(store_values)
     store_values = store_values / summation_values * all_stations_number
     used_wt_dict = {}

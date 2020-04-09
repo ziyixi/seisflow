@@ -18,16 +18,22 @@ def extract_data(f, depth, parameter):
     depth_pos = depth_pos[0][0]
     data = f.variables[parameter][:, :, depth_pos].copy()
     # we usually use a large value to represent nan.
-    data[data > 90000] = np.nan
+    data[data > 1000] = np.nan
     mesh_lon, mesh_lat = np.meshgrid(
         f.variables["longitude"][:], f.variables["latitude"][:], indexing="ij")
     return mesh_lon, mesh_lat, data
 
 
-def plot_h(mesh_lon, mesh_lat, data, parameter, depth, vmin, vmax, region):
+def plot_h(mesh_lon, mesh_lat, data, parameter, depth, vmin, vmax, region, scale):
     plt.figure()
     ax = plt.axes(projection=ccrs.PlateCarree())
     print(np.nanmin(data), np.nanmax(data))
+    if (scale):
+        min_absdata = np.abs(np.nanmin(data))
+        max_absdata = np.abs(np.nanmax(data))
+        range_val = np.max([min_absdata, max_absdata])
+        vmin = -range_val
+        vmax = range_val
     plt.pcolormesh(mesh_lon, mesh_lat, data,
                    transform=ccrs.PlateCarree(), vmin=vmin, vmax=vmax, cmap=plt.cm.jet_r)  # pylint: disable=no-member
     ax.coastlines()
@@ -53,13 +59,15 @@ def plot_h(mesh_lon, mesh_lat, data, parameter, depth, vmin, vmax, region):
 @click.option('--netcdf_file', required=True, type=str, help="the netcdf file")
 @click.option('--parameter', required=True, type=str, help="the parameter to plot")
 @click.option('--depth', required=True, type=float, help="the depth to extract data (km)")
-@click.option('--vmin', required=True, type=float, help="the min limit for colorbar")
-@click.option('--vmax', required=True, type=float, help="the max limit for colorbar")
+@click.option('--vmin', required=False, default=0, type=float, help="the min limit for colorbar")
+@click.option('--vmax', required=False, default=0, type=float, help="the max limit for colorbar")
 @click.option('--region', required=True, type=str, help="the region to plot, lon1/lat1/lon2/lat2")
-def main(netcdf_file, parameter, depth, vmin, vmax, region):
+@click.option('--scale/--no-scale', default=False, required=False, help="if scale the range based on the maximum value")
+def main(netcdf_file, parameter, depth, vmin, vmax, region, scale):
     f = netcdf.netcdf_file(netcdf_file, 'r')
     mesh_lon, mesh_lat, data = extract_data(f, depth, parameter)
-    plot_h(mesh_lon, mesh_lat, data, parameter, depth, vmin, vmax, region)
+    plot_h(mesh_lon, mesh_lat, data, parameter,
+           depth, vmin, vmax, region, scale)
 
 
 if __name__ == "__main__":
