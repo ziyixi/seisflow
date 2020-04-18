@@ -14,7 +14,7 @@ class VirAsdf():
         self.waveforms = {}
         self.asdf_path = None
 
-    def read_asdf(self, asdf_path):
+    def read_asdf(self, asdf_path, usecopy=False):
         """
         read_asdf: read in asdf
         """
@@ -29,10 +29,16 @@ class VirAsdf():
                 for each_net_sta in self.waveforms_list:
                     wg = ds.waveforms[each_net_sta]
                     tag = wg.get_waveform_tags()[0]
-                    self.waveforms[each_net_sta] = {
-                        "inv": wg["StationXML"],
-                        "st": wg[tag]
-                    }
+                    if(not usecopy):
+                        self.waveforms[each_net_sta] = {
+                            "inv": wg["StationXML"],
+                            "st": wg[tag]
+                        }
+                    else:
+                        self.waveforms[each_net_sta] = {
+                            "inv": wg["StationXML"].copy(),
+                            "st": wg[tag].copy()
+                        }
         else:
             pass
 
