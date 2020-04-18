@@ -12,3 +12,7 @@ def get_julia(path):
     get the julia code directory.
     """
     return os.path.join(_ROOT, 'julia', path)
+
+
+def get_requirements():
+    return os.path.join(_ROOT, "..", "requirements.txt")

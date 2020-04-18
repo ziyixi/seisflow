@@ -29,13 +29,16 @@ class Window(object):
         assert self.network == others.network
         assert self.station == others.station
         assert self.gcmtid == others.gcmtid
-        phases = self.phases + others.phases
+        self.phases = self.phases + others.phases
         return Window(left=left, right=right, channel=self.channel, network=self.network, station=self.station, phases=self.phases+others.phases, gcmtid=self.gcmtid)
 
 
 class Windows_collection(object):
-    def __init__(self):
-        self.windows = []
+    def __init__(self, newwindows=None):
+        if(newwindows == None):
+            self.windows = []
+        else:
+            self.windows = newwindows.windows
 
     def append_window(self, window):
         self.windows.append(window)
@@ -51,7 +54,7 @@ class Windows_collection(object):
 
     def combine(self, others):
         newwindows = self.windows + others.windows
-        return Windows_collection(newwindows)
+        return Windows_collection(newwindows=newwindows)
 
     def merge_windows(self):
         # merge windows

@@ -7,10 +7,10 @@ from os.path import basename, join
 import numpy as np
 from mpi4py import MPI
 
-from ...tasks.structure_inversion.line_search import calculate_weighted_misfit, get_perturbed_vir_sync
+from ...tasks.line_search.line_search_structure import calculate_weighted_misfit, get_perturbed_vir_sync
 from ...utils.asdf_io import VirAsdf
 from ...utils.load_files import load_first_arrival_baz_evdp, load_windows
-from ...utils.setting import SURFACE_THRESHOLD, LINE_SEARCH_PERTURBATION
+from ...setting import SURFACE_THRESHOLD, LINE_SEARCH_PERTURBATION
 from ...utils.get_path import get_data_asdf_fnames, get_sync_asdf_fnames
 
 comm = MPI.COMM_WORLD  # pylint: disable=c-extension-no-member

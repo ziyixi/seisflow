@@ -1,5 +1,5 @@
 import pickle
-from os.path import basename, join
+from os.path import join
 
 
 def load_pickle(pickle_path):

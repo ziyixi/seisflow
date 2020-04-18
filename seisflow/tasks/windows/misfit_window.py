@@ -4,7 +4,7 @@ import warnings
 import numpy as np
 from obspy.signal.cross_correlation import correlate, xcorr_max
 
-from ...utils.setting import TOLERANCE_DIFF_TIME
+from ...setting import TOLERANCE_DIFF_TIME
 from .window import Window
 
 if not sys.warnoptions:
@@ -23,6 +23,8 @@ class Misfit_window(Window):
         self.deltat = None
         # we should always keep only one channel
         self.component = self.channel[-1]
+        self.first_arrival = None
+        self.baz = None
 
     def update_first_arrival_baz(self, first_arrival_dict, baz_dict):
         # load from file, just an float

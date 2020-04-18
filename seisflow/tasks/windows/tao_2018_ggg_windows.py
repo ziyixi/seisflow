@@ -1,9 +1,6 @@
 """
 tao_2018_ggg_windows.py: get windows described in tao et al. ggg, 2018. Only works for one event (gcmtid).
 """
-
-import obspy
-
 from .window import Window, Windows_collection
 
 phases = ["S", "sS", "SS", "P", "pP",
@@ -43,9 +40,9 @@ def generate_windows(gcmtid, traveltime, event_time, time_length):
                 channel = "Z"
                 network = each_net_sta.split(".")[0]
                 station = each_net_sta.split(".")[1]
-                phases = [each_phase]
+                phases_this_window = [each_phase]
                 result[each_net_sta]["z"].append_window(Window(
-                    left=left, right=right, channel=channel, network=network, station=station, phases=phases, gcmtid=gcmtid))
+                    left=left, right=right, channel=channel, network=network, station=station, phases=phases_this_window, gcmtid=gcmtid))
         # r
         for each_phase in phases_zr:
             each_phase_traveltime = traveltime[each_net_sta][each_phase]
@@ -63,9 +60,9 @@ def generate_windows(gcmtid, traveltime, event_time, time_length):
                 channel = "R"
                 network = each_net_sta.split(".")[0]
                 station = each_net_sta.split(".")[1]
-                phases = [each_phase]
+                phases_this_window = [each_phase]
                 result[each_net_sta]["r"].append_window(Window(
-                    left=left, right=right, channel=channel, network=network, station=station, phases=phases, gcmtid=gcmtid))
+                    left=left, right=right, channel=channel, network=network, station=station, phases=phases_this_window, gcmtid=gcmtid))
         # t
         for each_phase in phases_t:
             each_phase_traveltime = traveltime[each_net_sta][each_phase]
@@ -83,9 +80,9 @@ def generate_windows(gcmtid, traveltime, event_time, time_length):
                 channel = "T"
                 network = each_net_sta.split(".")[0]
                 station = each_net_sta.split(".")[1]
-                phases = [each_phase]
+                phases_this_window = [each_phase]
                 result[each_net_sta]["t"].append_window(Window(
-                    left=left, right=right, channel=channel, network=network, station=station, phases=phases, gcmtid=gcmtid))
+                    left=left, right=right, channel=channel, network=network, station=station, phases=phases_this_window, gcmtid=gcmtid))
         # surface_z
         phase_travel_time_left = traveltime[each_net_sta]["4.6kmps"]
         phase_travel_time_right = traveltime[each_net_sta]["3.3kmps"]
@@ -99,9 +96,9 @@ def generate_windows(gcmtid, traveltime, event_time, time_length):
             channel = "Z"
             network = each_net_sta.split(".")[0]
             station = each_net_sta.split(".")[1]
-            phases = ["surface_z"]
+            phases_this_window = ["surface_z"]
             result[each_net_sta]["surface_z"].append_window(Window(
-                left=left, right=right, channel=channel, network=network, station=station, phases=phases, gcmtid=gcmtid))
+                left=left, right=right, channel=channel, network=network, station=station, phases=phases_this_window, gcmtid=gcmtid))
         # surface_r
         phase_travel_time_left = traveltime[each_net_sta]["4.6kmps"]
         phase_travel_time_right = traveltime[each_net_sta]["3.3kmps"]
@@ -115,9 +112,9 @@ def generate_windows(gcmtid, traveltime, event_time, time_length):
             channel = "R"
             network = each_net_sta.split(".")[0]
             station = each_net_sta.split(".")[1]
-            phases = ["surface_r"]
+            phases_this_window = ["surface_r"]
             result[each_net_sta]["surface_r"].append_window(Window(
-                left=left, right=right, channel=channel, network=network, station=station, phases=phases, gcmtid=gcmtid))
+                left=left, right=right, channel=channel, network=network, station=station, phases=phases_this_window, gcmtid=gcmtid))
         # surface_t
         phase_travel_time_left = traveltime[each_net_sta]["4.6kmps"]
         phase_travel_time_right = traveltime[each_net_sta]["3.3kmps"]
@@ -131,16 +128,16 @@ def generate_windows(gcmtid, traveltime, event_time, time_length):
             channel = "T"
             network = each_net_sta.split(".")[0]
             station = each_net_sta.split(".")[1]
-            phases = ["surface_t"]
+            phases_this_window = ["surface_t"]
             result[each_net_sta]["surface_t"].append_window(Window(
-                left=left, right=right, channel=channel, network=network, station=station, phases=phases, gcmtid=gcmtid))
+                left=left, right=right, channel=channel, network=network, station=station, phases=phases_this_window, gcmtid=gcmtid))
 
     # at the moment, we have the result dict: gcmtid->net_sta->type
     # merge the windows
-        for each_net_sta in result:
-            result_each_net_sta = result[each_net_sta]
-            result_each_net_sta["z"].merge_windows()
-            result_each_net_sta["r"].merge_windows()
-            result_each_net_sta["t"].merge_windows()
+    for each_net_sta in result:
+        result_each_net_sta = result[each_net_sta]
+        result_each_net_sta["z"].merge_windows()
+        result_each_net_sta["r"].merge_windows()
+        result_each_net_sta["t"].merge_windows()
 
     return result

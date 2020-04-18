@@ -8,7 +8,6 @@ import datetime
 import hashlib
 import os
 import subprocess
-import sys
 import tempfile
 
 TMPL = """\

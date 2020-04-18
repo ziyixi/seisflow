@@ -8,12 +8,12 @@ from os.path import basename, join
 import numpy as np
 from mpi4py import MPI
 
-from ...tasks.structure_inversion.line_search import (
+from ...tasks.line_search.line_search_structure import (
     calculate_weighted_misfit, get_perturbed_vir_sync)
 from ...utils.asdf_io import VirAsdf
 from ...utils.get_path import get_data_asdf_fnames, get_sync_asdf_fnames
 from ...utils.load_files import load_first_arrival_baz_evdp, load_windows
-from ...utils.setting import LINE_SEARCH_PERTURBATION, SURFACE_THRESHOLD
+from ...setting import SURFACE_THRESHOLD
 
 comm = MPI.COMM_WORLD  # pylint: disable=c-extension-no-member
 size = comm.Get_size()

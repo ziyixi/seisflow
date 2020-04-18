@@ -16,7 +16,7 @@ from .adjoint_source_each_window_zerolagcc import \
 from .weight import (cal_category_weight, cal_cc_weight, cal_deltat_weight,
                      cal_geographical_weight, cal_snr_weight)
 
-comm = MPI.COMM_WORLD
+comm = MPI.COMM_WORLD  # pylint: disable=c-extension-no-member
 size = comm.Get_size()
 rank = comm.Get_rank()
 Weight = namedtuple(
@@ -134,7 +134,7 @@ def get_weights_for_all(misfit_windows, stations,  snr_threshold, cc_threshold, 
 
 
 def calculate_adjoint_source_zerolagcc_one_event_for_structure(misfit_windows, stations, raw_sync_virasdf, snr_threshold, cc_threshold, deltat_threshold, body_band, surface_band,
-                                                               consider_surface, sync_virasdf_body, data_virasdf_body, sync_virasdf_surface, data_virasdf_surface):
+                                                               sync_virasdf_body, data_virasdf_body, sync_virasdf_surface, data_virasdf_surface):
     """
     calculate_adjoint_source_zerolagcc_one_event
         + misfit_windows: misfit_windows[net_sta][category_name] as Windows_collection

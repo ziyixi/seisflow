@@ -6,7 +6,6 @@ import tqdm
 import click
 import numba
 from os.path import join
-from numba import float64
 from scipy.io import netcdf
 
 

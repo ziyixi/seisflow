@@ -1,11 +1,8 @@
 """
 calculate_misfit_windows.py: get the misfit window given the asdf files and the windows.
 """
-import obspy
-import pyasdf
-
 from .misfit_window import Misfit_window
-from .window import Window, Windows_collection
+from .window import Windows_collection
 
 
 def get_used_net_sta(windows, data_virasdf_body):
