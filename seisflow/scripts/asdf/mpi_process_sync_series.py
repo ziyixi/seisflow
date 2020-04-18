@@ -47,7 +47,7 @@ def process_single_asdf(asdf_file_name, output_directory, waveform_length, taper
 @click.option('--sync_directory', required=True, type=str, help="the raw sync directory")
 @click.option('--output_directory', required=True, type=str, help="the processed sync directory")
 @click.option('--periods', required=True, type=str, help="min periods in filtering: minp1,maxp1/minp2,maxp2/...")
-@click.option('--waveform_length', required=True, type=str, help="the length of the waveform to cut")
+@click.option('--waveform_length', required=True, type=float, help="the length of the waveform to cut")
 @click.option('--sampling_rate', required=True, type=int, help="the sampling rate to use")
 @click.option('--taper_tmin_tmaxs', required=True, type=str, help="the taper time bands: minp1,maxp1/minp2,maxp2/...")
 def main(sync_directory, output_directory, periods, waveform_length, sampling_rate, taper_tmin_tmaxs):
