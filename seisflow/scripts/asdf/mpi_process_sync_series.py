@@ -18,7 +18,7 @@ rank = comm.Get_rank()
 
 def get_asdf_this_rank(sync_directory):
     all_files = sorted(glob(join(sync_directory, "*h5")))
-    asdf_this_rank = np.array_split(all_files, rank)[size]
+    asdf_this_rank = np.array_split(all_files, size)[rank]
     return asdf_this_rank
 
 
