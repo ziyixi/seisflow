@@ -17,7 +17,6 @@ from .xsede_perform_source_inversion import (calculate_misfit_windows,
                                              collect_sync_files,
                                              cp_stations_adjoint2structure,
                                              ln_adjoint_source_to_structure)
-from .xsede_process_sync import kernel as get_process_sync_scripts
 from .xsede_process_kernel import \
     construct_structure as construct_process_kernel_structure
 from .xsede_process_kernel import kernel as process_kernel
@@ -33,7 +32,6 @@ from .xsede_process_kernel import kernel as process_kernel
 @click.option('--last_step_model_update_directory', required=True, type=str, help="the last step smoothed kernel directory")
 @click.option('--stations_path', required=True, type=str, help="the stations path")
 @click.option('--sem_utils_directory', required=True, type=str, help="the sem_utils directory")
-@click.option('--past_raw_directory', required=True, type=str, help="raw directory in the last step (only used to specify the events)")
 @click.option('--source_mask_directory', required=False, default="", type=str, help="the source mask directory")
 @click.option('--n_total', required=True, type=int, help="the total number of events")
 @click.option('--n_each', required=True, type=int, help="number of events to run in each iteration")
@@ -53,7 +51,7 @@ from .xsede_process_kernel import kernel as process_kernel
 @click.option('--sigma_h', required=True, type=float, help="the value of sigma_h (km)")
 @click.option('--sigma_v', required=True, type=float, help="the value of sigma_v (km)")
 def main(base_directory, cmts_directory, ref_directory, windows_directory, data_asdf_directory, data_info_directory, last_step_model_update_directory,
-         stations_path, sem_utils_directory, past_raw_directory, source_mask_directory,
+         stations_path, sem_utils_directory, source_mask_directory,
          n_total, n_each, n_iter, nproc, n_node, partition, time_forward, account, n_node_process_kernel, time_process_kernel, time_run_perturbation,
          periods, waveform_length, sampling_rate, taper_tmin_tmaxs,
          sigma_h, sigma_v):
@@ -84,8 +82,8 @@ def main(base_directory, cmts_directory, ref_directory, windows_directory, data_
     # ! note here mvapich2 may have the problem of "time out". No better solution, try  to use 24 cores here.
     if(n_cores_each_event > 24):
         n_cores_each_event = 24
-    result += get_process_sync_scripts(join(base_directory, "raw_sync"), join(base_directory, "processed_sync"), 1, n_total, n_cores_each_event,
-                                       periods, waveform_length, sampling_rate, taper_tmin_tmaxs, reference_directory=past_raw_directory)
+    result += process_sync(pyexec, n_total, join(base_directory,
+                                                 "raw_sync"), join(base_directory, "processed_sync"), periods, waveform_length, sampling_rate, taper_tmin_tmaxs)
     result += f"cd {current_path}; \n"
     # * calculate the misfit windows
     body_periods, surface_periods = periods.split("/")
@@ -161,8 +159,9 @@ def main(base_directory, cmts_directory, ref_directory, windows_directory, data_
         pyexec, join(base_directory, 'output'), join(base_directory, 'perturbed_sync'))
     # * process the sync
     n_cores_each_event = nproc*n_each//n_total
-    result += get_process_sync_scripts(join(base_directory, "perturbed_sync"), join(base_directory, "processed_perturbed_sync"), 1, n_total, n_cores_each_event,
-                                       periods, waveform_length, sampling_rate, taper_tmin_tmaxs, reference_directory=past_raw_directory)
+    result += process_sync(pyexec, n_total, join(base_directory,
+                                                 "perturbed_sync"), join(base_directory, "processed_perturbed_sync"), periods, waveform_length, sampling_rate, taper_tmin_tmaxs)
+
     result += f"cd {current_path}; \n"
     # * submit the job
     submit_job("step3_structure", result, n_node, n_each *
@@ -224,6 +223,14 @@ def replace_source_mask(py, base_directory, source_mask_directory):
     replace source masks.
     """
     script = f"{py} -m seisflow.scripts.structure_inversion.replace_source_mask --base_directory {base_directory} --source_mask_directory {source_mask_directory}; \n"
+    return script
+
+
+def process_sync(py, nproc, sync_directory, output_directory, periods, waveform_length, sampling_rate, taper_tmin_tmaxs):
+    """
+    process the sync.
+    """
+    script = f"ibrun -n {nproc} {py} -m seisflow.scripts.asdf.mpi_process_sync_series --sync_directory {sync_directory} --output_directory {output_directory} --periods {periods} --waveform_length {waveform_length} --sampling_rate {sampling_rate} --taper_tmin_tmaxs {taper_tmin_tmaxs}; \n"
     return script
 
 
