@@ -13,23 +13,31 @@ class VirAsdf():
         self.waveforms_list = []
         self.waveforms = {}
         self.asdf_path = None
+        self.usecopy = False
+        self.lazy = False
 
-    def read_asdf(self, asdf_path, usecopy=False):
+    def read_asdf(self, asdf_path, usecopy=False, lazy=False):
         """
         read_asdf: read in asdf
         """
         self.asdf_path = asdf_path
-        if (asdf_path == None):
+        self.usecopy = usecopy
+        self.lazy = lazy
+        if(not self.lazy):
+            self.read_asdf_kernel()
+
+    def read_asdf_kernel(self):
+        if (self.asdf_path == None):
             return
-        if (isfile(asdf_path)):
+        if (isfile(self.asdf_path)):
             # since virasdf will not used parallel io, we disable mpi here
-            with pyasdf.ASDFDataSet(asdf_path, mode="r", mpi=False) as ds:
+            with pyasdf.ASDFDataSet(self.asdf_path, mode="r", mpi=False) as ds:
                 self.events = ds.events
                 self.waveforms_list = ds.waveforms.list()
                 for each_net_sta in self.waveforms_list:
                     wg = ds.waveforms[each_net_sta]
                     tag = wg.get_waveform_tags()[0]
-                    if(not usecopy):
+                    if(not self.usecopy):
                         self.waveforms[each_net_sta] = {
                             "inv": wg["StationXML"],
                             "st": wg[tag]
@@ -41,6 +49,14 @@ class VirAsdf():
                         }
         else:
             pass
+
+    def revoke(self):
+        """
+        revoke: revoke from the lazy status.
+        """
+        if (self.lazy):
+            self.read_asdf_kernel()
+            self.lazy = False
 
     def write_asdf(self, output_path, tag):
         """

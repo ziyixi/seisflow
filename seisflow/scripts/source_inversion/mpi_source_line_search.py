@@ -81,7 +81,7 @@ def get_paths(green_raw_asdf_directory, green_perturbed_asdf_directory, data_asd
     all_virasdf_green_raw_this_rank = []
     for each_file in all_files_green_raw_asdf_directory_this_rank:
         virasdf = VirAsdf()
-        virasdf.read_asdf(each_file)
+        virasdf.read_asdf(each_file, lazy=True)
         all_virasdf_green_raw_this_rank.append(virasdf)
     # * get green_perturbed_asdf_directory for this rank, convert to virasdf
     all_files_green_perturbed_asdf_directory_this_rank = [
@@ -89,7 +89,7 @@ def get_paths(green_raw_asdf_directory, green_perturbed_asdf_directory, data_asd
     all_virasdf_green_perturbed_this_rank = []
     for each_file in all_files_green_perturbed_asdf_directory_this_rank:
         virasdf = VirAsdf()
-        virasdf.read_asdf(each_file)
+        virasdf.read_asdf(each_file, lazy=True)
         all_virasdf_green_perturbed_this_rank.append(virasdf)
     # * data_asdf_body_path, data_asdf_surface_path and convert them to virasdf
     all_virasdf_data_body_this_rank = []
@@ -102,9 +102,9 @@ def get_paths(green_raw_asdf_directory, green_perturbed_asdf_directory, data_asd
         data_asdf_body_path, data_asdf_surface_path = get_data_asdf_fnames(
             each_gcmtid, min_periods, max_periods, data_asdf_directory)
         data_virasdf_body = VirAsdf()
-        data_virasdf_body.read_asdf(data_asdf_body_path)
+        data_virasdf_body.read_asdf(data_asdf_body_path, lazy=True)
         data_virasdf_surface = VirAsdf()
-        data_virasdf_surface.read_asdf(data_asdf_surface_path)
+        data_virasdf_surface.read_asdf(data_asdf_surface_path, lazy=True)
         all_virasdf_data_body_this_rank.append(data_virasdf_body)
         all_virasdf_data_surface_this_rank.append(data_virasdf_surface)
     # * load windows
@@ -198,6 +198,12 @@ def main(green_raw_asdf_directory, green_perturbed_asdf_directory, data_asdf_dir
         # call the function of the line search
         # notice here the unit of depth is m, so we should divide it by 1000
         # to avoid confusion, decide if use consider surface will be based on the data only.
+        # * revoke from the lazy status
+        each_virasdf_green_raw.revoke()
+        each_virasdf_green_perturbed.revoke()
+        each_virasdf_data_body.revoke()
+        each_virasdf_data_surface.revoke()
+
         depth = each_virasdf_data_body.get_events(
         )[0].preferred_origin().depth / 1000.0
         gcmtid = basename(each_virasdf_data_body.asdf_path).split(".")[0]
