@@ -15,7 +15,7 @@ def submit_job(jobname, thecommand, N_node, ntasks, partition, time, account, hp
         s = Slurm(jobname, {"nodes": N_node, "ntasks": ntasks,
                             "partition": partition, "time": time, "account": account})
         # we should modify LD_PRELOAD to avoid heavy python io
-        # thecommand = "export LD_PRELOAD=/home1/apps/tacc-patches/python_cacher/myopen.so\n"+thecommand
+        thecommand = "export LD_PRELOAD=/home1/apps/tacc-patches/python_cacher/myopen.so\n"+thecommand
     elif (hpc == "icer"):
         # virasdf may consume so much memory (estimate as 10*single, around 5G)
         s = Slurm(jobname, {"nodes": N_node, "ntasks": ntasks,
