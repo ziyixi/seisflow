@@ -5,7 +5,7 @@ import numpy as np
 import pyproj
 
 
-def add_src_frechet(src_frechet, cmtsolution, max_dxs_ratio):
+def add_src_frechet(src_frechet, cmtsolution, max_dxs_ratio, fix_location=False, fix_focal=False):
     data = src_frechet
     # convert from dyne*cm to N*m
     dchi_dmt = np.array([
@@ -89,14 +89,16 @@ def add_src_frechet(src_frechet, cmtsolution, max_dxs_ratio):
 
     # write to the new CMTSOLUTION
     cmtsolution_new = cmtsolution.copy()
-    cmtsolution_new.preferred_origin().latitude = lat
-    cmtsolution_new.preferred_origin().longitude = lon
-    cmtsolution_new.preferred_origin().depth = -alt
-    cmtsolution_new.focal_mechanisms[0].moment_tensor.tensor.m_rr = mt[0, 0]
-    cmtsolution_new.focal_mechanisms[0].moment_tensor.tensor.m_tt = mt[1, 1]
-    cmtsolution_new.focal_mechanisms[0].moment_tensor.tensor.m_pp = mt[2, 2]
-    cmtsolution_new.focal_mechanisms[0].moment_tensor.tensor.m_rt = mt[1, 0]
-    cmtsolution_new.focal_mechanisms[0].moment_tensor.tensor.m_rp = mt[2, 0]
-    cmtsolution_new.focal_mechanisms[0].moment_tensor.tensor.m_tp = mt[2, 1]
+    if(not fix_location):
+        cmtsolution_new.preferred_origin().latitude = lat
+        cmtsolution_new.preferred_origin().longitude = lon
+        cmtsolution_new.preferred_origin().depth = -alt
+    if(not fix_focal):
+        cmtsolution_new.focal_mechanisms[0].moment_tensor.tensor.m_rr = mt[0, 0]
+        cmtsolution_new.focal_mechanisms[0].moment_tensor.tensor.m_tt = mt[1, 1]
+        cmtsolution_new.focal_mechanisms[0].moment_tensor.tensor.m_pp = mt[2, 2]
+        cmtsolution_new.focal_mechanisms[0].moment_tensor.tensor.m_rt = mt[1, 0]
+        cmtsolution_new.focal_mechanisms[0].moment_tensor.tensor.m_rp = mt[2, 0]
+        cmtsolution_new.focal_mechanisms[0].moment_tensor.tensor.m_tp = mt[2, 1]
 
     return cmtsolution_new
