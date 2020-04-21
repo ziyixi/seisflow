@@ -197,7 +197,7 @@ def main(green_raw_asdf_directory, green_perturbed_asdf_directory_loc, green_per
         print(f"new accuracy: {optimizer_max['target']:.3f}")
         print(f"parameters combination:")
         print(
-            f"alpha: {optimizer_max['params']['alpha']:.3f}; tau: {optimizer_max['params']['tau']:.3f}; t0: {optimizer_max['params']['t0']:.3f}")
+            f"alpha_loc: {optimizer_max['params']['alpha_loc']:.3f}; alpha_focal: {optimizer_max['params']['alpha_focal']:.3f}; tau: {optimizer_max['params']['tau']:.3f}; t0: {optimizer_max['params']['t0']:.3f}")
         # generate the new cmtsolution
         each_src_frechet = np.loadtxt(each_src_frechet_path)
         max_dxs_ratio = MAX_DXS_RATIO
