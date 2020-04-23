@@ -47,6 +47,9 @@ class VirAsdf():
                             "inv": wg["StationXML"].copy(),
                             "st": wg[tag].copy()
                         }
+                    # it's better to use float32
+                    for tr in self.waveforms[each_net_sta]["st"]:
+                        tr.data = np.require(tr.data, dtype="float32")
         else:
             pass
 
