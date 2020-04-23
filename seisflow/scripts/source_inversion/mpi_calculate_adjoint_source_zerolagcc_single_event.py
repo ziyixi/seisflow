@@ -5,7 +5,6 @@ from glob import glob
 from os.path import basename, join
 
 import numpy as np
-import pyasdf
 from mpi4py import MPI
 
 from ...setting import CC_THRESHOLD, DELTAT_THRESHOLD, SNR_THRESHOLD

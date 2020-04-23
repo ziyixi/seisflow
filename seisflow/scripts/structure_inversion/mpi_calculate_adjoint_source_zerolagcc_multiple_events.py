@@ -5,15 +5,15 @@ from glob import glob
 from os.path import basename, join
 
 import numpy as np
-import pyasdf
 from mpi4py import MPI
 
-from ...tasks.adjoint.calculate_adjoint_source_zerolag_cc_multiple_events import calculate_adjoint_source_zerolagcc_one_event_for_structure
+from ...setting import CC_THRESHOLD, DELTAT_THRESHOLD, SNR_THRESHOLD
+from ...tasks.adjoint.calculate_adjoint_source_zerolag_cc_multiple_events import \
+    calculate_adjoint_source_zerolagcc_one_event_for_structure
 from ...utils.asdf_io import VirAsdf
-from ...utils.save_files import save_adjoint_to_asdf
 from ...utils.get_path import get_asdf_fnames
 from ...utils.load_files import load_pickle
-from ...setting import (CC_THRESHOLD, DELTAT_THRESHOLD, SNR_THRESHOLD)
+from ...utils.save_files import save_adjoint_to_asdf
 
 comm = MPI.COMM_WORLD  # pylint: disable=c-extension-no-member
 size = comm.Get_size()
