@@ -24,7 +24,7 @@ def prepare_green_func(green_virasdf, body_band, surface_band, taper_tmin_tmax_c
     """
     prepare_green_func: do the preprocesing for all the streams in virasdf
     """
-    body_virasdf = copy(green_virasdf)
+    body_virasdf = green_virasdf
     # get taper_tmin_tmax_body and taper_tmin_tmax_surface
     taper_tmin_tmax_body, taper_tmin_tmax_surface = taper_tmin_tmax_combined.split(
         "/")
@@ -67,7 +67,7 @@ def conv_and_postprocess(green_virasdf, sf, t0, waveform_length, sampling_rate, 
     conv_and_postprocess: do the convolution and postprocessing for all the sts in virasdf.
     """
     # we should not change green_virasdf, so make a copy of it.
-    conv_virasdf = copy(green_virasdf)
+    conv_virasdf = green_virasdf
     # firstly, we do the convolution
     if(if_conv):
         for each_net_sta in conv_virasdf.get_waveforms_list():
@@ -106,15 +106,14 @@ def forward_misfit_windows(alpha, t0, tau, body_green_virasdf1, body_green_viras
         rep_net_sta]["st"][0].stats.delta
     sf = source_time_func(tau, dt)
     # conv and post process
-    body_conv_virasdf_perturbed = conv_and_postprocess(
+    body_green_virasdf_perturbed = conv_and_postprocess(
         body_green_virasdf_perturbed, sf, t0, waveform_length, sampling_rate, True)
-    surface_conv_virasdf_perturbed = None
     if (consider_surface):
-        surface_conv_virasdf_perturbed = conv_and_postprocess(
+        surface_green_virasdf_perturbed = conv_and_postprocess(
             surface_green_virasdf_perturbed, sf, t0, waveform_length, sampling_rate, True)
     # calculate to get misfit windows
-    misfit_windows = calculate_misfit_windows(windows, consider_surface, data_virasdf_body, body_conv_virasdf_perturbed,
-                                              data_virasdf_surface, surface_conv_virasdf_perturbed, first_arrival_zr, first_arrival_t, baz)
+    misfit_windows = calculate_misfit_windows(windows, consider_surface, data_virasdf_body, body_green_virasdf_perturbed,
+                                              data_virasdf_surface, surface_green_virasdf_perturbed, first_arrival_zr, first_arrival_t, baz)
     return misfit_windows
 
 

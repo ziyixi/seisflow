@@ -58,6 +58,14 @@ class VirAsdf():
             self.read_asdf_kernel()
             self.lazy = False
 
+    def sleep(self):
+        """
+        sleep: remove the data that has been read.
+        """
+        if (not self.lazy):
+            self.waveforms = None
+            self.lazy = True
+
     def write_asdf(self, output_path, tag):
         """
         write_asdf: write to asdf
@@ -93,7 +101,7 @@ class VirAsdf():
         for each_net_sta in self.waveforms_list:
             new_waveforms[each_net_sta] = {
                 # as we don't modify inv or from the dict this value is a copy?
-                "inv": self.waveforms[each_net_sta]["inv"],
+                "inv": self.waveforms[each_net_sta]["inv"].copy(),
                 "st": self.waveforms[each_net_sta]["st"].copy()
             }
         new_virasdf.set_waveforms(new_waveforms)

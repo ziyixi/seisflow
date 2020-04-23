@@ -241,6 +241,12 @@ def main(green_raw_asdf_directory, green_perturbed_asdf_directory, data_asdf_dir
         # write
         save_cmtsolution(each_output_path, new_cmtsolution)
 
+        # * remove unused data
+        each_virasdf_green_raw.sleep()
+        each_virasdf_green_perturbed.sleep()
+        each_virasdf_data_body.sleep()
+        each_virasdf_data_surface.sleep()
+
 
 if __name__ == "__main__":
     main()  # pylint: disable=no-value-for-parameter
