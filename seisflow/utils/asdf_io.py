@@ -3,6 +3,7 @@ asdf_io.py: define the structure of virtual asdf in memory and according IO with
 """
 from os.path import isfile
 
+import numpy as np
 import pyasdf
 
 
