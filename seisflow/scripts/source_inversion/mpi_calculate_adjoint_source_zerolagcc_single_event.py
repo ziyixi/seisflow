@@ -8,12 +8,13 @@ import numpy as np
 import pyasdf
 from mpi4py import MPI
 
+from ...setting import CC_THRESHOLD, DELTAT_THRESHOLD, SNR_THRESHOLD
 from ...tasks.adjoint.calculate_adjoint_source_zerolagcc_one_event import \
     calculate_adjoint_source_zerolagcc_one_event
 from ...utils.asdf_io import VirAsdf
 from ...utils.get_path import get_asdf_fnames
 from ...utils.load_files import load_pickle
-from ...setting import (CC_THRESHOLD, DELTAT_THRESHOLD, SNR_THRESHOLD)
+from ...utils.save_files import save_adjoint_to_asdf
 
 comm = MPI.COMM_WORLD  # pylint: disable=c-extension-no-member
 size = comm.Get_size()
@@ -37,22 +38,6 @@ def load_misfit_windows_this_rank(files_used_this_rank):
 
 def load_stations(stations_path):
     return np.loadtxt(stations_path, dtype=np.str)
-
-
-def save_adjoint_to_asdf(adjoint_source_zerolagcc, output_directory, gcmtid):
-    """
-    save_adjoint_to_asdf: save the adjoint source to asdf format to be read by Specfem.
-    """
-    output_fname = join(output_directory, f"{gcmtid}.h5")
-    components = ["MXE", "MXN", "MXZ"]
-    with pyasdf.ASDFDataSet(output_fname, mode="w", mpi=False) as output_asdf:
-        for net_sta in adjoint_source_zerolagcc:
-            for index_component in range(3):
-                specfem_adj_source = adjoint_source_zerolagcc[net_sta][index_component, :]
-                tag = net_sta.replace(".", "_") + "_" + \
-                    components[index_component]
-                output_asdf.add_auxiliary_data(
-                    data=specfem_adj_source, data_type="AdjointSources", path=tag, parameters={})
 
 
 if __name__ == "__main__":
@@ -128,5 +113,5 @@ if __name__ == "__main__":
             adjoint_source_zerolagcc = calculate_adjoint_source_zerolagcc_one_event(misfit_windows, stations, raw_sync_virasdf, snr_threshold, cc_threshold, deltat_threshold, body_band, surface_band,
                                                                                     sync_virasdf_body, data_virasdf_body, sync_virasdf_surface, data_virasdf_surface)
             save_adjoint_to_asdf(adjoint_source_zerolagcc,
-                                 output_directory, gcmtid)
+                                 output_directory, gcmtid, raw_sync_virasdf)
     main()  # pylint: disable=no-value-for-parameter
