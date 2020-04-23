@@ -1,11 +1,13 @@
 """
 check_stations_adjoint_adjoint_source.py: check if the stations_adjoint file is compatiable with the adjoint source asdf file.
 """
-import numpy as np
-import pyasdf
 from glob import glob
 from os.path import join
+
 import click
+import numpy as np
+import pyasdf
+import tqdm
 
 
 def kernel(stations_adjoint_fname, asdf_fname):
@@ -26,7 +28,7 @@ def kernel(stations_adjoint_fname, asdf_fname):
 @click.option('--base_directory', required=True, type=str, help="the base simulation directory")
 def main(base_directory):
     all_events = sorted(glob(join(base_directory, "*")))
-    for each_event in all_events:
+    for each_event in tqdm.tqdm(all_events):
         stations_adjoint_fname = join(each_event, "DATA", "STATIONS_ADJOINT")
         asdf_fname = join(each_event, "SEM", "adjoint.h5")
         kernel(stations_adjoint_fname, asdf_fname)
