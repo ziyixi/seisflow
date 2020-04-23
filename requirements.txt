@@ -11,3 +11,4 @@ bayesian_optimization==1.0.1
 pandas==0.25.3
 Click==7.0
 pyasdf==0.5.1
+seaborn=0.9.0

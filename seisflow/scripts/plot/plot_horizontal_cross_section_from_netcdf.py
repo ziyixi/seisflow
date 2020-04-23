@@ -16,8 +16,11 @@ def extract_data(f, depth, parameter):
         raise Exception("no such depth in the netcdf file.")
     depth_pos = depth_pos[0][0]
     data = f.variables[parameter][:, :, depth_pos].copy()
+    data_all = f.variables[parameter][:, :, :].copy()
     # we usually use a large value to represent nan.
     data[data > 1000] = np.nan
+    data_all[data_all > 1000] = np.nan
+    print(np.nanmin(data_all), np.nanmax(data_all))
     mesh_lon, mesh_lat = np.meshgrid(
         f.variables["longitude"][:], f.variables["latitude"][:], indexing="ij")
     return mesh_lon, mesh_lat, data
