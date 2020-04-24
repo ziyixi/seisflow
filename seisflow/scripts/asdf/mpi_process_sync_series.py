@@ -36,8 +36,9 @@ def process_single_asdf(asdf_file_name, output_directory, waveform_length, taper
         int(min_period), int(max_period))
     for net_sta in waveforms_list:
         st = waveforms[net_sta]["st"]
-        process_sync_single_trace(st, event_time, waveform_length,
-                                  taper_tmin_tmax, min_period, max_period, sampling_rate)
+        st = process_sync_single_trace(st, event_time, waveform_length,
+                                       taper_tmin_tmax, min_period, max_period, sampling_rate)
+        asdf.update_st(st, net_sta)
     gcmtid = basename(asdf_file_name).split(".")[0]
     output_fname = f"{gcmtid}.{tag}.h5"
     asdf.write_asdf(join(output_directory, output_fname), tag)
