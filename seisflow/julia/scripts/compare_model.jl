@@ -27,12 +27,12 @@ function main()
     mesh_basedir = parsed_args["mesh_basedir"]
     reference_basedir = parsed_args["reference_basedir"]
     tag = parsed_args["tag"]
-    iproc=parse(Int64,parsed_args["iproc"])
+    iproc = parse(Int64, parsed_args["iproc"])
     # get nspec
     mesh_info = sem_mesh_read(mesh_basedir, 0)
     nspec = mesh_info.nspec
     # run generate_perturbation
-    compare_model(target_basedir::String, reference_basedir::String,tag::String,  nspec::Int64,iproc::Int64)
+    compare_model(target_basedir::String, reference_basedir::String, tag::String,  nspec::Int64, iproc::Int64)
 end
 
 main()
