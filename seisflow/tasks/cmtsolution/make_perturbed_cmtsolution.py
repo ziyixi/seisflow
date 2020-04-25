@@ -61,7 +61,7 @@ def add_src_frechet(src_frechet, cmtsolution, max_dxs_ratio, fix_location=False,
     dchi_dxs_xyz = dchi_dxs_xyz*delta_xs*max_dxs_ratio
     dchi_dmt_xyz = dchi_dmt_xyz*delta_mt*max_dxs_ratio
     xs = xs / delta_xs
-    mt_xyz = mt_xyz/delta_xs
+    mt_xyz = mt_xyz/delta_mt
     # update source
     xs += dchi_dxs_xyz
     mt_xyz += dchi_dmt_xyz
