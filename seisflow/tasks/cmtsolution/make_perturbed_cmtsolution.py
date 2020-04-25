@@ -69,7 +69,7 @@ def add_src_frechet(src_frechet, cmtsolution, max_dxs_ratio, fix_location=False,
     xs = xs*dchi_dxs_xyz
     mt_xyz = mt_xyz * delta_xs
     # convert back to rtp coordinate
-    x, y, z = mt_xyz
+    x, y, z = xs
     # get new a at new x,y,z
     r = (x**2 + y**2 + z**2)**0.5
     theta = np.arccos(z/r)
