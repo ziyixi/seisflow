@@ -78,6 +78,7 @@ def add_src_frechet(src_frechet, cmtsolution, max_dxs_ratio, fix_location=False,
     # we have to get mt at the new position
     mt_xyz = np.dot(np.dot(a, mt), np.transpose(a))
     dmt_xyz = np.dot(np.dot(a, dmt), np.transpose(a))
+    print("@@@@@@@@@@@@@@@@@@@@@@@@@@")
     print("mt", mt)
     print("mt_xyz", mt_xyz)
     print("dmt", dmt)
