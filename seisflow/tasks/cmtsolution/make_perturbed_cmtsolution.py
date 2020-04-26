@@ -53,6 +53,7 @@ def add_src_frechet(src_frechet, cmtsolution, max_dxs_ratio, fix_location=False,
     lat = cmtsolution.preferred_origin().latitude
     lon = cmtsolution.preferred_origin().longitude
     alt = -cmtsolution.preferred_origin().depth
+    print(alt)
     x, y, z = pyproj.transform(lla, ecef, lon, lat, alt)
     r = (x**2 + y**2 + z**2)**0.5
     # get rotation matrix
@@ -73,7 +74,6 @@ def add_src_frechet(src_frechet, cmtsolution, max_dxs_ratio, fix_location=False,
     y += dxs_xyz[1]
     z += dxs_xyz[2]
     lon, lat, alt = pyproj.transform(ecef, lla, x, y, z)
-    print(alt)
     # # add dmt
     # mt += dmt
     # we have to get mt at the new position
