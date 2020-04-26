@@ -41,7 +41,7 @@ def add_src_frechet(src_frechet, cmtsolution, max_dxs_ratio, fix_location=False,
     else:
         scale_factor_mt = max_dxs_ratio/(np.sum(dchi_dmt_ratio**2))**0.5
     dxs_ratio = scale_factor_xs * dchi_dxs_ratio
-    dmt_ratio = scale_factor_mt * dchi_dmt_ratio
+    dmt_ratio = scale_factor_xs * dchi_dmt_ratio
     # print(dxs_ratio, dmt_ratio, scale_factor_xs, scale_factor_mt)
     dxs = R_earth * dxs_ratio
     dmt = m0 * dmt_ratio
@@ -53,7 +53,6 @@ def add_src_frechet(src_frechet, cmtsolution, max_dxs_ratio, fix_location=False,
     lat = cmtsolution.preferred_origin().latitude
     lon = cmtsolution.preferred_origin().longitude
     alt = -cmtsolution.preferred_origin().depth
-    print(alt)
     x, y, z = pyproj.transform(lla, ecef, lon, lat, alt)
     r = (x**2 + y**2 + z**2)**0.5
     # get rotation matrix
