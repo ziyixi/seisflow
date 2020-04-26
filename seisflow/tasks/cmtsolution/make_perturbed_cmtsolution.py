@@ -1,8 +1,6 @@
 """
-make_perturbed_cmtsolution_kim2011.py: make perturbed cmtsolution based on doi: 10.1111/j.1365-246X.2011.05027.x
+make_perturbed_cmtsolution.py: make perturbed cmt solution using the frechet information.
 """
-
-
 import numpy as np
 import pyproj
 
@@ -10,11 +8,10 @@ import pyproj
 def add_src_frechet(src_frechet, cmtsolution, max_dxs_ratio, fix_location=False, fix_focal=False):
     data = src_frechet
     # convert from dyne*cm to N*m
-    # factor 2 is for converting 9 parametes to 6.
     dchi_dmt = np.array([
-        [data[0], data[3]/2, data[4]/2],
-        [data[3]/2, data[1], data[5]/2],
-        [data[4]/2, data[5]/2, data[2]]
+        [data[0], data[3], data[4]],
+        [data[3], data[1], data[5]],
+        [data[4], data[5], data[2]]
     ]) * 1e7
     # ! note here we have a bug, the output of specfem should be de,dn,-dz, to change to dr,dtheta,dphi, we have to
     # ! change dp,-dt,-dr to dr,dt,dp (-ddep,-dlat,dlon)
@@ -29,12 +26,28 @@ def add_src_frechet(src_frechet, cmtsolution, max_dxs_ratio, fix_location=False,
     mt = np.array([[cmt_tensor.m_rr, cmt_tensor.m_rt, cmt_tensor.m_rp],
                    [cmt_tensor.m_rt, cmt_tensor.m_tt, cmt_tensor.m_tp],
                    [cmt_tensor.m_rp, cmt_tensor.m_tp, cmt_tensor.m_pp]])
+    m0 = (0.5*np.sum(mt**2))**0.5
+    R_earth = 6371000.0
+    dchi_dxs_ratio = R_earth * dchi_dxs
+    dchi_dmt_ratio = m0 * dchi_dmt
+
+    # ====== scale CMT gradient
+    if (np.sum(dchi_dxs_ratio ** 2) == 0):
+        scale_factor = 0.0
+    else:
+        scale_factor = max_dxs_ratio/(np.sum(dchi_dxs_ratio**2))**0.5
+    dxs_ratio = scale_factor * dchi_dxs_ratio
+    dmt_ratio = scale_factor * dchi_dmt_ratio
+    dxs = R_earth * dxs_ratio
+    dmt = m0 * dmt_ratio
+
+    # * add to the raw CMTSOLUTION
+    # firstly we have to rely on x,y,z to convert the coordinate (not a sphere)
+    ecef = pyproj.Proj(proj='geocent', ellps='WGS84', datum='WGS84')
+    lla = pyproj.Proj(proj='latlong', ellps='WGS84', datum='WGS84')
     lat = cmtsolution.preferred_origin().latitude
     lon = cmtsolution.preferred_origin().longitude
     alt = -cmtsolution.preferred_origin().depth
-    # * we need to transfer everything to x,y,z
-    ecef = pyproj.Proj(proj='geocent', ellps='WGS84', datum='WGS84')
-    lla = pyproj.Proj(proj='latlong', ellps='WGS84', datum='WGS84')
     x, y, z = pyproj.transform(lla, ecef, lon, lat, alt)
     r = (x**2 + y**2 + z**2)**0.5
     # get rotation matrix
@@ -49,27 +62,16 @@ def add_src_frechet(src_frechet, cmtsolution, max_dxs_ratio, fix_location=False,
         [[sthe*cphi, cthe*cphi, -1.0*sphi],
          [sthe*sphi, cthe*sphi,      cphi],
             [cthe, -1.0*sthe,      0.0]])
-    # * dr,dtheta,dphi to dx,dy,dz
-    dchi_dxs_xyz = np.dot(a, dchi_dxs)
+    # dr,dtheta,dphi to dx,dy,dz
+    dxs_xyz = np.dot(a, dxs)
+    x += dxs_xyz[0]
+    y += dxs_xyz[1]
+    z += dxs_xyz[2]
+    lon, lat, alt = pyproj.transform(ecef, lla, x, y, z)
+    # add dmt
+    mt += dmt
+    # we have to get mt at the new position
     mt_xyz = np.dot(np.dot(a, mt), np.transpose(a))
-    dchi_dmt_xyz = np.dot(np.dot(a, dchi_dmt), np.transpose(a))
-    xs = np.array([x, y, z])
-    # get the normalization factor
-    delta_mt = np.sqrt(2)/np.sqrt(np.sum(dchi_dmt_xyz**2))
-    delta_xs = 1/np.sqrt(np.sum(dchi_dxs_xyz**2))
-    # * do normalization with step length
-    dchi_dxs_xyz = dchi_dxs_xyz*delta_xs*max_dxs_ratio
-    dchi_dmt_xyz = dchi_dmt_xyz*delta_mt*max_dxs_ratio
-    xs = xs / delta_xs
-    mt_xyz = mt_xyz/delta_mt
-    # update source
-    xs += dchi_dxs_xyz
-    mt_xyz += dchi_dmt_xyz
-    # denormalize
-    xs = xs*dchi_dxs_xyz
-    mt_xyz = mt_xyz * delta_xs
-    # convert back to rtp coordinate
-    x, y, z = xs
     # get new a at new x,y,z
     r = (x**2 + y**2 + z**2)**0.5
     theta = np.arccos(z/r)
@@ -84,7 +86,6 @@ def add_src_frechet(src_frechet, cmtsolution, max_dxs_ratio, fix_location=False,
             [cthe, -1.0*sthe,      0.0]])
     # convert back to mt
     mt = np.dot(np.dot(np.transpose(a), mt_xyz), a)
-    lon, lat, alt = pyproj.transform(ecef, lla, x, y, z)
 
     # write to the new CMTSOLUTION
     cmtsolution_new = cmtsolution.copy()
