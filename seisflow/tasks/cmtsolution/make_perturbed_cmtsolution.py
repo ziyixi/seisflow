@@ -78,7 +78,10 @@ def add_src_frechet(src_frechet, cmtsolution, max_dxs_ratio, fix_location=False,
     # we have to get mt at the new position
     mt_xyz = np.dot(np.dot(a, mt), np.transpose(a))
     dmt_xyz = np.dot(np.dot(a, dmt), np.transpose(a))
-    print(mt_xyz, dmt_xyz)
+    print("mt", mt)
+    print("mt_xyz", mt_xyz)
+    print("dmt", dmt)
+    print("dmt_xyz", dmt_xyz)
     mt_xyz += dmt_xyz
     # get new a at new x,y,z
     r = (x**2 + y**2 + z**2)**0.5
@@ -94,7 +97,8 @@ def add_src_frechet(src_frechet, cmtsolution, max_dxs_ratio, fix_location=False,
     #         [cthe, -1.0*sthe,      0.0]])
     # convert back to mt
     mt = np.dot(np.dot(np.transpose(a), mt_xyz), a)
-    print(mt_xyz, mt)
+    print("mt_xyz", mt_xyz)
+    print("mt", mt)
     # write to the new CMTSOLUTION
     cmtsolution_new = cmtsolution.copy()
     if(not fix_location):
