@@ -93,6 +93,7 @@ def add_src_frechet(src_frechet, cmtsolution, max_dxs_ratio, fix_location=False,
     #      [sthe*sphi, cthe*sphi,      cphi],
     #         [cthe, -1.0*sthe,      0.0]])
     # convert back to mt
+    print(mt_xyz, mt)
     mt = np.dot(np.dot(np.transpose(a), mt_xyz), a)
 
     # write to the new CMTSOLUTION
