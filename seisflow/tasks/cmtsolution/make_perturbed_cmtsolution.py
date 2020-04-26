@@ -41,8 +41,7 @@ def add_src_frechet(src_frechet, cmtsolution, max_dxs_ratio, fix_location=False,
     else:
         scale_factor_mt = max_dxs_ratio/(np.sum(dchi_dmt_ratio**2))**0.5
     dxs_ratio = scale_factor_xs * dchi_dxs_ratio
-    dmt_ratio = scale_factor_xs * dchi_dmt_ratio
-    # print(dxs_ratio, dmt_ratio, scale_factor_xs, scale_factor_mt)
+    dmt_ratio = scale_factor_mt * dchi_dmt_ratio
     dxs = R_earth * dxs_ratio
     dmt = m0 * dmt_ratio
 
@@ -87,10 +86,10 @@ def add_src_frechet(src_frechet, cmtsolution, max_dxs_ratio, fix_location=False,
     cthe = np.cos(theta)
     sphi = np.sin(phi)
     cphi = np.cos(phi)
-    # a = np.array(
-    #     [[sthe*cphi, cthe*cphi, -1.0*sphi],
-    #      [sthe*sphi, cthe*sphi,      cphi],
-    #         [cthe, -1.0*sthe,      0.0]])
+    a = np.array(
+        [[sthe*cphi, cthe*cphi, -1.0*sphi],
+         [sthe*sphi, cthe*sphi,      cphi],
+            [cthe, -1.0*sthe,      0.0]])
     # convert back to mt
     mt = np.dot(np.dot(np.transpose(a), mt_xyz), a)
     # write to the new CMTSOLUTION
