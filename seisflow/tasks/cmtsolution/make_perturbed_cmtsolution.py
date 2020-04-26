@@ -42,7 +42,7 @@ def add_src_frechet(src_frechet, cmtsolution, max_dxs_ratio, fix_location=False,
         scale_factor_mt = max_dxs_ratio/(np.sum(dchi_dmt_ratio**2))**0.5
     dxs_ratio = scale_factor_xs * dchi_dxs_ratio
     dmt_ratio = scale_factor_mt * dchi_dmt_ratio
-    print(dxs_ratio, dmt_ratio, scale_factor_xs, scale_factor_mt)
+    # print(dxs_ratio, dmt_ratio, scale_factor_xs, scale_factor_mt)
     dxs = R_earth * dxs_ratio
     dmt = m0 * dmt_ratio
 
@@ -78,6 +78,7 @@ def add_src_frechet(src_frechet, cmtsolution, max_dxs_ratio, fix_location=False,
     # we have to get mt at the new position
     mt_xyz = np.dot(np.dot(a, mt), np.transpose(a))
     dmt_xyz = np.dot(np.dot(a, dmt), np.transpose(a))
+    print(dmt_xyz)
     mt_xyz += dmt_xyz
     # get new a at new x,y,z
     r = (x**2 + y**2 + z**2)**0.5
