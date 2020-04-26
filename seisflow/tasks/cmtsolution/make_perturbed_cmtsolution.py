@@ -9,9 +9,9 @@ def add_src_frechet(src_frechet, cmtsolution, max_dxs_ratio, fix_location=False,
     data = src_frechet
     # convert from dyne*cm to N*m
     dchi_dmt = np.array([
-        [data[0], data[3], data[4]],
-        [data[3], data[1], data[5]],
-        [data[4], data[5], data[2]]
+        [data[0], data[3]/2, data[4]/2],
+        [data[3]/2, data[1], data[5]/2],
+        [data[4]/2, data[5]/2, data[2]]
     ]) * 1e7
     # ! note here we have a bug, the output of specfem should be de,dn,-dz, to change to dr,dtheta,dphi, we have to
     # ! change dp,-dt,-dr to dr,dt,dp (-ddep,-dlat,dlon)
