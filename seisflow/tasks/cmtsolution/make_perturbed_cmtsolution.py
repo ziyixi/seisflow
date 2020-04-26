@@ -41,7 +41,7 @@ def add_src_frechet(src_frechet, cmtsolution, max_dxs_ratio, fix_location=False,
     else:
         scale_factor_mt = max_dxs_ratio/(np.sum(dchi_dmt_ratio**2))**0.5
     dxs_ratio = scale_factor_xs * dchi_dxs_ratio
-    dmt_ratio = scale_factor_mt * dchi_dmt_ratio
+    dmt_ratio = scale_factor_xs * dchi_dmt_ratio
     dxs = R_earth * dxs_ratio
     dmt = m0 * dmt_ratio
 
