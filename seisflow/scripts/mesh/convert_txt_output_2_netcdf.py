@@ -89,9 +89,15 @@ def main(base_dir, region, npts, nproc, parameters, out_path, history):
             pbar.update(1)
     pos_mapper_collection_this_rank = np.vstack(
         pos_mapper_collection_this_rank)
+    # * get the maximum array row length
+    all_row_lengths = comm.gather(
+        pos_mapper_collection_this_rank.shape[0], root=0)
+    max_row_length = np.max(all_row_lengths)
+    pos_mapper_collection = np.zeros((size, max_row_length, 5))
+    pos_mapper_collection[:] = np.nan
     # * collect all the pos_mapper_collection
-    pos_mapper_collection = comm.gather(
-        pos_mapper_collection_this_rank, root=0)
+    comm.Gather(
+        pos_mapper_collection_this_rank, pos_mapper_collection, root=0)
     if(rank == 0):
         pos_mapper_collection = np.vstack(pos_mapper_collection)
         # * now we map to save_arrays_list
@@ -99,6 +105,8 @@ def main(base_dir, region, npts, nproc, parameters, out_path, history):
                             for i in range(len(parameters_list))]
         for row in pos_mapper_collection:
             i, j, k, value, index_parameter = row
+            if (np.isnan(i)):
+                continue
             save_arrays_list[index_parameter][i, j, k] = value
 
         # save to netcdf file
