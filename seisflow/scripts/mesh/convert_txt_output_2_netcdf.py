@@ -105,7 +105,7 @@ def main(base_dir, region, npts, nproc, parameters, out_path, history):
         pos_mapper_collection = np.vstack(pos_mapper_collection)
         # * remove nan
         pos_mapper_collection = pos_mapper_collection[~np.isnan(
-            pos_mapper_collection)]
+            pos_mapper_collection[:, 0]), :]
         # * now we map to save_arrays_list
         save_arrays_list = [np.zeros((nlon, nlat, ndep))
                             for i in range(len(parameters_list))]
