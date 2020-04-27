@@ -45,6 +45,15 @@ def get_iproc_this_rank(all_iproc):
     return np.array_split(all_iproc, size)[rank]
 
 
+@numba.njit
+def pos_mapper_kernel(pos_mapper_collection, save_arrays_list):
+    for row in pos_mapper_collection:
+        i, j, k, value, index_parameter = row
+        save_arrays_list[int(index_parameter)][int(i),
+                                               int(j), int(k)] = value
+    return save_arrays_list
+
+
 @click.command()
 @click.option('--base_dir', required=True, type=str)
 @click.option('--region', required=True, type=str, help="minlon/maxlon/minlat/maxlat/mindep/maxdep")
@@ -109,11 +118,8 @@ def main(base_dir, region, npts, nproc, parameters, out_path, history):
         # * now we map to save_arrays_list
         save_arrays_list = [np.zeros((nlon, nlat, ndep))
                             for i in range(len(parameters_list))]
-        for row in tqdm.tqdm(pos_mapper_collection):
-            i, j, k, value, index_parameter = row
-            save_arrays_list[int(index_parameter)][int(i),
-                                                   int(j), int(k)] = value
-
+        save_arrays_list = pos_mapper_kernel(
+            pos_mapper_collection, save_arrays_list)
         # save to netcdf file
         with netcdf.netcdf_file(out_path, 'w') as f:
             f.history = history
