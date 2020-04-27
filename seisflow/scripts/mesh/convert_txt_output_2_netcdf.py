@@ -79,12 +79,14 @@ def main(base_dir, region, npts, nproc, parameters, out_path, history):
     # * we get the iproc for this rank
     iproc_this_rank = get_iproc_this_rank(range(nproc))
     pos_mapper_collection_this_rank = []
-    pbar = tqdm.tqdm(total=nproc)
+    if(rank == 0):
+        pbar = tqdm.tqdm(total=len(iproc_this_rank))
     for iproc in iproc_this_rank:
         pos_mapper_iproc_rank = get_pos_mapper_collection(
             base_dir, iproc, minlon, minlat, mindep, dlon, dlat, ddep, parameters_list)
         pos_mapper_collection_this_rank.append(pos_mapper_iproc_rank)
-        pbar.update(1)
+        if(rank == 0):
+            pbar.update(1)
     pos_mapper_collection_this_rank = np.vstack(
         pos_mapper_collection_this_rank)
     # * collect all the pos_mapper_collection
