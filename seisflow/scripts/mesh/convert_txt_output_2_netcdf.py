@@ -71,21 +71,6 @@ def main(base_dir, region, npts, nproc, parameters, out_path, history):
     dlat = (maxlat-minlat)/(nlat-1)
     ddep = (maxdep-mindep)/(ndep-1)
     parameters_list = parameters.split(",")
-
-    # save_arrays_list = [np.zeros((nlon, nlat, ndep))
-    #                     for i in range(len(parameters_list))]
-    # for each file, we load the file, and map it to the parameter numpy array
-    # for iproc in tqdm.tqdm(range(nproc)):
-    #     fname = join(base_dir, str(iproc))
-    #     data_iproc = np.loadtxt(fname)
-    #     # for each parameter array, map the value
-    #     for index_point in range(data_iproc.shape[0]):
-    #         for index_parameter in range(len(parameters_list)):
-    #             i, j, k = pos_mapper(
-    #                 data_iproc[index_point, 0], data_iproc[index_point, 1], data_iproc[index_point, 2], minlon, minlat, mindep, dlon, dlat, ddep)
-    #             save_arrays_list[index_parameter][i,
-    #                                             j, k] = data_iproc[index_point, index_parameter+3]
-
     # * we get the iproc for this rank
     iproc_this_rank = get_iproc_this_rank(range(nproc))
     pos_mapper_collection_this_rank = []
@@ -97,6 +82,8 @@ def main(base_dir, region, npts, nproc, parameters, out_path, history):
         pos_mapper_collection_this_rank.append(pos_mapper_iproc_rank)
         if(rank == 0):
             pbar.update(1)
+    if (rank == 0):
+        pbar.close()
     pos_mapper_collection_this_rank = np.vstack(
         pos_mapper_collection_this_rank)
     # * get the maximum array row length
