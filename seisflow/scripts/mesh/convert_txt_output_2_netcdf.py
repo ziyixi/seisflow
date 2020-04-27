@@ -103,13 +103,14 @@ def main(base_dir, region, npts, nproc, parameters, out_path, history):
         pos_mapper_collection_this_rank, pos_mapper_collection, root=0)
     if(rank == 0):
         pos_mapper_collection = np.vstack(pos_mapper_collection)
+        # * remove nan
+        pos_mapper_collection = pos_mapper_collection[~np.isnan(
+            pos_mapper_collection)]
         # * now we map to save_arrays_list
         save_arrays_list = [np.zeros((nlon, nlat, ndep))
                             for i in range(len(parameters_list))]
         for row in tqdm.tqdm(pos_mapper_collection):
             i, j, k, value, index_parameter = row
-            if (np.isnan(i)):
-                continue
             save_arrays_list[int(index_parameter)][int(i),
                                                    int(j), int(k)] = value
 
