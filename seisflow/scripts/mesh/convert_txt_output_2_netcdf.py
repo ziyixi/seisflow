@@ -93,8 +93,11 @@ def main(base_dir, region, npts, nproc, parameters, out_path, history):
     all_row_lengths = comm.gather(
         pos_mapper_collection_this_rank.shape[0], root=0)
     max_row_length = np.max(all_row_lengths)
-    pos_mapper_collection = np.zeros((size, max_row_length, 5))
-    pos_mapper_collection[:] = np.nan
+    if(rank == 0):
+        pos_mapper_collection = np.zeros((size, max_row_length, 5))
+        pos_mapper_collection[:] = np.nan
+    else:
+        pos_mapper_collection = None
     # * collect all the pos_mapper_collection
     comm.Gather(
         pos_mapper_collection_this_rank, pos_mapper_collection, root=0)
