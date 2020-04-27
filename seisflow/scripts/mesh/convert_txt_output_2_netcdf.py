@@ -110,7 +110,8 @@ def main(base_dir, region, npts, nproc, parameters, out_path, history):
             i, j, k, value, index_parameter = row
             if (np.isnan(i)):
                 continue
-            save_arrays_list[index_parameter][int(i), int(j), int(k)] = value
+            save_arrays_list[int(index_parameter)][int(i),
+                                                   int(j), int(k)] = value
 
         # save to netcdf file
         with netcdf.netcdf_file(out_path, 'w') as f:
