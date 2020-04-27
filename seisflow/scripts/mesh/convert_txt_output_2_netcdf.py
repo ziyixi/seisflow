@@ -47,7 +47,8 @@ def get_iproc_this_rank(all_iproc):
 
 @numba.njit
 def pos_mapper_kernel(pos_mapper_collection, save_arrays_list):
-    for row in pos_mapper_collection:
+    for index in range(pos_mapper_collection.shape[0]):
+        row = pos_mapper_collection[index]
         i, j, k, value, index_parameter = row
         save_arrays_list[int(index_parameter)][int(i),
                                                int(j), int(k)] = value
