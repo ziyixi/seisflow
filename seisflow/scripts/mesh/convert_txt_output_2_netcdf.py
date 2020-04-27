@@ -106,7 +106,7 @@ def main(base_dir, region, npts, nproc, parameters, out_path, history):
         # * now we map to save_arrays_list
         save_arrays_list = [np.zeros((nlon, nlat, ndep))
                             for i in range(len(parameters_list))]
-        for row in pos_mapper_collection:
+        for row in tqdm.tqdm(pos_mapper_collection):
             i, j, k, value, index_parameter = row
             if (np.isnan(i)):
                 continue
