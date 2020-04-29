@@ -26,7 +26,7 @@ def extract_data(f, depth, parameter):
     return mesh_lon, mesh_lat, data
 
 
-def plot_h(mesh_lon, mesh_lat, data, parameter, depth, vmin, vmax, region, scale):
+def plot_h(mesh_lon, mesh_lat, data, parameter, depth, vmin, vmax, region, scale, percentage):
     plt.figure()
     ax = plt.axes(projection=ccrs.PlateCarree())
     print(np.nanmin(data), np.nanmax(data))
@@ -50,9 +50,18 @@ def plot_h(mesh_lon, mesh_lat, data, parameter, depth, vmin, vmax, region, scale
     ax.yaxis.set_major_formatter(lat_formatter)
     # in general disable it, since the map boundary excludes some part of China.
     ax.add_feature(cartopy.feature.BORDERS)
-    plt.colorbar(orientation='horizontal', fraction=0.046, pad=0.04)
+    colorbar = plt.colorbar(orientation='horizontal', fraction=0.046,
+                            pad=0.04, extend="neither")
+    colorbar.set_ticks([round(i, 2) for i in colorbar.get_ticks().tolist()])
+    colorbar.set_ticklabels(
+        [str(i) + "%" for i in colorbar.get_ticks().tolist()])
+    colorbar.set_label(label=f"${{dlnV_{{{parameter[1:]}}}}}$", size=15)
     plt.grid()
-    plt.title(f"{parameter} at {depth}km")
+    plt.text(0.1, 0.9, f"{parameter}\n{depth}km", ha='center',
+             va='center', transform=ax.transAxes, fontsize=20)
+    ax.xaxis.set_tick_params(labelsize=15)
+    ax.yaxis.set_tick_params(labelsize=15)
+    # plt.title(f"{parameter} at {depth}km")
 
     plt.show()
 
@@ -65,11 +74,14 @@ def plot_h(mesh_lon, mesh_lat, data, parameter, depth, vmin, vmax, region, scale
 @click.option('--vmax', required=False, default=0, type=float, help="the max limit for colorbar")
 @click.option('--region', required=True, type=str, help="the region to plot, lon1/lat1/lon2/lat2")
 @click.option('--scale/--no-scale', default=False, required=False, help="if scale the range based on the maximum value")
-def main(netcdf_file, parameter, depth, vmin, vmax, region, scale):
+@click.option('--percentage/--no-percentage', default=False, required=False, help="if use percentage in colorbar")
+def main(netcdf_file, parameter, depth, vmin, vmax, region, scale, percentage):
     f = netcdf.netcdf_file(netcdf_file, 'r')
     mesh_lon, mesh_lat, data = extract_data(f, depth, parameter)
+    if (percentage):
+        data = data*100
     plot_h(mesh_lon, mesh_lat, data, parameter,
-           depth, vmin, vmax, region, scale)
+           depth, vmin, vmax, region, scale, percentage)
 
 
 if __name__ == "__main__":
