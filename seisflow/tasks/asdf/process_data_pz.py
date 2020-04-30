@@ -11,6 +11,7 @@ import pandas as pd
 import pyasdf
 from mpi4py import MPI
 from obspy.geodetics.base import gps2dist_azimuth
+from obspy.io.sac.sacpz import attach_paz
 from obspy.signal.invsim import simulate_seismometer
 
 mpi4py.rc.recv_mprobe = False
@@ -146,7 +147,7 @@ def remove_response_paz(st, paz_path, pre_filt):
         paz_path_used = join(paz_path, key)
         # try to read paz
         try:
-            obspy.io.sac.sacpz.attach_paz(trace, paz_path_used)
+            attach_paz(trace, paz_path_used)
         except:  # pylint: disable=bare-except
             return None
         # ndarray

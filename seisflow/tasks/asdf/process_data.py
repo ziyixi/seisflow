@@ -9,6 +9,7 @@ import pandas as pd
 import pyasdf
 from mpi4py import MPI
 from obspy.geodetics.base import gps2dist_azimuth
+from obspy.io.sac.sacpz import attach_paz
 from obspy.signal.invsim import simulate_seismometer
 
 mpi4py.rc.recv_mprobe = False
@@ -92,7 +93,7 @@ def remove_response(st, pre_filt=None, inv=None):
         inv_tr = inv.select(channel=item.stats.channel)
         inv_tr.write(pz_vir_file, format="SACPZ")
         pz_vir_file.seek(0)
-        obspy.io.sac.sacpz.attach_paz(item, pz_vir_file)
+        attach_paz(item, pz_vir_file)
         data = simulate_seismometer(
             item.data, item.stats.sampling_rate, paz_remove=item.stats.paz, water_level=6e9, zero_mean=False, taper=False, pre_filt=pre_filt, sacsim=True)
         st[index].data = data
