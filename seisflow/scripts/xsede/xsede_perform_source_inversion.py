@@ -289,6 +289,9 @@ def source_inversion_single_step(iter_number, py, n_total, n_each, n_iter, nproc
                                              iter_adjoint_source, specfem_base)
     # change simulation type to the source inversion (type 2) [specfem_base->specfem_cmtfiles->cmtfiles_directory] o
     result += change_simulation_type(py, specfem_base, "source")
+    # ! a possible bug here, we should copy the ungreened cmtsolution to the simulation directory
+    result += cp_cmtsolution2structure(py,
+                                       specfem_cmtfiles, specfem_base)
     # do the adjoint simulation [specfem_base->specfem_cmtfiles->cmtfiles_directory] o
     result += forward_task(base=specfem_base, N_total=n_total,
                            N_each=n_each, N_iter=n_iter, nproc=nproc, run_mesh=False)
