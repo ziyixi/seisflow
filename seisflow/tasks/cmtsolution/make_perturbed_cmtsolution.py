@@ -28,9 +28,8 @@ def add_src_frechet(src_frechet, cmtsolution, max_dxs_ratio, fix_location=False,
                    [cmt_tensor.m_rp, cmt_tensor.m_tp, cmt_tensor.m_pp]])
     # m0 = (0.5*np.sum(mt**2))**0.5
     # R_earth = 6371000.0
-    m0 = np.sqrt(2) / np.sqrt(np.sum(dchi_dmt ** 2))
-    R_earth = 1 / np.sqrt(np.sum(dchi_dxs ** 2))
-    R_earth_true = 6371000
+    m0 = (0.5*np.sum(mt**2))**0.5
+    R_earth = 6371000.0
     dchi_dxs_ratio = R_earth * dchi_dxs
     dchi_dmt_ratio = m0 * dchi_dmt
 
@@ -38,8 +37,7 @@ def add_src_frechet(src_frechet, cmtsolution, max_dxs_ratio, fix_location=False,
     if (np.sum(dchi_dxs_ratio ** 2) == 0):
         scale_factor = 0.0
     else:
-        scale_factor = max_dxs_ratio / \
-            (np.sum(dchi_dxs_ratio ** 2)) ** 0.5/(R_earth/R_earth_true)
+        scale_factor = max_dxs_ratio/(np.sum(dchi_dxs_ratio**2))**0.5
     dxs_ratio = scale_factor * dchi_dxs_ratio
     dmt_ratio = scale_factor * dchi_dmt_ratio
     dxs = R_earth * dxs_ratio
@@ -72,12 +70,10 @@ def add_src_frechet(src_frechet, cmtsolution, max_dxs_ratio, fix_location=False,
     y += dxs_xyz[1]
     z += dxs_xyz[2]
     lon, lat, alt = pyproj.transform(ecef, lla, x, y, z)
-    # # add dmt
-    # mt += dmt
+    # add dmt
+    mt += dmt
     # we have to get mt at the new position
     mt_xyz = np.dot(np.dot(a, mt), np.transpose(a))
-    dmt_xyz = np.dot(np.dot(a, dmt), np.transpose(a))
-    mt_xyz += dmt_xyz
     # get new a at new x,y,z
     r = (x**2 + y**2 + z**2)**0.5
     theta = np.arccos(z/r)
