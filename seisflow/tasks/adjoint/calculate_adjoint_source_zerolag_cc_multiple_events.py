@@ -133,6 +133,46 @@ def get_weights_for_all(misfit_windows, stations,  snr_threshold, cc_threshold, 
     return weights_for_all
 
 
+def update_categorical_weighting_multiple_events(weighting_dict):
+    """
+    update the categorical weighting for all the events.
+    """
+    # * firstly, we should get counts for all the categories.
+    number_each_category_all_events = {
+        "z": 0,
+        "r": 0,
+        "t": 0,
+        "surface_z": 0,
+        "surface_r": 0,
+        "surface_t": 0
+    }
+    for each_event in weighting_dict:
+        rep_net_sta = list(weighting_dict[each_event].keys())[0]
+        for each_category in weighting_dict[each_event][rep_net_sta]:
+            # we are sure for each category there will be a window, no matter the weight
+            rep_weight = weighting_dict[each_event][rep_net_sta][each_category][0]
+            category_weighting = rep_weight.category
+            # get the number
+            if (category_weighting == 0):
+                raise Exception(f"no category {each_category} in {each_event}")
+            category_number = 1 / category_weighting
+            number_each_category_all_events[each_category] += category_number
+    # * now we calculate what the weight should be
+    weight_each_category = {}
+    for each_category in number_each_category_all_events:
+        weight_each_category[each_category] = cal_category_weight(
+            number_each_category_all_events[each_category])
+    # * now we update again
+    for each_event in weighting_dict:
+        for net_sta in weighting_dict[each_event]:
+            for category in weighting_dict[each_event][net_sta]:
+                # * we will not use the category that not existing in this event
+                for index, each_weight in enumerate(weighting_dict[each_event][net_sta][category]):
+                    weighting_dict[each_event][net_sta][category][index] = each_weight._replace(
+                        category=weight_each_category[category])
+    return weighting_dict
+
+
 def calculate_adjoint_source_zerolagcc_one_event_for_structure(misfit_windows, stations, raw_sync_virasdf, snr_threshold, cc_threshold, deltat_threshold, body_band, surface_band,
                                                                sync_virasdf_body, data_virasdf_body, sync_virasdf_surface, data_virasdf_surface):
     """
