@@ -112,6 +112,7 @@ class VirAsdf():
                 "st": self.waveforms[each_net_sta]["st"].copy()
             }
         new_virasdf.set_waveforms(new_waveforms)
+        new_virasdf.tag = self.tag
         return new_virasdf
 
     def update_st(self, st, net_sta):
