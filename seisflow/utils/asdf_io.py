@@ -42,12 +42,12 @@ class VirAsdf():
                     if(not self.usecopy):
                         self.waveforms[each_net_sta] = {
                             "inv": wg["StationXML"],
-                            "st": wg[tag]
+                            "st": wg[self.tag]
                         }
                     else:
                         self.waveforms[each_net_sta] = {
                             "inv": wg["StationXML"].copy(),
-                            "st": wg[tag].copy()
+                            "st": wg[self.tag].copy()
                         }
                     # it's better to use float32
                     for tr in self.waveforms[each_net_sta]["st"]:
