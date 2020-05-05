@@ -23,7 +23,7 @@ Weight = namedtuple(
     'Weight', ['snr', 'cc', 'deltat', 'geographical', 'category'])
 
 
-def mpi_collect_category_number(number_each_category):
+def mpi_collect_category_number(number_each_category, print_info=True):
     """
     collect the number of windows for each category of all the events.
     """
@@ -40,7 +40,7 @@ def mpi_collect_category_number(number_each_category):
     for number_each_category_each_event in number_each_category_all_events_list:
         for each_category in number_each_category_each_event:
             number_each_category_all_events[each_category] += number_each_category_each_event[each_category]
-    if(rank == 0):
+    if((rank == 0) and print_info):
         print("output category number")
         print(number_each_category_all_events)
         print("end output")
@@ -59,7 +59,7 @@ def mpi_collect_weight_normalize_factor(weight_normalize_factor):
     return weight_normalize_factor_all_events
 
 
-def get_weights_for_all(misfit_windows, stations,  snr_threshold, cc_threshold, deltat_threshold, calculate_basic):
+def get_weights_for_all(misfit_windows, stations,  snr_threshold, cc_threshold, deltat_threshold, calculate_basic, print_info=True):
     """
     get_weights_for_all: calculate weights.
     """
@@ -119,7 +119,7 @@ def get_weights_for_all(misfit_windows, stations,  snr_threshold, cc_threshold, 
         # here we should weight based on number of windows but not the number of usable stations.
         # * collect all events information
         number_each_category_all_events = mpi_collect_category_number(
-            number_each_category)
+            number_each_category, print_info=print_info)
         weight_each_category = {}
         for each_category in number_each_category_all_events:
             weight_each_category[each_category] = cal_category_weight(

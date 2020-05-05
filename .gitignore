@@ -4,3 +4,4 @@
 *.nc
 test/*
 result/*
+jupyter/*

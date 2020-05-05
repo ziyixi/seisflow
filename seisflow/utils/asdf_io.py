@@ -16,6 +16,7 @@ class VirAsdf():
         self.asdf_path = None
         self.usecopy = False
         self.lazy = False
+        self.tag = None
 
     def read_asdf(self, asdf_path, usecopy=False, lazy=False):
         """
@@ -37,7 +38,7 @@ class VirAsdf():
                 self.waveforms_list = ds.waveforms.list()
                 for each_net_sta in self.waveforms_list:
                     wg = ds.waveforms[each_net_sta]
-                    tag = wg.get_waveform_tags()[0]
+                    self.tag = wg.get_waveform_tags()[0]
                     if(not self.usecopy):
                         self.waveforms[each_net_sta] = {
                             "inv": wg["StationXML"],
@@ -70,10 +71,12 @@ class VirAsdf():
             self.waveforms = None
             self.lazy = True
 
-    def write_asdf(self, output_path, tag):
+    def write_asdf(self, output_path, tag=None):
         """
         write_asdf: write to asdf
         """
+        if (tag == None):
+            tag = self.tag
         # since virasdf will not used parallel io, we disable mpi here
         with pyasdf.ASDFDataSet(output_path, mode="w", mpi=False) as ds:
             ds.add_quakeml(self.events)
