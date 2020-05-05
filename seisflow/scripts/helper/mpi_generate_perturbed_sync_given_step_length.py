@@ -45,6 +45,9 @@ def main(raw_directory, perturbed_directory, output_directory, step_length):
         virasdf_vir_perturbed = get_perturbed_vir_sync(
             virasdf_raw, virasdf_perturbed, step_length)
         virasdf_vir_perturbed.write_asdf(output_path)
+        del virasdf_raw
+        del virasdf_perturbed
+        del virasdf_vir_perturbed
 
 
 if __name__ == "__main__":
