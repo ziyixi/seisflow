@@ -25,12 +25,16 @@ def get_asdf_files_this_rank(adjoint_directory):
 
 def kernel_check_file(adjoint_file_path):
     with pyasdf.ASDFDataSet(adjoint_file_path, mode="r", mpi=False) as ds:
+        maxmin = 0
         all_adjoint_ids = ds.auxiliary_data.AdjointSources.list()
         for each_adjoint_id in all_adjoint_ids:
             adjoint_data = ds.auxiliary_data.AdjointSources[each_adjoint_id].data[:]
             status = np.isfinite(adjoint_data).all()
+            maxmin = np.max(
+                [maxmin, np.max(adjoint_data)-np.min(adjoint_data)])
             if (not status):
                 print(basename(adjoint_file_path), each_adjoint_id)
+        print(basename(adjoint_file_path), maxmin)
 
 
 @click.command()
