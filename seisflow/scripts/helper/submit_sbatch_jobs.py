@@ -2,9 +2,10 @@
 submit_sbatch_jobs.py: submit sbatch jobs in the base simulation directory.
 """
 from glob import glob
-from os.path import join, basename
-import sh
+from os.path import basename, join
+
 import click
+import sh
 
 
 @click.command()
@@ -18,6 +19,7 @@ def main(base_dir, cmd_name, id_range):
     for each_dir in used_dirs:
         sbatch_dir = join(each_dir, "sbatch")
         sh.cd(sbatch_dir)
+        print(str(sh.pwd()))
         sh.sbatch(cmd_name)
         print(f"submitted {cmd_name} in {basename(each_dir)}")
 
