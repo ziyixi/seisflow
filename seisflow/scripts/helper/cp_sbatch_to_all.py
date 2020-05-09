@@ -1,10 +1,11 @@
 """
 cp_sbatch_to_all.py: cp all the sbatch dirs to the simulation directory.
 """
-from os.path import join, isdir
 from glob import glob
-import sh
+from os.path import isdir, join
+
 import click
+import sh
 
 
 @click.command()
@@ -15,8 +16,8 @@ def main(source_dir, base_dir):
     for each_path in all_paths:
         target = join(each_path, "sbatch")
         if (not isdir(target)):
-            sh.cp(source_dir, target)
+            sh.cp("-r", source_dir, target)
 
 
 if __name__ == "__main__":
-    main()
+    main()  # pylint: disable=no-value-for-parameter
