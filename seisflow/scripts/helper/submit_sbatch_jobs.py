@@ -19,7 +19,6 @@ def main(base_dir, cmd_name, id_range):
     for each_dir in used_dirs:
         sbatch_dir = join(each_dir, "sbatch")
         sh.cd(sbatch_dir)
-        print(str(sh.pwd()))
         sh.sbatch(cmd_name)
         print(f"submitted {cmd_name} in {basename(each_dir)}")
 
