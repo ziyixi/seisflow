@@ -14,7 +14,7 @@ import sh
 def main(source_dir, base_dir):
     all_paths = sorted(glob(join(base_dir, "*")))
     for each_path in all_paths:
-        target = join(each_path, "bin_knl")
+        target = join(each_path, "sbatch")
         if (not isdir(target)):
             sh.cp("-r", source_dir, target)
 
