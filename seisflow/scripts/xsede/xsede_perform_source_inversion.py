@@ -106,7 +106,7 @@ def cp_cmtsolution2structure(py, cmtsolution_directory, base_directory):
     """
     cp cmtsolution files in cmtsolution_directory to the simulation structure.
     """
-    script = f"ibrun -n 1 {py} -m seisflow.scripts.cp_cmtsolution2structure --cmtsolution_directory {cmtsolution_directory} --base_directory {base_directory}; \n"
+    script = f"ibrun -n 1 {py} -m seisflow.scripts.source_inversion.cp_cmtsolution2structure --cmtsolution_directory {cmtsolution_directory} --base_directory {base_directory}; \n"
     return script
 
 
