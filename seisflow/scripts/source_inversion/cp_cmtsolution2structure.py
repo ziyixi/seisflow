@@ -17,5 +17,8 @@ if __name__ == "__main__":
         for each_file in all_files:
             gcmtid = basename(each_file)
             to_path = join(base_directory, gcmtid, "DATA", "CMTSOLUTION")
-            sh.cp(each_file, to_path)
+            try:
+                sh.cp(each_file, to_path)
+            except sh.ErrorReturnCode_1:
+                pass
     main()  # pylint: disable=no-value-for-parameter
