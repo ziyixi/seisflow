@@ -28,8 +28,11 @@ def add_src_frechet(src_frechet, cmtsolution, max_dxs_ratio, fix_location=False,
                    [cmt_tensor.m_rp, cmt_tensor.m_tp, cmt_tensor.m_pp]])
     # m0 = (0.5*np.sum(mt**2))**0.5
     # R_earth = 6371000.0
-    m0 = (0.5*np.sum(mt**2))**0.5
-    R_earth = 6371000.0
+    # m0 = (0.5*np.sum(mt**2))**0.5
+    # R_earth = 6371000.0
+    # ! here we try to use normalization factor g as R_earch and m0
+    R_earth = np.sum(dchi_dxs ** 2) ** (-0.5)
+    m0 = np.sqrt(2)*np.sum(dchi_dmt**2)**(-0.5)
     dchi_dxs_ratio = R_earth * dchi_dxs
     dchi_dmt_ratio = m0 * dchi_dmt
 
