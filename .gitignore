@@ -5,3 +5,4 @@
 test/*
 result/*
 jupyter/*
+*.DS_Store
