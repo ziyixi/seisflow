@@ -71,7 +71,10 @@ def plot_single_figure(to_interp_data, each_depth, hlat, hlon, colorbar, vmin, v
     plot_data = plot_data.T
     # * plot for each depth and parameter
     fig = pygmt.Figure()
-    if(colorbar[-2:] == "_r"):
+    if (colorbar == "default"):
+        pygmt.makecpt(cmap="seisflow/data/dvs_6p.cpt", series=f"{vmin}/{vmax}/0.01",
+                      continuous=True, D="o")
+    elif(colorbar[-2:] == "_r"):
         pygmt.makecpt(cmap=colorbar[:-2], series=f"{vmin}/{vmax}/0.01",
                       continuous=True, D="o", reverse=True)
     else:
@@ -98,7 +101,7 @@ def plot_single_figure(to_interp_data, each_depth, hlat, hlon, colorbar, vmin, v
         frame=[f"+LdlnV{each_parameter[1:]}(%)", "xaf"],
         scale=100,)
     fig.text(x=[lon1 + lon_dev, lon1 + lon_dev * 5 / 4], y=[lat2 - lat_dev / 2, lat2-lat_dev], text=[
-        each_parameter, f"{each_depth}km"], font="30p,4,white+jMC")
+        each_parameter, f"{each_depth}km"], font="30p,4,black+jMC")
     # * sometimes we want to plot some lines in map
     if (plot_paths != None):
         for index, item in enumerate(plot_paths):

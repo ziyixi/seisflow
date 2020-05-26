@@ -108,7 +108,10 @@ def plot_single_vertical_figure(line_index, each_path, to_interp_data, npts, eac
     plot_data = plot_data.T
     # * now we can plot the figure
     fig = pygmt.Figure()
-    if(colorbar[-2:] == "_r"):
+    if (colorbar == "default"):
+        pygmt.makecpt(cmap="seisflow/data/dvs_6p.cpt", series=f"{vmin}/{vmax}/0.01",
+                      continuous=True, D="o")
+    elif(colorbar[-2:] == "_r"):
         pygmt.makecpt(cmap=colorbar[:-2], series=f"{vmin}/{vmax}/0.01",
                       continuous=True, D="o", reverse=True)
     else:
