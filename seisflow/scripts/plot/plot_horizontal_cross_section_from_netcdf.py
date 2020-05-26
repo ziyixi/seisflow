@@ -26,7 +26,7 @@ def extract_data(f, depth, parameter):
     return mesh_lon, mesh_lat, data
 
 
-def plot_h(mesh_lon, mesh_lat, data, parameter, depth, vmin, vmax, region, scale, percentage):
+def plot_h(mesh_lon, mesh_lat, data, parameter, depth, vmin, vmax, region, scale, percentage):  # pylint: disable=unused-argument
     plt.figure()
     ax = plt.axes(projection=ccrs.PlateCarree())
     print(np.nanmin(data), np.nanmax(data))
