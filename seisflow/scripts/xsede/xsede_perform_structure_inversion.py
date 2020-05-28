@@ -118,7 +118,7 @@ def main(base_directory, cmts_directory, ref_directory, windows_directory, data_
     result += adjoint_simulation_command
     result += f"cd {current_path}; \n"
     # * here we submit the first job
-    step1_jobid = submit_job("step1_structure", result, n_node, n_each *
+    step1_jobid = submit_job("str_stp1", result, n_node, n_each *
                              nproc, partition, time, account, "stampede2")
     # * ======================================================================================================================
     # * now we do the kernel processing part
@@ -137,7 +137,7 @@ def main(base_directory, cmts_directory, ref_directory, windows_directory, data_
     result += process_kernel(join(base_directory,
                                   "process_kernel"), sigma_h, sigma_v, nproc, itern=True)
     # * now submit the job to process the kernel
-    step2_jobid = submit_job("step2_structure", result, n_node_process_kernel, nproc, partition, time_process_kernel,
+    step2_jobid = submit_job("str_stp2", result, n_node_process_kernel, nproc, partition, time_process_kernel,
                              account, "stampede2", depends_on=[step1_jobid])
     # * ======================================================================================================================
     # * now we use the generated perturbed model to do a forward simulation
@@ -164,7 +164,7 @@ def main(base_directory, cmts_directory, ref_directory, windows_directory, data_
 
     result += f"cd {current_path}; \n"
     # * submit the job
-    submit_job("step3_structure", result, n_node, n_each *
+    submit_job("str_stp3", result, n_node, n_each *
                nproc, partition, time_run_perturbation, account, "stampede2", depends_on=[step2_jobid])
 
 
