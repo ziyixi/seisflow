@@ -6,15 +6,15 @@ mutable struct sem_mesh_data
     idoubling::Array{Int64,1}
     ispec_is_tiso::Array{Bool,1}
 
-    xix::Array{Float64,4}
-    xiy::Array{Float64,4}
-    xiz::Array{Float64,4}
-    etax::Array{Float64,4}
-    etay::Array{Float64,4}
-    etaz::Array{Float64,4}
-    gammax::Array{Float64,4}
-    gammay::Array{Float64,4}
-    gammaz::Array{Float64,4}
+    # xix::Array{Float64,4}
+    # xiy::Array{Float64,4}
+    # xiz::Array{Float64,4}
+    # etax::Array{Float64,4}
+    # etay::Array{Float64,4}
+    # etaz::Array{Float64,4}
+    # gammax::Array{Float64,4}
+    # gammay::Array{Float64,4}
+    # gammaz::Array{Float64,4}
 
     sem_mesh_data() = new()
 end  
