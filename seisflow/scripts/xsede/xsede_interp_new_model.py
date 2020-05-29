@@ -161,7 +161,7 @@ def main(base_directory, database_list_path, tags, n_node, ntasks,
     # if use v1.1
     result += f"rsync -au $JULIA_DEPOT_PATH/compiled/v1.1 $TMPDIR/compiled/\n"
     result += f"export JULIA_DEPOT_PATH=$TMPDIR:$JULIA_DEPOT_PATH\n"
-    result = "date; \n"
+    result += "date; \n"
     # * firstly we generate the structure of this workflow.
     init_structure(base_directory, database_list)
     # * then we generate the model perturbations.
