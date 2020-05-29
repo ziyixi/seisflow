@@ -36,7 +36,7 @@ function sem_mesh_read(basedir::String, iproc::Int64)
 
     read(f, mesh_data.ispec_is_tiso)
 
-    read(f, dummy4)
+    # read(f, dummy4)
     # mesh_data.xix .= Float64.(dummy4)
     # read(f, dummy4)
     # mesh_data.xiy .= Float64.(dummy4)
