@@ -34,6 +34,8 @@ def getinfo(info_dir, gcmtid):
     s_path = join(info_dir, "traveltime.S.pkl")
     ss_path = join(info_dir, "traveltime.sS.pkl")
     scs_path = join(info_dir, "traveltime.ScS.pkl")
+    # load the event time
+    eventtime_path = join(info_dir, "extra.event_time.pkl")
     result_readin = {
         "gcarc": load_pickle(gcarc_path)[gcmtid],
         "azimuth": load_pickle(azimuth_path)[gcmtid],
@@ -42,7 +44,8 @@ def getinfo(info_dir, gcmtid):
         "sp": load_pickle(sp_path)[gcmtid],
         "s": load_pickle(s_path)[gcmtid],
         "ss": load_pickle(ss_path)[gcmtid],
-        "scs": load_pickle(scs_path)[gcmtid]
+        "scs": load_pickle(scs_path)[gcmtid],
+        "eventtime": load_pickle(eventtime_path)[gcmtid]
     }
     result = {}
     allkeys = list(load_pickle(gcarc_path)[gcmtid].keys())
@@ -55,7 +58,8 @@ def getinfo(info_dir, gcmtid):
             "sp": result_readin["sp"][each_key],
             "s": result_readin["s"][each_key],
             "ss": result_readin["ss"][each_key],
-            "scs": result_readin["scs"][each_key]
+            "scs": result_readin["scs"][each_key],
+            "eventtime": result_readin["eventtime"][each_key]
         }
     evdp_dict = load_pickle(evdp_path)[gcmtid]
     rep_net_sta = list(evdp_dict.keys())[0]
