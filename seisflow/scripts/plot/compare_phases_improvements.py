@@ -74,48 +74,37 @@ def slice_to_plot_traces(value_1, value_2, phase_name):
     sliced_value_2 = to_plot_trace(None, None, None, None, None, None, None)
     sliced_value_1.info = value_1.info
     sliced_value_2.info = value_2.info
+    # ! fix bugs here, note we have to copy the sliced data here as they will be used later. (but still in the same memory space)
     sliced_value_1.obs_z = value_1.obs_z.slice(
-        eventtime+thetime-20, eventtime+thetime+50)
+        eventtime+thetime-20, eventtime+thetime+50).copy()
     sliced_value_2.obs_z = value_2.obs_z.slice(
-        eventtime+thetime-20, eventtime+thetime+50)
+        eventtime+thetime-20, eventtime+thetime+50).copy()
     sliced_value_1.syn_z = value_1.syn_z.slice(
-        eventtime+thetime-20, eventtime+thetime+50)
+        eventtime+thetime-20, eventtime+thetime+50).copy()
     sliced_value_2.syn_z = value_2.syn_z.slice(
-        eventtime + thetime - 20, eventtime + thetime + 50)
-    # sliced_value_1.obs_z.taper(max_percentage=0.05)
-    # sliced_value_1.obs_z.detrend()
-    # sliced_value_2.obs_z.taper(max_percentage=0.05)
-    # sliced_value_2.obs_z.detrend()
+        eventtime + thetime - 20, eventtime + thetime + 50).copy()
     normalize_st = obspy.Stream()+sliced_value_1.obs_z + \
         sliced_value_2.obs_z + sliced_value_1.syn_z + sliced_value_2.syn_z
     normalize_st.normalize(global_max=True)
     sliced_value_1.obs_r = value_1.obs_r.slice(
-        eventtime+thetime-20, eventtime+thetime+50)
+        eventtime+thetime-20, eventtime+thetime+50).copy()
     sliced_value_1.syn_r = value_1.syn_r.slice(
-        eventtime+thetime-20, eventtime+thetime+50)
+        eventtime+thetime-20, eventtime+thetime+50).copy()
     sliced_value_2.obs_r = value_2.obs_r.slice(
-        eventtime+thetime-20, eventtime+thetime+50)
+        eventtime+thetime-20, eventtime+thetime+50).copy()
     sliced_value_2.syn_r = value_2.syn_r.slice(
-        eventtime + thetime - 20, eventtime + thetime + 50)
-    # sliced_value_1.obs_r.taper(max_percentage=0.05)
-    # sliced_value_1.obs_r.detrend()
-    # sliced_value_2.obs_r.taper(max_percentage=0.05)
-    # sliced_value_2.obs_r.detrend()
+        eventtime + thetime - 20, eventtime + thetime + 50).copy()
     normalize_st = obspy.Stream()+sliced_value_1.obs_r + \
         sliced_value_2.obs_r + sliced_value_1.syn_r + sliced_value_2.syn_r
     normalize_st.normalize(global_max=True)
     sliced_value_1.obs_t = value_1.obs_t.slice(
-        eventtime+thetime-20, eventtime+thetime+50)
+        eventtime+thetime-20, eventtime+thetime+50).copy()
     sliced_value_1.syn_t = value_1.syn_t.slice(
-        eventtime+thetime-20, eventtime+thetime+50)
+        eventtime+thetime-20, eventtime+thetime+50).copy()
     sliced_value_2.obs_t = value_2.obs_t.slice(
-        eventtime+thetime-20, eventtime+thetime+50)
+        eventtime+thetime-20, eventtime+thetime+50).copy()
     sliced_value_2.syn_t = value_2.syn_t.slice(
-        eventtime + thetime - 20, eventtime + thetime + 50)
-    # sliced_value_1.obs_t.taper(max_percentage=0.05)
-    # sliced_value_1.obs_t.detrend()
-    # sliced_value_2.obs_t.taper(max_percentage=0.05)
-    # sliced_value_2.obs_t.detrend()
+        eventtime + thetime - 20, eventtime + thetime + 50).copy()
     normalize_st = obspy.Stream()+sliced_value_1.obs_t + \
         sliced_value_2.obs_t + sliced_value_1.syn_t + sliced_value_2.syn_t
     normalize_st.normalize(global_max=True)
