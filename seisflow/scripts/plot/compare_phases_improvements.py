@@ -1,20 +1,19 @@
 """
 compare_phases_improvements.py: for each phase, generate a pdf file to see the waveform improvements.
 """
-from os.path import join, basename
+from os.path import basename, join
 
 import click
 import matplotlib as mpl
 import matplotlib.backends.backend_pdf
 import matplotlib.pyplot as plt
 import numpy as np
+import obspy
 import pyasdf
 import tqdm
 
-from ...setting import SURFACE_THRESHOLD
 from ...utils.load_files import load_pickle
-from .compare_two_asdf_with_windows import to_plot_trace, build_to_plot_traces
-import obspy
+from .compare_two_asdf_with_windows import build_to_plot_traces, to_plot_trace
 
 label_size = 25
 mpl.rcParams['xtick.labelsize'] = label_size
@@ -156,9 +155,9 @@ def kernel(obs_asdf, syn_asdf_1, syn_asdf_2, azimuth_width, output_dir, waves_pe
     # get pdf base name
     pdf_base = ".".join(basename(obs_asdf).split(".")[:2])
 
-    plot_traces_1, evdp = build_to_plot_traces(
+    plot_traces_1, _ = build_to_plot_traces(
         obs_ds, syn_ds_1, trace_length, info_dir)
-    plot_traces_2, evdp = build_to_plot_traces(
+    plot_traces_2, _ = build_to_plot_traces(
         obs_ds, syn_ds_2, trace_length, info_dir)
 
     num_azimuths = 360 // azimuth_width
