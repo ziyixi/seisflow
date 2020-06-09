@@ -70,7 +70,7 @@ def main(nproc_old, model_tags, region, npts, nproc, n_node, history, partition,
     result += f"TMPDIR=`mktemp -d`\n"
     result += f"mkdir $TMPDIR/compiled\n"
     # if use v1.1
-    result += f"rsync -au $JULIA_DEPOT_PATH/compiled/v1.1 $TMPDIR/compiled/\n"
+    result += f"rsync -au $JULIA_DEPOT_PATH/compiled/v1.4 $TMPDIR/compiled/\n"
     result += f"export JULIA_DEPOT_PATH=$TMPDIR:$JULIA_DEPOT_PATH\n"
     result += "date; \n"
     # bin2ppm npts use nlat/nlon/ndep

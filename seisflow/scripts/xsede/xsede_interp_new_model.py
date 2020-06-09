@@ -1,7 +1,7 @@
 """
 interp_new_model.py: combine several models as a new hybrid model.
 """
-from os.path import join,expanduser
+from os.path import join, expanduser
 
 import click
 import numpy as np
@@ -151,7 +151,7 @@ def main(base_directory, database_list_path, tags, n_node, ntasks,
     """
     database_list = load_databases_list(database_list_path)
     # ! note we should reset the values in constants.jl
-    result=""
+    result = ""
     # ! fix MPI cache issue
     home = expanduser("~")
     julia_path = join(home, ".julia")
@@ -159,7 +159,7 @@ def main(base_directory, database_list_path, tags, n_node, ntasks,
     result += f"TMPDIR=`mktemp -d`\n"
     result += f"mkdir $TMPDIR/compiled\n"
     # if use v1.1
-    result += f"rsync -au $JULIA_DEPOT_PATH/compiled/v1.1 $TMPDIR/compiled/\n"
+    result += f"rsync -au $JULIA_DEPOT_PATH/compiled/v1.4 $TMPDIR/compiled/\n"
     result += f"export JULIA_DEPOT_PATH=$TMPDIR:$JULIA_DEPOT_PATH\n"
     result += "date; \n"
     # * firstly we generate the structure of this workflow.
