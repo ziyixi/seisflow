@@ -159,7 +159,7 @@ def main(base_directory, database_list_path, tags, n_node, ntasks,
     result += f"TMPDIR=`mktemp -d`\n"
     result += f"mkdir $TMPDIR/compiled\n"
     # if use v1.1
-    result += f"rsync -au $JULIA_DEPOT_PATH/compiled/v1.4 $TMPDIR/compiled/\n"
+    result += f"rsync -au $JULIA_DEPOT_PATH/compiled/v1.0 $TMPDIR/compiled/\n"
     result += f"export JULIA_DEPOT_PATH=$TMPDIR:$JULIA_DEPOT_PATH\n"
     result += "date; \n"
     # * firstly we generate the structure of this workflow.
