@@ -3,6 +3,7 @@ make_perturbed_netcdf.py: make the perturbed netcdf based on two nc files.
 """
 from scipy.io import netcdf
 import click
+import numpy as np
 
 
 @click.command()
@@ -32,10 +33,15 @@ def main(target_netcdf, reference_netcdf, output_netcdf, models):
                 for index_parameter in range(len(models)):
                     parameter_name = models[index_parameter]
                     # get parameter_array
+                    target_array = target.variables[parameter_name][:].copy()
+                    reference_array = reference.variables[parameter_name][:].copy(
+                    )
+                    target_array[target_array > 9e6] = np.nan
+                    reference_array[reference_array > 9e6] = np.nan
                     parameter_array = (
-                        target.variables[parameter_name][:] - reference.variables[parameter_name][:]) / reference.variables[parameter_name][:]
-                    parameter_array[target.variables[parameter_name]
-                                    [:] > 9e6] = 9999999.
+                        target_array - reference_array) / reference_array
+                    # parameter_array[target.variables[parameter_name]
+                    #                 [:] > 9e6] = 9999999.
                     netcdf_var = f.createVariable(
                         parameter_name, 'f8', ('longitude', 'latitude', 'depth'))
                     netcdf_var[:] = parameter_array

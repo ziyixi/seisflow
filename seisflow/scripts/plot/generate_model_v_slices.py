@@ -50,6 +50,8 @@ def main(model_file, region, npts, smooth_index, parameters, vmin, vmax, output_
     # * now we load the paths
     # * lon1 lat1 lon2 lat2 dep1 dep2 lon/lat
     paths = np.loadtxt(paths, dtype=np.str)
+    if (len(paths.shape) == 1):
+        paths = paths.reshape(1, len(paths))
     plot_paths = []
     for row in paths:
         plot_paths.append([float(row[0]), float(row[1]),
@@ -68,9 +70,9 @@ def main(model_file, region, npts, smooth_index, parameters, vmin, vmax, output_
         # the bellow loop will not be so expensive.
         for each_parameter in parameters:
             to_interp_data = data[each_parameter].copy()
-            for each_smooth_index in smooth_index:
-                to_interp_data[:, :, each_smooth_index].data[:] = (
-                    to_interp_data[:, :, each_smooth_index - 1].data + to_interp_data[:, :, each_smooth_index + 1].data) / 2
+            # for each_smooth_index in smooth_index:
+            #     to_interp_data[:, :, each_smooth_index].data[:] = (
+            #         to_interp_data[:, :, each_smooth_index - 1].data + to_interp_data[:, :, each_smooth_index + 1].data) / 2
             to_interp_data.data[to_interp_data.data > 9e6] = np.nan
             pdf_path = plot_single_vertical_figure(
                 line_index, row, to_interp_data, npts, each_parameter, colorbar, vmin, vmax, temp_directory)

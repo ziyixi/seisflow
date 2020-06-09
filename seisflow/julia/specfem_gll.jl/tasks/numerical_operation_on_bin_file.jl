@@ -7,10 +7,10 @@ using Base.Threads
 generate perturbation file according to the reference bin file
 """
 function generate_perturbation(target_basedir::String, reference_basedir::String, output_basedir::String, tags::String, nproc::Int64, nspec::Int64)
-    p = Progress(nproc)
+    # p = Progress(nproc)
     @threads for iproc in 0:nproc - 1
         kernel_generate_perturbation(target_basedir, reference_basedir, output_basedir, tags, iproc, nspec)
-        next!(p)
+        # next!(p)
     end
 end
 
