@@ -10,7 +10,7 @@ import sh
 import tqdm
 import xarray as xr
 from PyPDF2 import PdfFileMerger
-
+from ... import get_data
 from .generate_model_h_slices import plot_single_figure
 
 # countries/region in Asia, except CN,TW,HK,MO,IN
@@ -32,6 +32,7 @@ countries = ",".join(countries)
 @click.option('--paths', required=True, type=str, help="the paths file, each row: lon1 lat1 lon2 lat2 lon/lat")
 def main(model_file, region, npts, smooth_index, parameters, vmin, vmax, output_path, colorbar, paths):
     data = xr.open_dataset(model_file)
+    topo = xr.open_dataset(get_data("topo_410_660.nc"))
     # * make a hidden dir in the output_path
     temp_directory = join(dirname(output_path), "."+basename(output_path))
     sh.mkdir("-p", temp_directory)
@@ -70,12 +71,16 @@ def main(model_file, region, npts, smooth_index, parameters, vmin, vmax, output_
         # the bellow loop will not be so expensive.
         for each_parameter in parameters:
             to_interp_data = data[each_parameter].copy()
-            # for each_smooth_index in smooth_index:
-            #     to_interp_data[:, :, each_smooth_index].data[:] = (
-            #         to_interp_data[:, :, each_smooth_index - 1].data + to_interp_data[:, :, each_smooth_index + 1].data) / 2
+            for each_smooth_index in smooth_index:
+                to_interp_data[:, :, each_smooth_index].data[:] = (
+                    to_interp_data[:, :, each_smooth_index - 2].data + to_interp_data[:, :, each_smooth_index + 2].data) / 2
+                to_interp_data[:, :, each_smooth_index-1].data[:] = (
+                    3*to_interp_data[:, :, each_smooth_index - 2].data + to_interp_data[:, :, each_smooth_index + 2].data) / 4
+                to_interp_data[:, :, each_smooth_index+1].data[:] = (
+                    to_interp_data[:, :, each_smooth_index - 2].data + 3*to_interp_data[:, :, each_smooth_index + 2].data) / 4
             to_interp_data.data[to_interp_data.data > 9e6] = np.nan
             pdf_path = plot_single_vertical_figure(
-                line_index, row, to_interp_data, npts, each_parameter, colorbar, vmin, vmax, temp_directory)
+                line_index, row, to_interp_data, npts, each_parameter, colorbar, vmin, vmax, temp_directory, topo)
             pdfs.append(pdf_path)
             pbar.update(1)
 
@@ -87,7 +92,7 @@ def main(model_file, region, npts, smooth_index, parameters, vmin, vmax, output_
     pbar.close()
 
 
-def plot_single_vertical_figure(line_index, each_path, to_interp_data, npts, each_parameter, colorbar, vmin, vmax, temp_directory):
+def plot_single_vertical_figure(line_index, each_path, to_interp_data, npts, each_parameter, colorbar, vmin, vmax, temp_directory, topo):
     # * firstly, we generate h and v, two new axis.
     hnpts, vnpts = map(float, npts.split("/"))
     lon1, lat1, lon2, lat2, dep1, dep2, hlabel = each_path
@@ -106,6 +111,8 @@ def plot_single_vertical_figure(line_index, each_path, to_interp_data, npts, eac
     # * generate the plotting data
     plot_data = to_interp_data.interp(
         depth=newdep_xr, latitude=newlat_xr, longitude=newlon_xr)
+    topo_410 = topo["topo_410"].interp(latitude=newlat_xr, longitude=newlon_xr)
+    topo_650 = topo["topo_650"].interp(latitude=newlat_xr, longitude=newlon_xr)
     plot_data.coords["v"] = 6371 - plot_data.coords["v"]
     plot_data = plot_data.T
     # * now we can plot the figure
@@ -127,6 +134,14 @@ def plot_single_vertical_figure(line_index, each_path, to_interp_data, npts, eac
         fig.basemap(projection=f"Pa20c/{(lat1+lat2)/2}z",
                     region=f"{lat1}/{lat2}/{6371-dep2}/6371", frame=["afg", f"+t{thetitle}", "+lLatitude"])
     fig.grdimage(plot_data, cmap=True)
+    fig.plot(plot_data["h"].data[:], 6371 -
+             (650 + topo_650.data[:]), pen="thin,red,dashed")
+    fig.plot(plot_data["h"].data[:], 6371 -
+             (650 + np.zeros_like(plot_data["h"].data[:])), pen="thin,black,dashed")
+    fig.plot(plot_data["h"].data[:], 6371 -
+             (410 + topo_410.data[:]), pen="thin,red,dashed")
+    fig.plot(plot_data["h"].data[:], 6371 -
+             (410+np.zeros_like(plot_data["h"].data[:])), pen="thin,black,dashed")
     fig.colorbar(
         # justified inside map frame (j) at Top Center (TC)
         position="JBC+w14c/1.5c+h+e",
