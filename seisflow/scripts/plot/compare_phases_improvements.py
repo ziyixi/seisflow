@@ -68,7 +68,7 @@ def check_usable_surface(windows_dict, key, snr, cc, deltat, status_dict):
     to_plot = False
     windows_this_net_sta = windows_dict[key]
     for phase_name in phases_surface:
-        if (len(thewindow=windows_this_net_sta[phase_name].windows) != 1):
+        if (len(windows_this_net_sta[phase_name].windows) != 1):
             print(key)
             exit()
         thewindow = windows_this_net_sta[phase_name].windows[0]
