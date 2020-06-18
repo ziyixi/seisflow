@@ -45,7 +45,7 @@ def get_gcmtids_each_rank(all_gcmtids):
 
 
 @click.command()
-@click.option('--obs_asdf', required=True, type=str)
+@click.option('--obs_dir', required=True, type=str)
 @click.option('--syn_dir1', required=True, type=str)
 @click.option('--syn_dir2', required=True, type=str)
 @click.option('--azimuth_width', required=True, type=int)
