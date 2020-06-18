@@ -6,6 +6,9 @@ import numpy as np
 
 def get_windows_deltat(misfit_windows, exclude_p, exclude_s, component, snr_threshold, phase, all_threshold=False, cc_threshold=None, deltat_threshold=None):
     result = []
+    rep_net_sta = sorted(misfit_windows.keys())[0]
+    if (component not in misfit_windows[rep_net_sta]):
+        return np.array([])
     for net_sta in sorted(misfit_windows.keys()):
         for each_window in misfit_windows[net_sta][component].windows:
             condition = True
@@ -50,6 +53,9 @@ def get_windows_snr_energy(misfit_windows, exclude_p, exclude_s, component, snr_
 
 def get_windows_cc(misfit_windows, exclude_p, exclude_s, component, snr_threshold, phase, all_threshold=False, cc_threshold=None, deltat_threshold=None):
     result = []
+    rep_net_sta = sorted(misfit_windows.keys())[0]
+    if (component not in misfit_windows[rep_net_sta]):
+        return np.array([])
     for net_sta in sorted(misfit_windows.keys()):
         for each_window in misfit_windows[net_sta][component].windows:
             condition = True
@@ -74,6 +80,9 @@ def get_windows_cc(misfit_windows, exclude_p, exclude_s, component, snr_threshol
 
 def get_windows_similarity(misfit_windows, exclude_p, exclude_s, component, snr_threshold, phase, all_threshold=False, cc_threshold=None, deltat_threshold=None):
     result = []
+    rep_net_sta = sorted(misfit_windows.keys())[0]
+    if (component not in misfit_windows[rep_net_sta]):
+        return np.array([])
     for net_sta in sorted(misfit_windows.keys()):
         for each_window in misfit_windows[net_sta][component].windows:
             condition = True

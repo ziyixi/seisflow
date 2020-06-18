@@ -18,8 +18,8 @@ def extract_data(f, depth, parameter):
     data = f.variables[parameter][:, :, depth_pos].copy()
     data_all = f.variables[parameter][:, :, :].copy()
     # we usually use a large value to represent nan.
-    data[data > 1000] = np.nan
-    data_all[data_all > 1000] = np.nan
+    data[data > 9e6] = np.nan
+    data_all[data_all > 9e6] = np.nan
     print(np.nanmin(data_all), np.nanmax(data_all))
     mesh_lon, mesh_lat = np.meshgrid(
         f.variables["longitude"][:], f.variables["latitude"][:], indexing="ij")
@@ -54,8 +54,8 @@ def plot_h(mesh_lon, mesh_lat, data, parameter, depth, vmin, vmax, region, scale
                             pad=0.04, extend="neither")
     colorbar.set_ticks([round(i, 2) for i in colorbar.get_ticks().tolist()])
     colorbar.set_ticklabels(
-        [str(i) + "%" for i in colorbar.get_ticks().tolist()])
-    colorbar.set_label(label=f"${{dlnV_{{{parameter[1:]}}}}}$", size=15)
+        [str(i) for i in colorbar.get_ticks().tolist()])
+    # colorbar.set_label(label=f"${{dlnV_{{{parameter[1:]}}}}}$", size=15)
     plt.grid()
     plt.text(0.1, 0.9, f"{parameter}\n{depth}km", ha='center',
              va='center', transform=ax.transAxes, fontsize=20)

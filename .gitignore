@@ -7,3 +7,4 @@ result/*
 jupyter/*
 *.DS_Store
 temp/*
+smallresult/*

@@ -30,7 +30,8 @@ countries = ",".join(countries)
 @click.option('--output_path', required=True, type=str, help="the output pdf path")
 @click.option('--colorbar', required=False, default="seis", type=str, help="the colorbar")
 @click.option('--paths', required=True, type=str, help="the paths file, each row: lon1 lat1 lon2 lat2 lon/lat")
-def main(model_file, region, npts, smooth_index, parameters, vmin, vmax, output_path, colorbar, paths):
+@click.option('--rep_par', required=False, default="vsv", type=str, help="the representative parameter to plot h")
+def main(model_file, region, npts, smooth_index, parameters, vmin, vmax, output_path, colorbar, paths, rep_par):
     data = xr.open_dataset(model_file)
     topo = xr.open_dataset(get_data("topo_410_660.nc"))
     # * make a hidden dir in the output_path
@@ -60,10 +61,10 @@ def main(model_file, region, npts, smooth_index, parameters, vmin, vmax, output_
     # tqdm
     pbar = tqdm.tqdm(total=len(parameters)*len(plot_paths)+1)
     # use vsv to represent the paths
-    to_interp_data = data["vsv"].copy()
+    to_interp_data = data[rep_par].copy()
     to_interp_data.data[to_interp_data.data > 9e6] = np.nan
     pdf_path_h_slice = plot_single_figure(to_interp_data, 100, hlat, hlon, colorbar,
-                                          vmin, vmax, lon1, lon2, lat1, lat2, "vsv", temp_directory, plot_paths=plot_paths)
+                                          vmin, vmax, lon1, lon2, lat1, lat2, rep_par, temp_directory, plot_paths=plot_paths)
     pdfs.append(pdf_path_h_slice)
     pbar.update(1)
     # * now we plot vertical slices accordingly
