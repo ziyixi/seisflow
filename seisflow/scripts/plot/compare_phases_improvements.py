@@ -61,7 +61,7 @@ def check_usable(windows_dict, phase_name, key, snr, cc, deltat, status_dict):
     return to_plot
 
 
-def check_usable_surface(windows_dict, key, snr, cc, deltat, status_dict):
+def check_usable_surface(windows_dict, key, snr, cc, deltat, status_dict, obs_asdf):
     """
     check if this net_sta in usable.
     """
@@ -69,7 +69,7 @@ def check_usable_surface(windows_dict, key, snr, cc, deltat, status_dict):
     windows_this_net_sta = windows_dict[key]
     for phase_name in phases_surface:
         if (len(windows_this_net_sta[phase_name].windows) != 1):
-            print(key)
+            print(obs_asdf,key)
             exit()
         thewindow = windows_this_net_sta[phase_name].windows[0]
         if ((thewindow.snr_energy >= snr) and (thewindow.cc >= cc) and (np.abs(thewindow.deltat) <= deltat)):
@@ -209,7 +209,7 @@ def build_plottting_structure(plot_traces_1, plot_traces_2, azimuth_width, windo
     return result, status_dict
 
 
-def build_plottting_structure_surface(plot_traces_1, plot_traces_2, azimuth_width, windows_dict, snr, cc, deltat):
+def build_plottting_structure_surface(plot_traces_1, plot_traces_2, azimuth_width, windows_dict, snr, cc, deltat, obs_asdf):
     # we assume 360%azimuth_width==0
     num_azimuths = 360//azimuth_width
     result = [[] for i in range(num_azimuths)]
@@ -219,7 +219,7 @@ def build_plottting_structure_surface(plot_traces_1, plot_traces_2, azimuth_widt
     status_dict = {}
     for key in plot_traces_1:
         status_dict[key] = {}
-        if (check_usable_surface(windows_dict, key, snr, cc, deltat, status_dict) == False):
+        if (check_usable_surface(windows_dict, key, snr, cc, deltat, status_dict, obs_asdf) == False):
             continue
         value_1 = plot_traces_1[key]
         value_2 = plot_traces_2[key]
@@ -271,7 +271,7 @@ def kernel(obs_asdf, syn_asdf_1, syn_asdf_2, azimuth_width, output_dir, waves_pe
     # * and if possible, we should build the surface plotting structure
     if (with_surface):
         plotting_structure_dict_surface, status_dict_surface = build_plottting_structure_surface(
-            plot_traces_1, plot_traces_2, azimuth_width, windows_dict_1, snr, cc, deltat)
+            plot_traces_1, plot_traces_2, azimuth_width, windows_dict_1, snr, cc, deltat, obs_asdf)
     # * get the tqdm count
     count = 0
     if (use_tqdm):
