@@ -36,12 +36,12 @@ def main(target_netcdf, reference_netcdf, output_netcdf, models):
                     target_array = target.variables[parameter_name][:].copy()
                     reference_array = reference.variables[parameter_name][:].copy(
                     )
-                    target_array[target_array > 9e6] = np.nan
-                    reference_array[reference_array > 9e6] = np.nan
+                    # target_array[target_array > 9e6] = np.nan
+                    # reference_array[reference_array > 9e6] = np.nan
                     parameter_array = (
                         target_array - reference_array) / reference_array
-                    # parameter_array[target.variables[parameter_name]
-                    #                 [:] > 9e6] = 9999999.
+                    parameter_array[target.variables[parameter_name]
+                                    [:] > 9e6] = 9999999.
                     netcdf_var = f.createVariable(
                         parameter_name, 'f8', ('longitude', 'latitude', 'depth'))
                     netcdf_var[:] = parameter_array

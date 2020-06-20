@@ -41,6 +41,8 @@ def generate_vcs_mesh(lon1, lat1, lon2, lat2, dep1, dep2, rh, rdep, theta_label)
 
 
 def get_interp_function(netcdf_data, parameter, method="linear"):
+    # interpolating_function = RegularGridInterpolator(
+    #     (np.linspace(70, 175, 281), netcdf_data.variables["latitude"][:], netcdf_data.variables["depth"][:]), netcdf_data.variables[parameter][:], method=method, bounds_error=False)
     interpolating_function = RegularGridInterpolator(
         (netcdf_data.variables["longitude"][:], netcdf_data.variables["latitude"][:], netcdf_data.variables["depth"][:]), netcdf_data.variables[parameter][:], method=method, bounds_error=False)
     return interpolating_function

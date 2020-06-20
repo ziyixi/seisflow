@@ -8,7 +8,7 @@ import numba
 import numpy as np
 import tqdm
 from mpi4py import MPI
-from scipy.io import netcdf
+from netCDF4 import Dataset
 
 comm = MPI.COMM_WORLD  # pylint: disable=c-extension-no-member
 size = comm.Get_size()
@@ -109,7 +109,7 @@ def main(base_dir, region, npts, nproc, parameters, out_path, history):
         save_arrays_list = pos_mapper_kernel(
             pos_mapper_collection, save_arrays_list)
         # save to netcdf file
-        with netcdf.netcdf_file(out_path, 'w') as f:
+        with Dataset(out_path, "w", format="NETCDF4") as f:
             f.history = history
             f.createDimension('depth', ndep)
             f.createDimension('latitude', nlat)

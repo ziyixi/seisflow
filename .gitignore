@@ -8,3 +8,4 @@ jupyter/*
 *.DS_Store
 temp/*
 smallresult/*
+paper_xietal2020/*
