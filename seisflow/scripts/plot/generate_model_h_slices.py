@@ -47,9 +47,9 @@ def main(model_file, region, npts, smooth_index, parameters, depths, vmin, vmax,
         hlon = np.linspace(lon1, lon2, lonnpts)
         hlon = xr.DataArray(hlon, dims='hlon', coords={'hlon': hlon})
         to_interp_data = data[each_parameter].copy()
-        for each_smooth_index in smooth_index:
-            to_interp_data[:, :, each_smooth_index].data[:] = (
-                to_interp_data[:, :, each_smooth_index - 1].data + to_interp_data[:, :, each_smooth_index + 1].data) / 2
+        # for each_smooth_index in smooth_index:
+        #     to_interp_data[:, :, each_smooth_index].data[:] = (
+        #         to_interp_data[:, :, each_smooth_index - 1].data + to_interp_data[:, :, each_smooth_index + 1].data) / 2
         to_interp_data.data[to_interp_data.data > 9e6] = np.nan
         # some parameters
         for each_depth in depths:

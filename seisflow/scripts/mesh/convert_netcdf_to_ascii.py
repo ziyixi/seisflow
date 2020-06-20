@@ -1,9 +1,16 @@
 """
 convert_netcdf_to_ascii.py: convert the netcdf files to the ascii format.
 """
-from netCDF4 import Dataset
-import click
 from os.path import join
+
+import click
+import numpy as np
+from mpi4py import MPI
+from netCDF4 import Dataset
+
+comm = MPI.COMM_WORLD  # pylint: disable=c-extension-no-member
+size = comm.Get_size()
+rank = comm.Get_rank()
 
 
 @click.command()
@@ -12,11 +19,12 @@ from os.path import join
 @click.option('--models', required=False, default="vs,vp,vsv,vsh,vpv,vph,eta,rho", type=str)
 def main(netcdf_file, output_dir, models):
     models = models.split(",")
+    models_this_rank = np.array_split(models, size)[rank]
     with Dataset(netcdf_file, 'r') as f:
         lat = f.variables["latitude"][:]
         lon = f.variables["longitude"][:]
         dep = f.variables["depth"][:]
-        for each_parameter in models:
+        for each_parameter in models_this_rank:
             data = f.variables[each_parameter][:]
             nlon, nlat, ndep = data.shape
             with open(join(output_dir, each_parameter), "w") as g:

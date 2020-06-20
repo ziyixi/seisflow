@@ -72,13 +72,13 @@ def main(model_file, region, npts, smooth_index, parameters, vmin, vmax, output_
         # the bellow loop will not be so expensive.
         for each_parameter in parameters:
             to_interp_data = data[each_parameter].copy()
-            for each_smooth_index in smooth_index:
-                to_interp_data[:, :, each_smooth_index].data[:] = (
-                    to_interp_data[:, :, each_smooth_index - 2].data + to_interp_data[:, :, each_smooth_index + 2].data) / 2
-                to_interp_data[:, :, each_smooth_index-1].data[:] = (
-                    3*to_interp_data[:, :, each_smooth_index - 2].data + to_interp_data[:, :, each_smooth_index + 2].data) / 4
-                to_interp_data[:, :, each_smooth_index+1].data[:] = (
-                    to_interp_data[:, :, each_smooth_index - 2].data + 3*to_interp_data[:, :, each_smooth_index + 2].data) / 4
+            # for each_smooth_index in smooth_index:
+            #     to_interp_data[:, :, each_smooth_index].data[:] = (
+            #         to_interp_data[:, :, each_smooth_index - 2].data + to_interp_data[:, :, each_smooth_index + 2].data) / 2
+            #     to_interp_data[:, :, each_smooth_index-1].data[:] = (
+            #         3*to_interp_data[:, :, each_smooth_index - 2].data + to_interp_data[:, :, each_smooth_index + 2].data) / 4
+            #     to_interp_data[:, :, each_smooth_index+1].data[:] = (
+            #         to_interp_data[:, :, each_smooth_index - 2].data + 3*to_interp_data[:, :, each_smooth_index + 2].data) / 4
             to_interp_data.data[to_interp_data.data > 9e6] = np.nan
             pdf_path = plot_single_vertical_figure(
                 line_index, row, to_interp_data, npts, each_parameter, colorbar, vmin, vmax, temp_directory, topo)

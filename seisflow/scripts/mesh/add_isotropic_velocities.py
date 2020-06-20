@@ -21,9 +21,9 @@ def main(target_netcdf):
         vp = np.sqrt((vpv ** 2 + 4 * vph ** 2) / 5)
         # write vp and vs to the netcdf file
         netcdf_vp = f.createVariable(
-            "vp", 'f8', ('longitude', 'latitude', 'depth'))
+            "vp", 'f8', ('longitude', 'latitude', 'depth'), zlib=True)
         netcdf_vs = f.createVariable(
-            "vs", 'f8', ('longitude', 'latitude', 'depth'))
+            "vs", 'f8', ('longitude', 'latitude', 'depth'), zlib=True)
         netcdf_vp[:] = vp
         netcdf_vs[:] = vs
 

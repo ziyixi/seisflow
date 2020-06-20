@@ -43,7 +43,7 @@ def main(target_netcdf, reference_netcdf, output_netcdf, models):
                     parameter_array[target.variables[parameter_name]
                                     [:] > 9e6] = 9999999.
                     netcdf_var = f.createVariable(
-                        parameter_name, 'f8', ('longitude', 'latitude', 'depth'))
+                        parameter_name, 'f8', ('longitude', 'latitude', 'depth'), zlib=True)
                     netcdf_var[:] = parameter_array
 
 
