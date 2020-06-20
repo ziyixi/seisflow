@@ -5,7 +5,7 @@ import click
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.interpolate import RegularGridInterpolator
-from scipy.io import netcdf
+from netCDF4 import Dataset
 
 
 def generate_vcs_mesh(lon1, lat1, lon2, lat2, dep1, dep2, rh, rdep, theta_label):
@@ -108,7 +108,7 @@ def plot_v(lat1, lat2, lon1, lon2, dep1, dep2, theta_label, mesh_theta, mesh_dep
 @click.option('--theta_label', required=True, type=str, help="can be lat or lon")
 @click.option('--flat/--no-flat', default=False, required=False, help="if plot the flat cross section")
 def main(netcdf_file, parameter, vmin, vmax, region, rh, rdep, theta_label, flat):
-    with netcdf.netcdf_file(netcdf_file, 'r') as f:
+    with Dataset(netcdf_file, 'r') as f:
         interpolating_function = get_interp_function(
             f, parameter, method="linear")
         lon1, lat1, lon2, lat2, dep1, dep2 = map(float, region.split("/"))

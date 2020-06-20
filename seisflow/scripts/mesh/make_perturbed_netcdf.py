@@ -1,7 +1,7 @@
 """
 make_perturbed_netcdf.py: make the perturbed netcdf based on two nc files.
 """
-from scipy.io import netcdf
+from netCDF4 import Dataset
 import click
 import numpy as np
 
@@ -13,9 +13,9 @@ import numpy as np
 @click.option('--models', required=False, default="vpv,vph,vsv,vsh,eta,rho", type=str)
 def main(target_netcdf, reference_netcdf, output_netcdf, models):
     models = models.split(",")
-    with netcdf.netcdf_file(target_netcdf, 'r') as target:
-        with netcdf.netcdf_file(reference_netcdf, 'r') as reference:
-            with netcdf.netcdf_file(output_netcdf, 'w') as f:
+    with Dataset(target_netcdf, 'r') as target:
+        with Dataset(reference_netcdf, 'r') as reference:
+            with Dataset(output_netcdf, 'w') as f:
                 history = f"perturbation for {target_netcdf} respect to {reference_netcdf} "
                 f.history = history
                 f.createDimension(

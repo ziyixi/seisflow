@@ -124,7 +124,7 @@ def main(base_dir, region, npts, nproc, parameters, out_path, history):
                 parameter_array = save_arrays_list[index_parameter]
                 parameter_name = parameters_list[index_parameter]
                 netcdf_var = f.createVariable(
-                    parameter_name, 'f8', ('longitude', 'latitude', 'depth'))
+                    parameter_name, 'f8', ('longitude', 'latitude', 'depth'), zlib=True)
                 netcdf_var[:] = parameter_array
 
 

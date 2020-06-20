@@ -7,7 +7,7 @@ import click
 import matplotlib.pyplot as plt
 import numpy as np
 from cartopy.mpl.ticker import LatitudeFormatter, LongitudeFormatter
-from scipy.io import netcdf
+from netCDF4 import Dataset
 
 
 def extract_data(f, depth, parameter):
@@ -76,7 +76,7 @@ def plot_h(mesh_lon, mesh_lat, data, parameter, depth, vmin, vmax, region, scale
 @click.option('--scale/--no-scale', default=False, required=False, help="if scale the range based on the maximum value")
 @click.option('--percentage/--no-percentage', default=False, required=False, help="if use percentage in colorbar")
 def main(netcdf_file, parameter, depth, vmin, vmax, region, scale, percentage):
-    f = netcdf.netcdf_file(netcdf_file, 'r')
+    f = Dataset(netcdf_file, 'r')
     mesh_lon, mesh_lat, data = extract_data(f, depth, parameter)
     if (percentage):
         data = data*100

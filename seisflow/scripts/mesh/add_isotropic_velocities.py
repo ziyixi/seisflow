@@ -3,13 +3,13 @@ add_isotropic_velocities.py: add vp and vs velocity for the absolute velocity ne
 """
 import click
 import numpy as np
-from scipy.io import netcdf
+from netCDF4 import Dataset
 
 
 @click.command()
 @click.option('--target_netcdf', required=True, type=str)
 def main(target_netcdf):
-    with netcdf.netcdf_file(target_netcdf, 'a') as f:
+    with Dataset(target_netcdf, 'a') as f:
         # * vsv,vsh,vpv,vph must exist in the file, and we generate vs and vp.
         vsv = f.variables["vsv"][:]
         vsh = f.variables["vsh"][:]
