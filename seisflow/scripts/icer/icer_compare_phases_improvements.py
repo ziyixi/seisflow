@@ -13,9 +13,9 @@ def get_scripts(obs_dir, syn_dir1, syn_dir2, azimuth_width, output_dir, waves_pe
     result += "module load GCC/8.2.0-2.31.1;"
     result += "module load OpenMPI/3.1.3;"
     if(plot_surface):
-        result += f"srun -n {n_cores} {py} -m seisflow.scripts.plot.mpi_compare_phases_improvements --obs_dir {obs_dir} --syn_dir1 {syn_dir1} --syn_dir2 {syn_dir2} --azimuth_width {azimuth_width} --output_dir {output_dir} --waves_perpage {waves_perpage} --info_dir {info_dir} --misfit_windows_dir1 {misfit_windows_dir1} --misfit_windows_dir2 {misfit_windows_dir2} --snr {snr} --cc {cc} --deltat {deltat} --band {band} --plot_surface;"
+        result += f"srun -n {n_cores} --exclusive {py} -m seisflow.scripts.plot.mpi_compare_phases_improvements --obs_dir {obs_dir} --syn_dir1 {syn_dir1} --syn_dir2 {syn_dir2} --azimuth_width {azimuth_width} --output_dir {output_dir} --waves_perpage {waves_perpage} --info_dir {info_dir} --misfit_windows_dir1 {misfit_windows_dir1} --misfit_windows_dir2 {misfit_windows_dir2} --snr {snr} --cc {cc} --deltat {deltat} --band {band} --plot_surface;"
     else:
-        result += f"srun -n {n_cores} {py} -m seisflow.scripts.plot.mpi_compare_phases_improvements --obs_dir {obs_dir} --syn_dir1 {syn_dir1} --syn_dir2 {syn_dir2} --azimuth_width {azimuth_width} --output_dir {output_dir} --waves_perpage {waves_perpage} --info_dir {info_dir} --misfit_windows_dir1 {misfit_windows_dir1} --misfit_windows_dir2 {misfit_windows_dir2} --snr {snr} --cc {cc} --deltat {deltat} --band {band};"
+        result += f"srun -n {n_cores} --exclusive {py} -m seisflow.scripts.plot.mpi_compare_phases_improvements --obs_dir {obs_dir} --syn_dir1 {syn_dir1} --syn_dir2 {syn_dir2} --azimuth_width {azimuth_width} --output_dir {output_dir} --waves_perpage {waves_perpage} --info_dir {info_dir} --misfit_windows_dir1 {misfit_windows_dir1} --misfit_windows_dir2 {misfit_windows_dir2} --snr {snr} --cc {cc} --deltat {deltat} --band {band};"
     return result
 
 

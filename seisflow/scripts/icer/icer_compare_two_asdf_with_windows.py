@@ -12,9 +12,9 @@ def get_scripts(misfit_windows_dir, obs_dir, syn_dir, output_dir, info_dir, azim
     result += "module load GCC/8.2.0-2.31.1;"
     result += "module load OpenMPI/3.1.3;"
     if(plot_surface):
-        result += f"srun -n {n_cores} {py} -m seisflow.scripts.plot.mpi_compare_two_asdf_with_windows --misfit_windows_dir {misfit_windows_dir} --obs_dir {obs_dir} --syn_dir {syn_dir} --output_dir {output_dir} --info_dir {info_dir} --azimuth_width {azimuth_width} --waves_perpage {waves_perpage} --snr {snr} --cc {cc} --deltat {deltat} --band {band} --plot_surface ;"
+        result += f"srun -n {n_cores} --exclusive {py} -m seisflow.scripts.plot.mpi_compare_two_asdf_with_windows --misfit_windows_dir {misfit_windows_dir} --obs_dir {obs_dir} --syn_dir {syn_dir} --output_dir {output_dir} --info_dir {info_dir} --azimuth_width {azimuth_width} --waves_perpage {waves_perpage} --snr {snr} --cc {cc} --deltat {deltat} --band {band} --plot_surface ;"
     else:
-        result += f"srun -n {n_cores} {py} -m seisflow.scripts.plot.mpi_compare_two_asdf_with_windows --misfit_windows_dir {misfit_windows_dir} --obs_dir {obs_dir} --syn_dir {syn_dir} --output_dir {output_dir} --info_dir {info_dir} --azimuth_width {azimuth_width} --waves_perpage {waves_perpage} --snr {snr} --cc {cc} --deltat {deltat} --band {band};"
+        result += f"srun -n {n_cores} --exclusive {py} -m seisflow.scripts.plot.mpi_compare_two_asdf_with_windows --misfit_windows_dir {misfit_windows_dir} --obs_dir {obs_dir} --syn_dir {syn_dir} --output_dir {output_dir} --info_dir {info_dir} --azimuth_width {azimuth_width} --waves_perpage {waves_perpage} --snr {snr} --cc {cc} --deltat {deltat} --band {band};"
     return result
 
 
