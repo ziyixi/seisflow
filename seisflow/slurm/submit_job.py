@@ -20,6 +20,9 @@ def submit_job(jobname, thecommand, N_node, ntasks, partition, time, account, hp
         # virasdf may consume so much memory (estimate as 10*single, around 5G)
         s = Slurm(jobname, {"nodes": N_node, "ntasks": ntasks,
                             "time": time, "cpus-per-task": 1, "mem-per-cpu": "5G"})
+    elif (hpc == "icer_flexiable"):
+        s = Slurm(jobname, {"ntasks": ntasks,
+                            "time": time, "cpus-per-task": 1})
     else:
         raise Exception(
             "not supported hpc platform, can be either stampede2 or ICER.")
