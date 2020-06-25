@@ -410,16 +410,16 @@ def kernel(obs_asdf, syn_asdf_1, syn_asdf_2, azimuth_width, output_dir, waves_pe
                                       transform=ax_2.transAxes, fontsize=50)
                         ax_2.text((35 - xmin) / (xmax - xmin), 0.73, f"component:Z\nid:{each_plot_id}\ngcarc:{each_plot_trace_2.info['gcarc']:.2f}\nazimuth:{each_plot_trace_2.info['azimuth']:.2f}",
                                   transform=ax_2.transAxes, fontsize=50)
-                        if ("z" not in status_dict[each_plot_id]):
+                        if (("z" in status_dict[each_plot_id]) and (status_dict[each_plot_id]["z"])):
                             ax_1.axvspan(xmin, xmax,
-                                         alpha=0.10, color='red')
+                                         alpha=0.10, color='green')
                             ax_2.axvspan(xmin, xmax,
-                                         alpha=0.10, color='red')
+                                         alpha=0.10, color='green')
                         else:
                             ax_1.axvspan(xmin, xmax,
-                                         alpha=0.10, color='green')
+                                         alpha=0.10, color='red')
                             ax_2.axvspan(xmin, xmax,
-                                         alpha=0.10, color='green')
+                                         alpha=0.10, color='red')
                         ax_1.get_yaxis().set_ticklabels([])
                         ax_2.get_yaxis().set_ticklabels([])
                         ax_1.spines["top"].set_visible(False)
@@ -495,16 +495,16 @@ def kernel(obs_asdf, syn_asdf_1, syn_asdf_2, azimuth_width, output_dir, waves_pe
                                       transform=ax_2.transAxes, fontsize=50)
                         ax_2.text((35 - xmin) / (xmax - xmin), 0.73, f"component:R\nid:{each_plot_id}\ngcarc:{each_plot_trace_2.info['gcarc']:.2f}\nazimuth:{each_plot_trace_2.info['azimuth']:.2f}",
                                   transform=ax_2.transAxes, fontsize=50)
-                        if ("r" not in status_dict[each_plot_id]):
+                        if (("r" in status_dict[each_plot_id]) and (status_dict[each_plot_id]["r"])):
                             ax_1.axvspan(xmin, xmax,
-                                         alpha=0.10, color='red')
+                                         alpha=0.10, color='green')
                             ax_2.axvspan(xmin, xmax,
-                                         alpha=0.10, color='red')
+                                         alpha=0.10, color='green')
                         else:
                             ax_1.axvspan(xmin, xmax,
-                                         alpha=0.10, color='green')
+                                         alpha=0.10, color='red')
                             ax_2.axvspan(xmin, xmax,
-                                         alpha=0.10, color='green')
+                                         alpha=0.10, color='red')
                         ax_1.get_yaxis().set_ticklabels([])
                         ax_2.get_yaxis().set_ticklabels([])
                         ax_1.spines["top"].set_visible(False)
@@ -580,16 +580,16 @@ def kernel(obs_asdf, syn_asdf_1, syn_asdf_2, azimuth_width, output_dir, waves_pe
                                       transform=ax_2.transAxes, fontsize=50)
                         ax_2.text((35 - xmin) / (xmax - xmin), 0.73, f"component:T\nid:{each_plot_id}\ngcarc:{each_plot_trace_2.info['gcarc']:.2f}\nazimuth:{each_plot_trace_2.info['azimuth']:.2f}",
                                   transform=ax_2.transAxes, fontsize=50)
-                        if ("t" not in status_dict[each_plot_id]):
+                        if (("t" in status_dict[each_plot_id]) and (status_dict[each_plot_id]["t"])):
                             ax_1.axvspan(xmin, xmax,
-                                         alpha=0.10, color='red')
+                                         alpha=0.10, color='green')
                             ax_2.axvspan(xmin, xmax,
-                                         alpha=0.10, color='red')
+                                         alpha=0.10, color='green')
                         else:
                             ax_1.axvspan(xmin, xmax,
-                                         alpha=0.10, color='green')
+                                         alpha=0.10, color='red')
                             ax_2.axvspan(xmin, xmax,
-                                         alpha=0.10, color='green')
+                                         alpha=0.10, color='red')
                         ax_1.get_yaxis().set_ticklabels([])
                         ax_2.get_yaxis().set_ticklabels([])
                         ax_1.spines["top"].set_visible(False)
@@ -684,16 +684,16 @@ def kernel(obs_asdf, syn_asdf_1, syn_asdf_2, azimuth_width, output_dir, waves_pe
                               transform=ax_2.transAxes, fontsize=50)
                     ax_2.text(((xmax-90) - xmin) / (xmax - xmin), 0.73, f"component:Z\nid:{each_plot_id}\ngcarc:{each_plot_trace_2.info['gcarc']:.2f}\nazimuth:{each_plot_trace_2.info['azimuth']:.2f}",
                               transform=ax_2.transAxes, fontsize=50)
-                    if ("surface_z" not in status_dict[each_plot_id]):
+                    if (("surface_z" in status_dict[each_plot_id]) and (status_dict[each_plot_id]["surface_z"])):
                         ax_1.axvspan(xmin, xmax,
-                                     alpha=0.10, color='red')
+                                     alpha=0.10, color='green')
                         ax_2.axvspan(xmin, xmax,
-                                     alpha=0.10, color='red')
+                                     alpha=0.10, color='green')
                     else:
                         ax_1.axvspan(xmin, xmax,
-                                     alpha=0.10, color='green')
+                                     alpha=0.10, color='red')
                         ax_2.axvspan(xmin, xmax,
-                                     alpha=0.10, color='green')
+                                     alpha=0.10, color='red')
                     ax_1.get_yaxis().set_ticklabels([])
                     ax_2.get_yaxis().set_ticklabels([])
                     ax_1.spines["top"].set_visible(False)
@@ -749,16 +749,16 @@ def kernel(obs_asdf, syn_asdf_1, syn_asdf_2, azimuth_width, output_dir, waves_pe
                               transform=ax_2.transAxes, fontsize=50)
                     ax_2.text(((xmax-90) - xmin) / (xmax - xmin), 0.73, f"component:R\nid:{each_plot_id}\ngcarc:{each_plot_trace_2.info['gcarc']:.2f}\nazimuth:{each_plot_trace_2.info['azimuth']:.2f}",
                               transform=ax_2.transAxes, fontsize=50)
-                    if ("surface_r" not in status_dict[each_plot_id]):
+                    if (("surface_r" in status_dict[each_plot_id]) and (status_dict[each_plot_id]["surface_r"])):
                         ax_1.axvspan(xmin, xmax,
-                                     alpha=0.10, color='red')
+                                     alpha=0.10, color='green')
                         ax_2.axvspan(xmin, xmax,
-                                     alpha=0.10, color='red')
+                                     alpha=0.10, color='green')
                     else:
                         ax_1.axvspan(xmin, xmax,
-                                     alpha=0.10, color='green')
+                                     alpha=0.10, color='red')
                         ax_2.axvspan(xmin, xmax,
-                                     alpha=0.10, color='green')
+                                     alpha=0.10, color='red')
                     ax_1.get_yaxis().set_ticklabels([])
                     ax_2.get_yaxis().set_ticklabels([])
                     ax_1.spines["top"].set_visible(False)
@@ -814,16 +814,16 @@ def kernel(obs_asdf, syn_asdf_1, syn_asdf_2, azimuth_width, output_dir, waves_pe
                               transform=ax_2.transAxes, fontsize=50)
                     ax_2.text(((xmax-90) - xmin) / (xmax - xmin), 0.73, f"component:T\nid:{each_plot_id}\ngcarc:{each_plot_trace_2.info['gcarc']:.2f}\nazimuth:{each_plot_trace_2.info['azimuth']:.2f}",
                               transform=ax_2.transAxes, fontsize=50)
-                    if ("surface_z" not in status_dict[each_plot_id]):
+                    if (("surface_t" in status_dict[each_plot_id]) and (status_dict[each_plot_id]["surface_t"])):
                         ax_1.axvspan(xmin, xmax,
-                                     alpha=0.10, color='red')
+                                     alpha=0.10, color='green')
                         ax_2.axvspan(xmin, xmax,
-                                     alpha=0.10, color='red')
+                                     alpha=0.10, color='green')
                     else:
                         ax_1.axvspan(xmin, xmax,
-                                     alpha=0.10, color='green')
+                                     alpha=0.10, color='red')
                         ax_2.axvspan(xmin, xmax,
-                                     alpha=0.10, color='green')
+                                     alpha=0.10, color='red')
                     ax_1.get_yaxis().set_ticklabels([])
                     ax_2.get_yaxis().set_ticklabels([])
                     ax_1.spines["top"].set_visible(False)
