@@ -26,7 +26,7 @@ def extract_data(f, depth, parameter):
     return mesh_lon, mesh_lat, data
 
 
-def plot_h(mesh_lon, mesh_lat, data, parameter, depth, vmin, vmax, region, scale, percentage):  # pylint: disable=unused-argument
+def plot_h(mesh_lon, mesh_lat, data, parameter, depth, vmin, vmax, region, scale, percentage, abs):  # pylint: disable=unused-argument
     plt.figure()
     ax = plt.axes(projection=ccrs.PlateCarree())
     print(np.nanmin(data), np.nanmax(data))
@@ -36,6 +36,8 @@ def plot_h(mesh_lon, mesh_lat, data, parameter, depth, vmin, vmax, region, scale
         range_val = np.max([min_absdata, max_absdata])
         vmin = -range_val
         vmax = range_val
+    if (abs):
+        data = np.abs(data)
     plt.pcolormesh(mesh_lon, mesh_lat, data,
                    transform=ccrs.PlateCarree(), vmin=vmin, vmax=vmax, cmap=plt.cm.jet_r)  # pylint: disable=no-member
     ax.coastlines()
@@ -75,13 +77,14 @@ def plot_h(mesh_lon, mesh_lat, data, parameter, depth, vmin, vmax, region, scale
 @click.option('--region', required=True, type=str, help="the region to plot, lon1/lat1/lon2/lat2")
 @click.option('--scale/--no-scale', default=False, required=False, help="if scale the range based on the maximum value")
 @click.option('--percentage/--no-percentage', default=False, required=False, help="if use percentage in colorbar")
-def main(netcdf_file, parameter, depth, vmin, vmax, region, scale, percentage):
+@click.option('--abs/--no-abs', default=False, required=False, help="if plot the absolute value")
+def main(netcdf_file, parameter, depth, vmin, vmax, region, scale, percentage, abs):
     f = Dataset(netcdf_file, 'r')
     mesh_lon, mesh_lat, data = extract_data(f, depth, parameter)
     if (percentage):
         data = data*100
     plot_h(mesh_lon, mesh_lat, data, parameter,
-           depth, vmin, vmax, region, scale, percentage)
+           depth, vmin, vmax, region, scale, percentage, abs)
 
 
 if __name__ == "__main__":
