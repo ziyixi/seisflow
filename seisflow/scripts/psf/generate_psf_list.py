@@ -62,4 +62,4 @@ def main(lons, lats, deps, gauss_width_km, perturbation, output_path):
 
 
 if __name__ == "__main__":
-    main()
+    main()  # pylint: disable=no-value-for-parameter
