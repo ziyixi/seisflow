@@ -33,9 +33,12 @@ def download_file(each_cmt_file, client, output_directory, network_code):
     event = obspy.read_events(each_cmt_file)[0]
     origin = event.preferred_origin() or event.origins[0]
     eventtime = origin.time.datetime + timedelta(hours=9)
-    starttime = eventtime-timedelta(minutes=2)
-    data, ctable = client.get_continuous_waveform(
-        network_code, starttime, 42, outdir=join(output_directory, cmt))
+    starttime = eventtime - timedelta(minutes=2)
+    try:
+        data, ctable = client.get_continuous_waveform(
+            network_code, starttime, 42, outdir=join(output_directory, cmt))
+    except ValueError:
+        return None, None
     return data, ctable
 
 
