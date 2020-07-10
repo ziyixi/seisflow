@@ -43,11 +43,10 @@ def download_file(each_cmt_file, client, output_directory, network_code):
 @click.option('--logfile', required=True, type=str, help="the log file path")
 @click.option('--cmts_directory', required=True, type=str, help="the cmts directory path")
 @click.option('--output_directory', required=True, type=str, help="the output directory path")
-@click.option('--processes', required=True, type=int, help="the number of processes to use in extracting sac, 0 means using all.")
 @click.option('--username', required=True, type=str, help="the username for the hinet website.")
 @click.option('--password', required=True, type=str, help="the password for the hinet website.")
 @click.option('--network_code', required=True, type=str, help="the network code, eg: 0101 for hi-net and 0120 for s-net")
-def main(logfile, cmts_directory, output_directory, processes, username, password, network_code):
+def main(logfile, cmts_directory, output_directory, username, password, network_code):
     """
     Download Hinet waveforms based on cmtsolution files.
     """
