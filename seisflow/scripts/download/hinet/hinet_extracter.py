@@ -50,8 +50,12 @@ def main(data_directory, processes):
     to_extract_event_directories = sorted(
         set(all_event_directories)-set(extreacted_event_directories))
     for each_data_directory in to_extract_event_directories:
-        ctable = glob(join(each_data_directory, "*ch"))[0]
-        data = glob(join(each_data_directory, "*cnt"))[0]
+        ctables = glob(join(each_data_directory, "*ch"))
+        datas = glob(join(each_data_directory, "*cnt"))
+        if (len(ctables) == 0 or len(datas) == 0):
+            continue
+        ctable = ctables[0]
+        data = datas[0]
         sac_path, pz_path = extract_sac(data, ctable, processes)
         # * to save files quota, we need to zip them and remove the sac and pz files.
         # tar sac
