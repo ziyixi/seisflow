@@ -31,7 +31,9 @@ countries = ",".join(countries)
 @click.option('--colorbar', required=False, default="seis", type=str, help="the colorbar")
 @click.option('--paths', required=True, type=str, help="the paths file, each row: lon1 lat1 lon2 lat2 lon/lat")
 @click.option('--rep_par', required=False, default="vsv", type=str, help="the representative parameter to plot h")
-def main(model_file, region, npts, smooth_index, parameters, vmin, vmax, output_path, colorbar, paths, rep_par):
+@click.option('--colorbar_scale', required=False, default=100, type=int, help="the colorbar scale")
+@click.option('--dcolorbar', required=False, default=0.01, type=float, help="the colorbar tick distance")
+def main(model_file, region, npts, smooth_index, parameters, vmin, vmax, output_path, colorbar, paths, rep_par, colorbar_scale, dcolorbar):
     data = xr.open_dataset(model_file)
     topo = xr.open_dataset(get_data("topo_410_660.nc"))
     # * make a hidden dir in the output_path
@@ -64,7 +66,7 @@ def main(model_file, region, npts, smooth_index, parameters, vmin, vmax, output_
     to_interp_data = data[rep_par].copy()
     to_interp_data.data[to_interp_data.data > 9e6] = np.nan
     pdf_path_h_slice = plot_single_figure(to_interp_data, 100, hlat, hlon, colorbar,
-                                          vmin, vmax, lon1, lon2, lat1, lat2, rep_par, temp_directory, plot_paths=plot_paths)
+                                          vmin, vmax, lon1, lon2, lat1, lat2, rep_par, temp_directory, plot_paths=plot_paths, colorbar_scale=colorbar_scale, dcolorbar=dcolorbar)
     pdfs.append(pdf_path_h_slice)
     pbar.update(1)
     # * now we plot vertical slices accordingly
@@ -81,7 +83,7 @@ def main(model_file, region, npts, smooth_index, parameters, vmin, vmax, output_
             #         to_interp_data[:, :, each_smooth_index - 2].data + 3*to_interp_data[:, :, each_smooth_index + 2].data) / 4
             to_interp_data.data[to_interp_data.data > 9e6] = np.nan
             pdf_path = plot_single_vertical_figure(
-                line_index, row, to_interp_data, npts, each_parameter, colorbar, vmin, vmax, temp_directory, topo)
+                line_index, row, to_interp_data, npts, each_parameter, colorbar, vmin, vmax, temp_directory, topo, colorbar_scale=colorbar_scale, dcolorbar=dcolorbar)
             pdfs.append(pdf_path)
             pbar.update(1)
 
@@ -93,7 +95,7 @@ def main(model_file, region, npts, smooth_index, parameters, vmin, vmax, output_
     pbar.close()
 
 
-def plot_single_vertical_figure(line_index, each_path, to_interp_data, npts, each_parameter, colorbar, vmin, vmax, temp_directory, topo):
+def plot_single_vertical_figure(line_index, each_path, to_interp_data, npts, each_parameter, colorbar, vmin, vmax, temp_directory, topo, colorbar_scale=100, dcolorbar=0.01):
     # * firstly, we generate h and v, two new axis.
     hnpts, vnpts = map(float, npts.split("/"))
     lon1, lat1, lon2, lat2, dep1, dep2, hlabel = each_path
@@ -119,13 +121,13 @@ def plot_single_vertical_figure(line_index, each_path, to_interp_data, npts, eac
     # * now we can plot the figure
     fig = pygmt.Figure()
     if (colorbar == "default"):
-        pygmt.makecpt(cmap="seisflow/data/dvs_6p.cpt", series=f"{vmin}/{vmax}/0.01",
+        pygmt.makecpt(cmap="seisflow/data/dvs_6p.cpt", series=f"{vmin:.10f}/{vmax:.10f}/{dcolorbar}",
                       continuous=True, D="o")
     elif(colorbar[-2:] == "_r"):
-        pygmt.makecpt(cmap=colorbar[:-2], series=f"{vmin}/{vmax}/0.01",
+        pygmt.makecpt(cmap=colorbar[:-2], series=f"{vmin:.10f}/{vmax:.10f}/{dcolorbar}",
                       continuous=True, D="o", reverse=True)
     else:
-        pygmt.makecpt(cmap=colorbar, series=f"{vmin}/{vmax}/0.01",
+        pygmt.makecpt(cmap=colorbar, series=f"{vmin:.10f}/{vmax:.10f}/{dcolorbar}",
                       continuous=True, D="o")
     thetitle = f"Line{line_index},{each_parameter}"
     if(hlabel == "lon"):
@@ -142,13 +144,21 @@ def plot_single_vertical_figure(line_index, each_path, to_interp_data, npts, eac
     fig.plot(plot_data["h"].data[:], 6371 -
              (410 + topo_410.data[:]), pen="thin,red,dashed")
     fig.plot(plot_data["h"].data[:], 6371 -
-             (410+np.zeros_like(plot_data["h"].data[:])), pen="thin,black,dashed")
-    fig.colorbar(
-        # justified inside map frame (j) at Top Center (TC)
-        position="JBC+w14c/1.5c+h+e",
-        box=False,
-        frame=[f"+LdlnV{each_parameter[1:]}", "xaf"],
-        scale=100,)
+             (410 + np.zeros_like(plot_data["h"].data[:])), pen="thin,black,dashed")
+    if(colorbar_scale == 100):
+        fig.colorbar(
+            # justified inside map frame (j) at Top Center (TC)
+            position="JBC+w14c/1.5c+h+e",
+            box=False,
+            frame=[f"+LdlnV{each_parameter[1:]}(%)", "xaf"],
+            scale=colorbar_scale,)
+    else:
+        fig.colorbar(
+            # justified inside map frame (j) at Top Center (TC)
+            position="JBC+w14c/1.5c+h+e",
+            box=False,
+            frame=[f"+L{each_parameter}", "xaf"],
+            scale=colorbar_scale,)
     pdf_path = join(
         temp_directory, f"{each_parameter}_{lon1},{lat1}_{lon2},{lat2}.pdf")
     fig.savefig(

@@ -28,7 +28,9 @@ countries = ",".join(countries)
 @click.option('--vmax', required=False, default="0.08", type=float, help="colorbar vmax")
 @click.option('--output_path', required=True, type=str, help="the output pdf path")
 @click.option('--colorbar', required=False, default="seis", type=str, help="the colorbar")
-def main(model_file, region, npts, smooth_index, parameters, depths, vmin, vmax, output_path, colorbar):
+@click.option('--colorbar_scale', required=False, default=100, type=int, help="the colorbar scale")
+@click.option('--dcolorbar', required=False, default=0.01, type=float, help="the colorbar tick distance")
+def main(model_file, region, npts, smooth_index, parameters, depths, vmin, vmax, output_path, colorbar, colorbar_scale, dcolorbar):
     data = xr.open_dataset(model_file)
     # * make a hidden dir in the output_path
     temp_directory = join(dirname(output_path), "."+basename(output_path))
@@ -54,7 +56,7 @@ def main(model_file, region, npts, smooth_index, parameters, depths, vmin, vmax,
         # some parameters
         for each_depth in depths:
             pdf_path = plot_single_figure(to_interp_data, each_depth, hlat, hlon, colorbar,
-                                          vmin, vmax, lon1, lon2, lat1, lat2, each_parameter, temp_directory)
+                                          vmin, vmax, lon1, lon2, lat1, lat2, each_parameter, temp_directory, colorbar_scale=colorbar_scale, dcolorbar=dcolorbar)
             pdfs.append(pdf_path)
             pbar.update(1)
     pbar.close()
@@ -65,20 +67,20 @@ def main(model_file, region, npts, smooth_index, parameters, depths, vmin, vmax,
     merger.close()
 
 
-def plot_single_figure(to_interp_data, each_depth, hlat, hlon, colorbar, vmin, vmax, lon1, lon2, lat1, lat2, each_parameter, temp_directory, plot_paths=None):
+def plot_single_figure(to_interp_data, each_depth, hlat, hlon, colorbar, vmin, vmax, lon1, lon2, lat1, lat2, each_parameter, temp_directory, plot_paths=None, colorbar_scale=100, dcolorbar=0.01):
     plot_data = to_interp_data.interp(
         depth=each_depth, latitude=hlat, longitude=hlon)
     plot_data = plot_data.T
     # * plot for each depth and parameter
     fig = pygmt.Figure()
     if (colorbar == "default"):
-        pygmt.makecpt(cmap="seisflow/data/dvs_6p.cpt", series=f"{vmin}/{vmax}/0.01",
+        pygmt.makecpt(cmap="seisflow/data/dvs_6p.cpt", series=f"{vmin:.10f}/{vmax:.10f}/{dcolorbar}",
                       continuous=True, D="o")
     elif(colorbar[-2:] == "_r"):
-        pygmt.makecpt(cmap=colorbar[:-2], series=f"{vmin}/{vmax}/0.01",
+        pygmt.makecpt(cmap=colorbar[:-2], series=f"{vmin:.10f}/{vmax:.10f}/{dcolorbar}",
                       continuous=True, D="o", reverse=True)
     else:
-        pygmt.makecpt(cmap=colorbar, series=f"{vmin}/{vmax}/0.01",
+        pygmt.makecpt(cmap=colorbar, series=f"{vmin:.10f}/{vmax:.10f}/{dcolorbar}",
                       continuous=True, D="o")
     mean_lat = (lat1 + lat2) / 2
     mean_lon = (lon1 + lon2) / 2
@@ -94,12 +96,20 @@ def plot_single_figure(to_interp_data, each_depth, hlat, hlon, colorbar, vmin, v
     data_path = "seisflow/data/CN-border-L1.dat"
     fig.plot(data=data_path,
              pen="1/0.2p,black,dashed")
-    fig.colorbar(
-        # justified inside map frame (j) at Top Center (TC)
-        position="JBC+w30c/1.5c+h+e",
-        box=False,
-        frame=[f"+LdlnV{each_parameter[1:]}(%)", "xaf"],
-        scale=100,)
+    if(colorbar_scale == 100):
+        fig.colorbar(
+            # justified inside map frame (j) at Top Center (TC)
+            position="JBC+w30c/1.5c+h+e",
+            box=False,
+            frame=[f"+LdlnV{each_parameter[1:]}(%)", "xaf"],
+            scale=colorbar_scale,)
+    else:
+        fig.colorbar(
+            # justified inside map frame (j) at Top Center (TC)
+            position="JBC+w30c/1.5c+h+e",
+            box=False,
+            frame=[f"+L{each_parameter[:]}", "xaf"],
+            scale=colorbar_scale,)
     fig.text(x=[lon1 + lon_dev, lon1 + lon_dev * 5 / 4], y=[lat2 - lat_dev / 2, lat2-lat_dev], text=[
         each_parameter, f"{each_depth}km"], font="30p,4,black+jMC")
     # * sometimes we want to plot some lines in map
