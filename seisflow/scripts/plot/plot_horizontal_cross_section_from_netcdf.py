@@ -15,8 +15,9 @@ def extract_data(f, depth, parameter):
     if (len(depth_pos) != 1):
         raise Exception("no such depth in the netcdf file.")
     depth_pos = depth_pos[0][0]
-    data = f.variables[parameter][:, :, depth_pos].copy()
     data_all = f.variables[parameter][:, :, :].copy()
+    # data_all=data_all.transpose([2,1,0])
+    data = data_all[:, :, depth_pos].copy()
     # we usually use a large value to represent nan.
     data[data > 9e6] = np.nan
     data_all[data_all > 9e6] = np.nan
