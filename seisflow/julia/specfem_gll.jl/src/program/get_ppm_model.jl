@@ -40,9 +40,9 @@ function generate_profile_points(latnpts, lonnpts, vnpts, lon1, lat1, dep1, lon2
     # fill in deplatlon_new of this rank
     latnpts_this_rank = length(coor_lat)
     lonnpts_this_rank = length(coor_lon)
-    for (vindex, dep) in enumerate(range(dep1, stop = dep2, length = vnpts))
-        for (latindex, lat) in enumerate(range(lat1, stop = lat2, length = latnpts)[coor_lat])
-            for (lonindex, lon) in enumerate(range(lon1, stop = lon2, length = lonnpts)[coor_lon])
+    for (vindex, dep) in enumerate(range(dep1, stop=dep2, length=vnpts))
+        for (latindex, lat) in enumerate(range(lat1, stop=lat2, length=latnpts)[coor_lat])
+            for (lonindex, lon) in enumerate(range(lon1, stop=lon2, length=lonnpts)[coor_lon])
                 id = (vindex - 1) * latnpts_this_rank * lonnpts_this_rank + (latindex - 1) * lonnpts_this_rank + lonindex
                 deplatlon_new_this_rank[:,id] = [dep,lat,lon]
             end
@@ -135,7 +135,9 @@ function run_interp(command_args::Dict{String,Any}, comm::MPI.Comm)
 
     # * loop for all points in xyz_new
     for iproc_old = 0:nproc_old - 1
-        @info "[$rank]# iproc_old=$(iproc_old)"
+        if isroot
+            @info "# iproc_old=$(iproc_old)"
+        end
         # read old mesh slice
         mesh_old = sem_mesh_read(old_mesh_dir, iproc_old)
         nspec_old = mesh_old.nspec
@@ -150,7 +152,7 @@ function run_interp(command_args::Dict{String,Any}, comm::MPI.Comm)
             min_dist = min(min_dist, dist_this_spec)
         end
         if min_dist > max_search_dist
-            @info "[$rank]#$(iproc_old) slices too far away, skip"
+            # @info "[$rank]#$(iproc_old) slices too far away, skip"
             continue
         end
 
@@ -202,9 +204,9 @@ function run_interp(command_args::Dict{String,Any}, comm::MPI.Comm)
     MPI.Barrier(comm)
 
     open(output_file * "/$rank", "w") do io
-        for (vindex, dep) in enumerate(range(dep1, stop = dep2, length = vnpts))
-            for (latindex, lat) in enumerate(range(lat1, stop = lat2, length = latnpts)[coor_lat])
-                for (lonindex, lon) in enumerate(range(lon1, stop = lon2, length = lonnpts)[coor_lon])
+        for (vindex, dep) in enumerate(range(dep1, stop=dep2, length=vnpts))
+            for (latindex, lat) in enumerate(range(lat1, stop=lat2, length=latnpts)[coor_lat])
+                for (lonindex, lon) in enumerate(range(lon1, stop=lon2, length=lonnpts)[coor_lon])
                     id = (vindex - 1) * latnpts_this_rank * lonnpts_this_rank + (latindex - 1) * lonnpts_this_rank + lonindex
                     thesize = size(model_interp_this_rank)[1]
                     if thesize == 1
