@@ -47,11 +47,10 @@ def ppm2netcdf(base_dir, region, npts, nproc, parameters, out_path, history):
 @click.option('--n_node', required=True, type=str, help="the number of nodes to use")
 @click.option('--history', required=True, type=str, help="the info to write into the netcdf file")
 @click.option('--time', required=True, type=str, help="the time to run as a job")
-@click.option('--account', required=True, type=str, help="the slurm account")
 @click.option('--old_mesh_dir', required=True, type=str, help="the mesh directory")
 @click.option('--old_model_dir', required=True, type=str, help="the bin file model directory")
 @click.option('--output_path', required=True, type=str, help="the output netcdf path")
-def main(nproc_old, model_tags, region, npts, nproc, n_node, history, time, account,
+def main(nproc_old, model_tags, region, npts, nproc, n_node, history, time,
          old_mesh_dir, old_model_dir, output_path):
     """
     submit a job to convert the mesh bin files to the netcdf file.
@@ -93,7 +92,7 @@ def main(nproc_old, model_tags, region, npts, nproc, n_node, history, time, acco
     result += "date; \n"
     # * submit the job
     submit_job("bin2netcdf", result, n_node, nproc_ppm2netcdf,
-               None, time, account, "icer")
+               None, time, None, "icer")
 
 
 if __name__ == "__main__":
