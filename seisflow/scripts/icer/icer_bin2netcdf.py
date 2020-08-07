@@ -44,13 +44,12 @@ def ppm2netcdf(base_dir, region, npts, nproc, parameters, out_path, history):
 @click.option('--region', required=True, type=str, help="the region to interpolate, lon1/lat1/lon2/lat2/dep1/dep2")
 @click.option('--npts', required=True, type=str, help="nlon/nlat/ndep")
 @click.option('--nproc', required=True, type=str, help="latnproc/lonnproc")
-@click.option('--n_node', required=True, type=str, help="the number of nodes to use")
 @click.option('--history', required=True, type=str, help="the info to write into the netcdf file")
 @click.option('--time', required=True, type=str, help="the time to run as a job")
 @click.option('--old_mesh_dir', required=True, type=str, help="the mesh directory")
 @click.option('--old_model_dir', required=True, type=str, help="the bin file model directory")
 @click.option('--output_path', required=True, type=str, help="the output netcdf path")
-def main(nproc_old, model_tags, region, npts, nproc, n_node, history, time,
+def main(nproc_old, model_tags, region, npts, nproc, history, time,
          old_mesh_dir, old_model_dir, output_path):
     """
     submit a job to convert the mesh bin files to the netcdf file.
@@ -91,8 +90,8 @@ def main(nproc_old, model_tags, region, npts, nproc, n_node, history, time,
                          model_tags, output_path, history)
     result += "date; \n"
     # * submit the job
-    submit_job("bin2netcdf", result, n_node, nproc_ppm2netcdf,
-               None, time, None, "icer")
+    submit_job("bin2netcdf", result, None, nproc_ppm2netcdf,
+               None, time, None, "icer_flexiable")
 
 
 if __name__ == "__main__":
