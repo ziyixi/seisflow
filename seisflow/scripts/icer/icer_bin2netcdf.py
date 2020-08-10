@@ -23,6 +23,7 @@ def bin2ppm(nproc_old, model_tags, region, npts, nproc,
     nproc_ppm2netcdf = latnproc * lonnproc
     # ! note there is a issue of precompiling the code in a race condition, refer to https://github.com/simonbyrne/PkgLock.jl to solve the problem
     # result += "julia --project -e 'push!(LOAD_PATH, \"@pkglock\"); using PkgLock; PkgLock.instantiate_precompile()'\n"
+    result += "module purge;module load GCC/8.2.0-2.31.1;module load OpenMPI/3.1.3;"
     result += f"srun -n {nproc_ppm2netcdf} julia '{julia_path}' --nproc_old {nproc_old} --old_mesh_dir {old_mesh_dir} --old_model_dir {old_model_dir} --model_tags {model_tags} --output_file {output_dir} --region {region} --npts {npts} --nproc {nproc}; \n"
     return result
 
