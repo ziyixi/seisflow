@@ -135,9 +135,7 @@ function run_interp(command_args::Dict{String,Any}, comm::MPI.Comm)
 
     # * loop for all points in xyz_new
     for iproc_old = 0:nproc_old - 1
-        if isroot
-            @info "# iproc_old=$(iproc_old)"
-        end
+        @info "[$(rank)]# iproc=$(iproc_old)"
         # read old mesh slice
         mesh_old = sem_mesh_read(old_mesh_dir, iproc_old)
         nspec_old = mesh_old.nspec
