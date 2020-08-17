@@ -29,3 +29,17 @@ mutable struct sem_mesh_location
 
     sem_mesh_location() = new()
 end
+
+mutable struct sem_boundary_disc
+    NSPEC2D_MOHO::Int64
+    NSPEC2D_400::Int64
+    NSPEC2D_670::Int64
+    ibelm_moho_top::Array{Int64,1}
+    ibelm_moho_bot::Array{Int64,1}
+    ibelm_400_top::Array{Int64,1}
+    ibelm_400_bot::Array{Int64,1}
+    ibelm_670_top::Array{Int64,1}
+    ibelm_670_bot::Array{Int64,1}
+
+    sem_boundary_disc() = new()
+end

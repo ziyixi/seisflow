@@ -149,3 +149,27 @@ function sem_io_write_gll_file_1(basedir::String, iproc::Int64, model_name::Stri
     write(f, dummy)
     close(f)
 end
+
+function sem_boundary_disc_read(basedir::String, iproc::Int64)
+    boudary_disc_data = sem_boundary_disc()
+    f = sem_io_open_file_for_read(basedir, iproc, "boundary_disc")
+    boudary_disc_data.NSPEC2D_MOHO, boudary_disc_data.NSPEC2D_400, boudary_disc_data.NSPEC2D_670 = Int64.(read(f, zeros(Int32, 3)))
+    # read arrays
+    boudary_disc_data.ibelm_moho_top = Int64.(read(f, zeros(Int32, boudary_disc_data.NSPEC2D_MOHO)))
+    boudary_disc_data.ibelm_moho_bot = Int64.(read(f, zeros(Int32, boudary_disc_data.NSPEC2D_MOHO)))
+    boudary_disc_data.ibelm_400_top = Int64.(read(f, zeros(Int32, boudary_disc_data.NSPEC2D_400)))
+    boudary_disc_data.ibelm_400_bot = Int64.(read(f, zeros(Int32, boudary_disc_data.NSPEC2D_400)))
+    boudary_disc_data.ibelm_670_top = Int64.(read(f, zeros(Int32, boudary_disc_data.NSPEC2D_670)))
+    boudary_disc_data.ibelm_670_bot = Int64.(read(f, zeros(Int32, boudary_disc_data.NSPEC2D_670)))
+
+    close(f)
+    return boudary_disc_data
+end
+
+function sem_d670_read(basedir::String, iproc::Int64, NSPEC2D_670::Int64)
+    f = sem_io_open_file_for_read(basedir, iproc, "d670_kernel")
+    data_670 = Float64.(read(f, zeros(Float32, NGLLX, NGLLY, NSPEC2D_670)))
+
+    close(f)
+    return data_670
+end
