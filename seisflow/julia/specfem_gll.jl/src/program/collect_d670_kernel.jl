@@ -83,3 +83,5 @@ function main()
     # now we write to the file
     write2file(output_path, kernel_d670_all, position_d670_all, boudary_disc_data.NSPEC2D_670, nproc)
 end
+
+main()
