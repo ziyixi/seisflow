@@ -64,10 +64,10 @@ function main()
     boudary_disc_data = sem_boundary_disc_read(base_dir, 0)
     kernel_d670_all = zeros(Float64, NGLLX, NGLLY, boudary_disc_data.NSPEC2D_670, nproc)
     position_d670_all = zeros(Float64, 3, NGLLX, NGLLY, boudary_disc_data.NSPEC2D_670, nproc)
-    @showprogress for iproc in 0:(nproc - 1)
-        kernel_d670_all[:,:,:,iproc] = sem_d670_read(base_dir, iproc, boudary_disc_data.NSPEC2D_670)
+    @showprogress for iproc in 1:nproc
+        kernel_d670_all[:,:,:,iproc] = sem_d670_read(base_dir, iproc - 1, boudary_disc_data.NSPEC2D_670)
         mesh_data_iproc = sem_mesh_data()
-        mesh_data_iproc = sem_mesh_read(base_dir, iproc_old)
+        mesh_data_iproc = sem_mesh_read(base_dir, iproc - 1)
         for ispec in ibelm_670_top
             for igllx in 1:NGLLX
                 for iglly in 1:NGLLY
