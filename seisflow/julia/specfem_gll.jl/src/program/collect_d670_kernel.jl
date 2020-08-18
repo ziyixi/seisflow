@@ -68,12 +68,12 @@ function main()
         kernel_d670_all[:,:,:,iproc] = sem_d670_read(base_dir, iproc - 1, boudary_disc_data.NSPEC2D_670)
         mesh_data_iproc = sem_mesh_data()
         mesh_data_iproc = sem_mesh_read(base_dir, iproc - 1)
-        for ispec in boudary_disc_data.ibelm_670_top
+        for (index_ispec, ispec) in enumerate(boudary_disc_data.ibelm_670_top)
             for igllx in 1:NGLLX
                 for iglly in 1:NGLLY
                     iglob = mesh_data_iproc.ibool[igllx,iglly,1,ispec]
                     x, y, z = mesh_data_iproc.xyz_glob[:,iglob]
-                    position_d670_all[:,igllx,iglly,ispec,iproc] = xyz2lld(x, y, z)
+                    position_d670_all[:,igllx,iglly,index_ispec,iproc] = xyz2lld(x, y, z)
                 end
             end
         end
