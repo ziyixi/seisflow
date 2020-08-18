@@ -71,7 +71,7 @@ function main()
         for ispec in boudary_disc_data.ibelm_670_top
             for igllx in 1:NGLLX
                 for iglly in 1:NGLLY
-                    iglob = mesh_old.ibool[igllx,iglly,1,ispec]
+                    iglob = mesh_data_iproc.ibool[igllx,iglly,1,ispec]
                     x, y, z = mesh_data_iproc.xyz_glob[:,iglob]
                     position_d670_all[:,igllx,iglly,ispec,iproc] = xyz2lld(x, y, z)
                 end
