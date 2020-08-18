@@ -18,6 +18,7 @@ function parse_commandline()
         arg_type = String
         required = true     
     end   
+    return parse_args(s)
 end
 
 
