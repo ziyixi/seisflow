@@ -28,7 +28,7 @@ function xyz2lld(x::Float64, y::Float64, z::Float64)
     r = sqrt(x^2 + y^2 + z^2)
     dep = R - R * r
     rh = sqrt(x^2 + y^2)
-    θ = atan(rh, z)
+    θ = atand(rh, z)
     lat = 90 - θ
     ϕ = atand(x, y)
     lon = ϕ
