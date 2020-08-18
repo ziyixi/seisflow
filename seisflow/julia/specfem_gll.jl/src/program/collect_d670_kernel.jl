@@ -1,4 +1,5 @@
 using ArgParse
+using ProgressMeter
 
 include("../utils/readfiles.jl")
 
@@ -59,15 +60,12 @@ function main()
     output_path = command_args["output_path"]
 
     # read d670 kernel and boundary mesh
+    # for iproc, read the mesh file to locate the location
     boudary_disc_data = sem_boundary_disc_read(base_dir, 0)
     kernel_d670_all = zeros(Float64, NGLLX, NGLLY, boudary_disc_data.NSPEC2D_670, nproc)
-    for iproc in 0:(nproc - 1)
-        kernel_d670_all[:,:,:,iproc] = sem_d670_read(base_dir, iproc, boudary_disc_data.NSPEC2D_670)
-    end
-
-    # for iproc, read the mesh file to locate the location
     position_d670_all = zeros(Float64, 3, NGLLX, NGLLY, boudary_disc_data.NSPEC2D_670, nproc)
-    for iproc in 0:(nproc - 1)
+    @showprogress for iproc in 0:(nproc - 1)
+        kernel_d670_all[:,:,:,iproc] = sem_d670_read(base_dir, iproc, boudary_disc_data.NSPEC2D_670)
         mesh_data_iproc = sem_mesh_data()
         mesh_data_iproc = sem_mesh_read(base_dir, iproc_old)
         for ispec in ibelm_670_top
