@@ -9,16 +9,15 @@ function parse_commandline()
         help = "the number of slices in the mesh"
         arg_type = Int64
         required = true
-    @add_arg_table! s begin
         "--base_dir"
         help = "the DATABASE directory"
         arg_type = String
         required = true
-    @add_arg_table! s begin
         "--output_path"
         help = "the output text file path"
         arg_type = String
-        required = true        
+        required = true     
+    end   
 end
 
 
@@ -48,7 +47,7 @@ function write2file(output_path, kernel_d670_all, position_d670_all, NSPEC2D_670
                 end
             end
         end
-            end
+end
 end
 
 function main()
