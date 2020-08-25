@@ -28,6 +28,9 @@ def main(lat_range, lon_range, kernel_path, output_path_d660, output_path_ppm):
                             (lon2, lat2), method='linear')
     input_depth = griddata(
         raw_data[:, :2], raw_data[:, 2], (lon2, lat2), method='linear')
+    # for the nan part of the inputs, we use the predefined values
+    input_kernel[np.isnan(input_kernel)] = 0
+    input_depth[np.isnan(input_depth)] = 650
 
     # * we should normalize the kernel so the maximum absolute value can be corresponding to 5km
     max_abs_pos = np.unravel_index(
@@ -43,6 +46,7 @@ def main(lat_range, lon_range, kernel_path, output_path_d660, output_path_ppm):
     towrite_depth = np.zeros_like(output_depth)
     towrite_depth[:900, :] = output_depth[901:, :]
     towrite_depth[900:, :] = output_depth[:901, :]
+    towrite_depth = towrite_depth-650
     towrite_lon1 = np.arange(0, 360.2, 0.2)
     towrite_lat1 = lat1
     with open(output_path_d660, "w") as f:
