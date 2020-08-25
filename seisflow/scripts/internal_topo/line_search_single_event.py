@@ -48,7 +48,7 @@ def kernel(windows_path, data_asdf_path, sync_asdf_path_raw, sync_asdf_path_pert
     sync_virasdf_surface = None
     first_arrival_zr, first_arrival_t, baz, _ = load_first_arrival_baz_evdp(
         data_info_directory)
-    stations = np.loadtxt(stations_path)
+    stations = np.loadtxt(stations_path, dtype=np.str)
 
     # * now we can do the line search
     search_min, search_max = map(float, search_range.split(","))
