@@ -7,16 +7,11 @@ from scipy.interpolate import griddata
 
 from .generate_gaussian_stw105 import (generate_mapper, generate_ppm,
                                        read_stw105, write_to_netcdf)
+from ...setting import LINE_SEARCH_PERTURBATION_BOUNDARY
 
 
-@click.command()
-@click.option('--lat_range', required=True, type=str, help="latmin,latmax should be larger than the simulation region")
-@click.option('--lon_range', required=True, type=str, help="lonmin,lonmax should be larger than the simulation region")
-@click.option('--kernel_path', required=True, type=str, help="the generated kernel text file from julia")
-@click.option('--model_path', required=True, type=str, help="the external mesh model file")
-@click.option('--output_path_d660', required=True, type=str, help="the external mesh file output path")
-@click.option('--output_path_ppm', required=True, type=str, help="the external ppm file output path")
-def main(lat_range, lon_range, kernel_path, model_path, output_path_d660, output_path_ppm):
+def kernel(lat_range, lon_range, kernel_path,
+           model_path, output_path_d660, output_path_ppm, optimized_step=None):
     lat_min, lat_max = map(float, lat_range.split(","))
     lon1 = np.arange(-180, 180.2, 0.2)
     lat1 = np.arange(lat_min, lat_max + 0.2, 0.2)
@@ -48,7 +43,12 @@ def main(lat_range, lon_range, kernel_path, model_path, output_path_d660, output
     # * we should normalize the kernel so the maximum absolute value can be corresponding to 5km
     max_abs_pos = np.unravel_index(
         np.argmax(np.abs(input_kernel)), input_kernel.shape)
-    ratio = 10 / np.abs(input_kernel[max_abs_pos])
+    if(optimized_step == None):
+        ratio = LINE_SEARCH_PERTURBATION_BOUNDARY / \
+            np.abs(input_kernel[max_abs_pos])
+    else:
+        ratio = optimized_step / \
+            np.abs(input_kernel[max_abs_pos])
     # update the kernel based on the ratio
     output_kernel = ratio * input_kernel
 
@@ -85,6 +85,18 @@ def main(lat_range, lon_range, kernel_path, model_path, output_path_d660, output
     lon1, lat1, dep1, vs3d, vp3d, rho3d = generate_ppm(
         d650, (latmin, latmax), (lonmin, lonmax), mapper_all, mapper_depression, mapper_uplifting)
     write_to_netcdf(lon1, lat1, dep1, vs3d, vp3d, rho3d, output_path_ppm)
+
+
+@click.command()
+@click.option('--lat_range', required=True, type=str, help="latmin,latmax should be larger than the simulation region")
+@click.option('--lon_range', required=True, type=str, help="lonmin,lonmax should be larger than the simulation region")
+@click.option('--kernel_path', required=True, type=str, help="the generated kernel text file from julia")
+@click.option('--model_path', required=True, type=str, help="the external mesh model file")
+@click.option('--output_path_d660', required=True, type=str, help="the external mesh file output path")
+@click.option('--output_path_ppm', required=True, type=str, help="the external ppm file output path")
+def main(lat_range, lon_range, kernel_path, model_path, output_path_d660, output_path_ppm):
+    kernel(lat_range, lon_range, kernel_path,
+           model_path, output_path_d660, output_path_ppm)
 
 
 if __name__ == "__main__":

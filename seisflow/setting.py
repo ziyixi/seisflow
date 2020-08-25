@@ -14,3 +14,6 @@ DELTAT_THRESHOLD = "8,10"
 MAX_DXS_RATIO = 0.01
 # for the structrue inversion
 LINE_SEARCH_PERTURBATION = 0.01
+
+# for the boundary inversion
+LINE_SEARCH_PERTURBATION_BOUNDARY = 10
