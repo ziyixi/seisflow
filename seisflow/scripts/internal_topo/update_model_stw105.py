@@ -13,9 +13,10 @@ from .generate_gaussian_stw105 import (generate_mapper, generate_ppm,
 @click.option('--lat_range', required=True, type=str, help="latmin,latmax should be larger than the simulation region")
 @click.option('--lon_range', required=True, type=str, help="lonmin,lonmax should be larger than the simulation region")
 @click.option('--kernel_path', required=True, type=str, help="the generated kernel text file from julia")
+@click.option('--model_path', required=True, type=str, help="the external mesh model file")
 @click.option('--output_path_d660', required=True, type=str, help="the external mesh file output path")
 @click.option('--output_path_ppm', required=True, type=str, help="the external ppm file output path")
-def main(lat_range, lon_range, kernel_path, output_path_d660, output_path_ppm):
+def main(lat_range, lon_range, kernel_path, model_path, output_path_d660, output_path_ppm):
     lat_min, lat_max = map(float, lat_range.split(","))
     lon1 = np.arange(-180, 180.2, 0.2)
     lat1 = np.arange(lat_min, lat_max + 0.2, 0.2)
@@ -26,16 +27,28 @@ def main(lat_range, lon_range, kernel_path, output_path_d660, output_path_ppm):
     # * interp
     input_kernel = griddata(raw_data[:, :2], raw_data[:, 3],
                             (lon2, lat2), method='linear')
-    input_depth = griddata(
-        raw_data[:, :2], raw_data[:, 2], (lon2, lat2), method='linear')
+    input_depth_0_360 = np.zeros_like(input_kernel)
+    raw_depth = np.loadtxt(model_path, skiprows=1)
+    icount = 0
+    for ilat in range(len(lat1)):
+        for ilon in range(len(lon1)):
+            input_depth_0_360[ilon, ilat] = raw_depth[icount, 3]
+            icount += 1
+    # reshape to the shape from -180 to 180
+    input_depth = np.zeros_like(input_kernel)
+    input_depth[901:, :] = input_depth_0_360[:900, :]
+    input_depth[:901, :] = input_depth_0_360[900:, :]
+    input_depth = input_depth+650
+    # input_depth = griddata(
+    #     raw_data[:, :2], raw_data[:, 2], (lon2, lat2), method='linear')
     # for the nan part of the inputs, we use the predefined values
     input_kernel[np.isnan(input_kernel)] = 0
-    input_depth[np.isnan(input_depth)] = 650
+    # input_depth[np.isnan(input_depth)] = 650
 
     # * we should normalize the kernel so the maximum absolute value can be corresponding to 5km
     max_abs_pos = np.unravel_index(
         np.argmax(np.abs(input_kernel)), input_kernel.shape)
-    ratio = 5 / np.abs(input_kernel[max_abs_pos])
+    ratio = 10 / np.abs(input_kernel[max_abs_pos])
     # update the kernel based on the ratio
     output_kernel = ratio * input_kernel
 
@@ -62,7 +75,8 @@ def main(lat_range, lon_range, kernel_path, output_path_d660, output_path_ppm):
     # based on lonmin and lonmax, we extract the data from output_depth
     lonmin_index = int((lonmin + 180) * 5)
     lonmax_index = int((lonmax + 180) * 5)
-    d650 = output_depth[lonmin_index:(lonmax_index+1), :]
+    d650 = output_depth[lonmin_index: (lonmax_index + 1), :]
+    d650 = d650-650
 
     # * now we generate the ppm file
     stw105_iso = read_stw105()
