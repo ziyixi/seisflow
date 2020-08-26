@@ -4,10 +4,11 @@ update_model_stw105.py: update the d660 topo and stw105 ppm based on the kernel 
 import click
 import numpy as np
 from scipy.interpolate import griddata
+from scipy.ndimage import gaussian_filter
 
+from ...setting import LINE_SEARCH_PERTURBATION_BOUNDARY
 from .generate_gaussian_stw105 import (generate_mapper, generate_ppm,
                                        read_stw105, write_to_netcdf)
-from ...setting import LINE_SEARCH_PERTURBATION_BOUNDARY
 
 
 def kernel(lat_range, lon_range, kernel_path,
@@ -38,7 +39,8 @@ def kernel(lat_range, lon_range, kernel_path,
     #     raw_data[:, :2], raw_data[:, 2], (lon2, lat2), method='linear')
     # for the nan part of the inputs, we use the predefined values
     input_kernel[np.isnan(input_kernel)] = 0
-    # input_depth[np.isnan(input_depth)] = 650
+    # * we should smooth the kernel
+    input_kernel = gaussian_filter(input_kernel, sigma=2)
 
     # * we should normalize the kernel so the maximum absolute value can be corresponding to 5km
     max_abs_pos = np.unravel_index(
