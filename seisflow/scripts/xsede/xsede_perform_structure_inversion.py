@@ -165,7 +165,7 @@ def main(base_directory, cmts_directory, ref_directory, windows_directory, data_
                                                  "perturbed_sync"), join(base_directory, "processed_perturbed_sync"), periods, waveform_length, sampling_rate, taper_tmin_tmaxs)
     # * we can combine the line search part and the new model generation here
     result += f"cd {current_path}; \n"
-    result += line_search(pyexec, nproc, join(base_directory, "cmts"), windows_directory, data_info_directory, data_asdf_directory,
+    result += line_search(pyexec, n_total, join(base_directory, "cmts"), windows_directory, data_info_directory, data_asdf_directory,
                           join(base_directory, "processed_sync"), join(base_directory, "processed_perturbed_sync"), stations_path, min_periods, max_periods, search_range, search_step)
     result += update_model_from_line_search(kernel_process_directory, nproc)
 
@@ -241,11 +241,11 @@ def process_sync(py, nproc, sync_directory, output_directory, periods, waveform_
     return script
 
 
-def line_search(py, nproc, cmts_directory, windows_directory, data_info_directory, data_asdf_directory, sync_raw_directory, sync_perturbed_directory, stations_path, min_periods, max_periods, search_range, search_step):
+def line_search(py, n_total, cmts_directory, windows_directory, data_info_directory, data_asdf_directory, sync_raw_directory, sync_perturbed_directory, stations_path, min_periods, max_periods, search_range, search_step):
     """
     do the structure line search.
     """
-    script = f"ibrun -n {nproc} {py} -m seisflow.scripts.structure_inversion.mpi_structure_line_search --cmts_directory {cmts_directory} --windows_directory {windows_directory} --data_info_directory {data_info_directory} --data_asdf_directory {data_asdf_directory} --sync_raw_directory {sync_raw_directory} --sync_perturbed_directory {sync_perturbed_directory} --stations_path {stations_path} --min_periods {min_periods} --max_periods {max_periods} --search_range {search_range} --search_step {search_step}; \n"
+    script = f"ibrun -n {n_total} {py} -m seisflow.scripts.structure_inversion.mpi_structure_line_search --cmts_directory {cmts_directory} --windows_directory {windows_directory} --data_info_directory {data_info_directory} --data_asdf_directory {data_asdf_directory} --sync_raw_directory {sync_raw_directory} --sync_perturbed_directory {sync_perturbed_directory} --stations_path {stations_path} --min_periods {min_periods} --max_periods {max_periods} --search_range {search_range} --search_step {search_step}; \n"
     return script
 
 
