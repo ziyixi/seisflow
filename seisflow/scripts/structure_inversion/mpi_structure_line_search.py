@@ -142,5 +142,9 @@ if __name__ == "__main__":
             for step_length, misfit_value in zip(search_step_length_list, search_misfit_result):
                 print(f"[step length {step_length}] {misfit_value}")
             print("=" * 20)
+            # * for the later model update, we should store a txt file about the step length
+            optimized_step_length = search_step_length_list[np.argmin(
+                search_misfit_result)]
+            np.savetxt("./STEP_LENGTH", [optimized_step_length], fmt="%.2f")
 
     main()  # pylint: disable=no-value-for-parameter

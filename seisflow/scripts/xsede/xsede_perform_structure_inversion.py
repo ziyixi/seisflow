@@ -50,11 +50,13 @@ from .xsede_process_kernel import kernel as process_kernel
 @click.option('--taper_tmin_tmaxs', required=True, type=str, help="the taper time bands: minp1,maxp1/minp2,maxp2/...")
 @click.option('--sigma_h', required=True, type=float, help="the value of sigma_h (km)")
 @click.option('--sigma_v', required=True, type=float, help="the value of sigma_v (km)")
+@click.option('--search_range', required=True, type=str, help="the search range, eg: 0,0.03, should always from 0.")
+@click.option('--search_step', required=True, type=float, help="the searching step length, eg: 0.003, if minus searching range, -0.003")
 def main(base_directory, cmts_directory, ref_directory, windows_directory, data_asdf_directory, data_info_directory, last_step_model_update_directory,
          stations_path, sem_utils_directory, source_mask_directory,
          n_total, n_each, n_iter, nproc, n_node, partition, time_forward, account, n_node_process_kernel, time_process_kernel, time_run_perturbation,
          periods, waveform_length, sampling_rate, taper_tmin_tmaxs,
-         sigma_h, sigma_v):
+         sigma_h, sigma_v, search_range, search_step):
     """
     perform the structure inversion for the second iteration and later.
     """
@@ -161,6 +163,11 @@ def main(base_directory, cmts_directory, ref_directory, windows_directory, data_
     n_cores_each_event = nproc*n_each//n_total
     result += process_sync(pyexec, n_total, join(base_directory,
                                                  "perturbed_sync"), join(base_directory, "processed_perturbed_sync"), periods, waveform_length, sampling_rate, taper_tmin_tmaxs)
+    # * we can combine the line search part and the new model generation here
+    result += f"cd {current_path}; \n"
+    result += line_search(pyexec, nproc, join(base_directory, "cmts"), windows_directory, data_info_directory, data_asdf_directory,
+                          join(base_directory, "processed_sync"), join(base_directory, "processed_perturbed_sync"), stations_path, min_periods, max_periods, search_range, search_step)
+    result += update_model_from_line_search(kernel_process_directory, nproc)
 
     result += f"cd {current_path}; \n"
     # * submit the job
@@ -232,6 +239,27 @@ def process_sync(py, nproc, sync_directory, output_directory, periods, waveform_
     """
     script = f"ibrun -n {nproc} {py} -m seisflow.scripts.asdf.mpi_process_sync_series --sync_directory {sync_directory} --output_directory {output_directory} --periods {periods} --waveform_length {waveform_length} --sampling_rate {sampling_rate} --taper_tmin_tmaxs {taper_tmin_tmaxs}; \n"
     return script
+
+
+def line_search(py, nproc, cmts_directory, windows_directory, data_info_directory, data_asdf_directory, sync_raw_directory, sync_perturbed_directory, stations_path, min_periods, max_periods, search_range, search_step):
+    """
+    do the structure line search.
+    """
+    script = f"ibrun -n {nproc} {py} -m seisflow.scripts.structure_inversion.mpi_structure_line_search --cmts_directory {cmts_directory} --windows_directory {windows_directory} --data_info_directory {data_info_directory} --data_asdf_directory {data_asdf_directory} --sync_raw_directory {sync_raw_directory} --sync_perturbed_directory {sync_perturbed_directory} --stations_path {stations_path} --min_periods {min_periods} --max_periods {max_periods} --search_range {search_range} --search_step {search_step}; \n"
+    return script
+
+
+def update_model_from_line_search(kernel_process_directory, nproc):
+    """
+    itern_generate_perturbed_kernel: generate the perturbed model for the following steps.
+    """
+    result = ""
+    current_path = str(sh.pwd())[:-1]  # pylint: disable=not-callable
+    result += f"cd {kernel_process_directory};"
+    # we should read in the value in join(current_path,STEP_LENGTH)
+    result += f"ibrun -n {nproc} ./bin/xadd_model_tiso_cg `cat {join(current_path,'STEP_LENGTH')}`;"
+    result += f"cd {current_path};\n"
+    return result
 
 
 if __name__ == "__main__":
