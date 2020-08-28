@@ -5,6 +5,7 @@ from glob import glob
 from os.path import join, basename
 import subprocess
 import click
+from os.path import isfile
 
 
 @click.command()
@@ -18,10 +19,8 @@ def main(cmt_directory, asdf_directory, output_directory):
         from_path = join(asdf_directory, f"{gcmtid}.h5")
         to_path = join(output_directory, f"{gcmtid}.h5")
         command = f"ln -s {from_path} {to_path} "
-        try:
+        if(isfile(from_path)):
             subprocess.call(command, shell=True)
-        except sh.ErrorReturnCode_1:
-            pass
 
 
 if __name__ == "__main__":
