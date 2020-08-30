@@ -14,8 +14,13 @@ from ..structure_inversion.make_gaussian_mask import make_gaussian_mask
 @click.option('--partition', required=True, type=str, help="the partition to use, eg: skx-normal")
 @click.option('--used_time', required=True, type=str, help="the running time")
 @click.option('--account', required=True, type=str, help="the account to use")
-def main(base_dir, sem_bin_dir, output_dir, nproc, n_node, n_cores, partition, used_time, account):
-    thecommand = make_gaussian_mask(base_dir, sem_bin_dir, output_dir, nproc)
+@click.option('--source_mask_km', required=True, type=float, help="the source mask radius in km")
+@click.option('--receiver_mask_km', required=True, type=float, help="the receiver mask radius in km")
+def main(base_dir, sem_bin_dir, output_dir, nproc, n_node, n_cores, partition, used_time, account, source_mask_km, receiver_mask_km):
+    # * firstly we generate mask_xyz files
+    thecommand = ""
+    thecommand += f"python -m seisflow.scripts.structure_inversion.generate_source_mask_list --base_directory {base_dir} --source_mask_km {source_mask_km} --receiver_mask_km {receiver_mask_km} "
+    thecommand += make_gaussian_mask(base_dir, sem_bin_dir, output_dir, nproc)
     submit_job("generate mask", thecommand,
                n_node, n_cores, partition, used_time, account, "stampede2")
 
