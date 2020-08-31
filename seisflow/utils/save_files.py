@@ -10,6 +10,11 @@ def save_pickle_event(to_save, output_dir, used_gcmtid):
         pickle.dump(to_save, f)
 
 
+def save_pickle(to_save, output_path):
+    with open(output_path, "wb") as f:
+        pickle.dump(to_save, f)
+
+
 def save_cmtsolution(output_path, cmtsolution):
     """
     save cmtsolution file.
