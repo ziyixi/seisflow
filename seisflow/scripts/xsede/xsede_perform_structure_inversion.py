@@ -245,7 +245,8 @@ def line_search(py, n_total, cmts_directory, windows_directory, data_info_direct
     """
     do the structure line search.
     """
-    script = f"ibrun -n {n_total} -N 10 {py} -m seisflow.scripts.structure_inversion.mpi_structure_line_search --cmts_directory {cmts_directory} --windows_directory {windows_directory} --data_info_directory {data_info_directory} --data_asdf_directory {data_asdf_directory} --sync_raw_directory {sync_raw_directory} --sync_perturbed_directory {sync_perturbed_directory} --stations_path {stations_path} --min_periods {min_periods} --max_periods {max_periods} --search_range {search_range} --search_step {search_step}; \n"
+    script = "export IBRUN_TASKS_PER_NODE=24; \n"
+    script += f"ibrun -n {n_total} {py} -m seisflow.scripts.structure_inversion.mpi_structure_line_search --cmts_directory {cmts_directory} --windows_directory {windows_directory} --data_info_directory {data_info_directory} --data_asdf_directory {data_asdf_directory} --sync_raw_directory {sync_raw_directory} --sync_perturbed_directory {sync_perturbed_directory} --stations_path {stations_path} --min_periods {min_periods} --max_periods {max_periods} --search_range {search_range} --search_step {search_step}; \n"
     return script
 
 
