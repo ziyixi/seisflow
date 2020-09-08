@@ -49,7 +49,7 @@ def kernel(windows_path, data_asdf_path, sync_asdf_path_raw, sync_asdf_path_pert
         data_virasdf_body_list[-1].read_asdf(each_data_asdf_path)
         sync_virasdf_body_raw_list.append(VirAsdf())
         sync_virasdf_body_raw_list[-1].read_asdf(each_sync_asdf_path_raw)
-        sync_virasdf_body_perturbed_list.append(VirAsdf)
+        sync_virasdf_body_perturbed_list.append(VirAsdf())
         sync_virasdf_body_perturbed_list[-1].read_asdf(
             each_sync_asdf_path_perturbed)
     data_virasdf_surface = None
