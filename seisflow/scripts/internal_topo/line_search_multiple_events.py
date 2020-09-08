@@ -68,8 +68,10 @@ def kernel(windows_path, data_asdf_path, sync_asdf_path_raw, sync_asdf_path_pert
         for index in range(len(data_virasdf_body_list)):
             sync_virasdf_body_per = get_perturbed_vir_sync(
                 sync_virasdf_body_raw_list[index], sync_virasdf_body_perturbed_list[index], each_search_step)
-            misfit_all += calculate_weighted_misfit(windows_list[index], consider_surface, data_virasdf_body_list[index], sync_virasdf_body_per, data_virasdf_surface,
+            each_misfit= calculate_weighted_misfit(windows_list[index], consider_surface, data_virasdf_body_list[index], sync_virasdf_body_per, data_virasdf_surface,
                                                     sync_virasdf_surface, first_arrival_zr, first_arrival_t, baz, stations)
+            print(f"{index}:{each_search_step}:{each_misfit}")
+            misfit_all+=each_misfit
         misfit_all = misfit_all / len(data_virasdf_body_list)
         weighted_misfit_collection.append(misfit_all)
 
