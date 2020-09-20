@@ -141,3 +141,51 @@ function compare_model(target_basedir::String, reference_basedir::String, tag::S
     model_diff = model_gll_target .- model_gll_reference
     @info "max difference" maximum(model_diff)
 end
+
+"""
+convert vpv,vph,vsv,vsh to bulk_cv,bulk_ch,vsv,vsh.
+"""
+function vpvs2bulk_c!(target_basedir::String, output_basedir::String, nspec::Int64, iproc::Int64)
+    model_gll_vpv = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
+    model_gll_vph = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
+    model_gll_vsv = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
+    model_gll_vsh = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
+    # * read in models
+    sem_io_read_gll_file_1!(target_basedir, iproc, "vpv", model_gll_vpv)
+    sem_io_read_gll_file_1!(target_basedir, iproc, "vph", model_gll_vph)
+    sem_io_read_gll_file_1!(target_basedir, iproc, "vsv", model_gll_vsv)
+    sem_io_read_gll_file_1!(target_basedir, iproc, "vsh", model_gll_vsh)
+    # * now we override vpv,vph with the bulk_c, calculate based on:
+    # * ϕ^2=α^2-4/3*β^2
+    model_gll_vpv = @. sqrt(model_gll_vpv^2 - 4 / 3 * model_gll_vsv^2)
+    model_gll_vph = @. sqrt(model_gll_vph^2 - 4 / 3 * model_gll_vsh^2)
+    # * write out files
+    sem_io_write_gll_file_1(output_basedir, iproc, "bulk_cv", model_gll_vpv)
+    sem_io_write_gll_file_1(output_basedir, iproc, "bulk_ch", model_gll_vph)
+    sem_io_write_gll_file_1(output_basedir, iproc, "vsv", model_gll_vsv)
+    sem_io_write_gll_file_1(output_basedir, iproc, "vsh", model_gll_vsh)
+end
+
+"""
+convert bulk_cv,bulk_ch,vsv,vsh to vpv,vph,vsv,vsh.
+"""
+function bulk_c2vpvs!(target_basedir::String, output_basedir::String, nspec::Int64, iproc::Int64)
+    model_gll_vpv = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
+    model_gll_vph = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
+    model_gll_vsv = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
+    model_gll_vsh = zeros(Float64, NGLLX, NGLLY, NGLLZ, nspec)
+    # * read in models
+    sem_io_read_gll_file_1!(target_basedir, iproc, "bulk_cv", model_gll_vpv)
+    sem_io_read_gll_file_1!(target_basedir, iproc, "bulk_ch", model_gll_vph)
+    sem_io_read_gll_file_1!(target_basedir, iproc, "vsv", model_gll_vsv)
+    sem_io_read_gll_file_1!(target_basedir, iproc, "vsh", model_gll_vsh)
+    # * now we override bilk_c with vpv and vph, calculate based on:
+    # * ϕ^2=α^2-4/3*β^2 so α^2=ϕ^2+4/3*β^2
+    model_gll_vpv = @. sqrt(model_gll_vpv^2 + 4 / 3 * model_gll_vsv^2)
+    model_gll_vph = @. sqrt(model_gll_vph^2 + 4 / 3 * model_gll_vsh^2)
+    # * write out files
+    sem_io_write_gll_file_1(output_basedir, iproc, "vpv", model_gll_vpv)
+    sem_io_write_gll_file_1(output_basedir, iproc, "vph", model_gll_vph)
+    sem_io_write_gll_file_1(output_basedir, iproc, "vsv", model_gll_vsv)
+    sem_io_write_gll_file_1(output_basedir, iproc, "vsh", model_gll_vsh)
+end

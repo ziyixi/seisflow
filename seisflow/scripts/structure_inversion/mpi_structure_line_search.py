@@ -145,6 +145,6 @@ if __name__ == "__main__":
             # * for the later model update, we should store a txt file about the step length
             optimized_step_length = search_step_length_list[np.argmin(
                 search_misfit_result)]
-            np.savetxt("./STEP_LENGTH", [optimized_step_length], fmt="%.2f")
+            np.savetxt("./STEP_LENGTH", [optimized_step_length], fmt="%.3f")
 
     main()  # pylint: disable=no-value-for-parameter
