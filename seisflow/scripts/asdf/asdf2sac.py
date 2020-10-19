@@ -112,9 +112,9 @@ def main(asdf_path, data_info_dir, stations_fname, output_dir, az_range):
             tr.stats.sac.stdp = 0.0
             tr.write(join(output_dir, tr.id), format="SAC")
 
-            # PZ file
-            stationxml = asdf_file.waveforms[net_sta].StationXML
-            stationxml.write(join(output_dir, f"{net_sta}.PZ"), format="SACPZ")
+            # # PZ file
+            # stationxml = asdf_file.waveforms[net_sta].StationXML
+            # stationxml.write(join(output_dir, f"{net_sta}.PZ"), format="SACPZ")
 
 
 if __name__ == "__main__":
