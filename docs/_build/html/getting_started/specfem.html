@@ -1,0 +1,168 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Configuring Specfem3D-globe &#8212; Seisflow 0.1.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Structure inversion on stampede2" href="../tutorials/structure_inversion.html" />
+    <link rel="prev" title="Installing" href="install.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="configuring-specfem3d-globe">
+<span id="specfem"></span><h1>Configuring Specfem3D-globe<a class="headerlink" href="#configuring-specfem3d-globe" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="why-asdf">
+<h2>Why ASDF?<a class="headerlink" href="#why-asdf" title="Permalink to this headline">¶</a></h2>
+<p>To use the <a class="reference external" href="https://seismic-data.org//">ASDF</a> feature of Specfem3D-globe, an additional compilation configuration is
+required. As for the reasons why we prefer ASDF format but not the traditional SAC format, we quote its benefits from the ASDF website:</p>
+<ol class="arabic simple">
+<li><p>The amount of seismic data available for analysis worldwide is rapidly growing. Seismic arrays, such as USArray and ChinaArray, give access to datasets on the terabyte scale that are not suited for existing seismic data formats.</p></li>
+<li><p>Disk space is rapidly growing and data organization should improve such that the different types of seismic data (waveforms, receivers, earthquakes, adjoint sources, cross correlations, etc.) can be easily exchanged among the community under one container.</p></li>
+<li><p>Modern workflows in seismology use supercomputers and the number of files is an I/O bottleneck. The performance of these workflows would be increased if the data was stored by combining all time series into one file and taking advantage of parallel processing capabilities.</p></li>
+<li><p>New methods, such as ambient-noise seismology, should not be limited by data formats that were developed for other applications in seismology. Also, seismologists often ignore standards because adherence increases development time. An adaptable seismic data format with an open, modular design will be able to evolve and handle future advances in seismology.</p></li>
+<li><p>Reproducibility is a goal in science and seismology has yet to develop a standardized way of storing provenance in the current seismic data formats. We introduce a format that contains flexible provenance that lets the user know where the data comes from and what has been done to it.</p></li>
+</ol>
+<p>In my experience, using ASDF will generate less files in the simulation, and since in HPC it usually limits the quota of file numbers,
+using one ASDF file instead of lots of SAC files will help with this issue. Additionally, it’s easy to back up the files and transfer between
+different systems. By using the Pyasdf package (Thanks to Lion Krischer), we can also process the ASDF files in parallel, which is a more elegant
+and easier way to code.</p>
+</div>
+<div class="section" id="enable-the-asdf-feature-of-specfem3d-globe">
+<h2>Enable the ASDF feature of Specfem3D-globe<a class="headerlink" href="#enable-the-asdf-feature-of-specfem3d-globe" title="Permalink to this headline">¶</a></h2>
+<p>Here we take the development version of Specfem3D-globe as an example. Other versions later than v7.0.0 will be slightly different.</p>
+<div class="section" id="compile-asdf">
+<h3>Compile ASDF<a class="headerlink" href="#compile-asdf" title="Permalink to this headline">¶</a></h3>
+<p>The Specfem3D-globe package is linked with a static library named libasdf.a . To get the static library, we have to compile from the source code.
+The detail could be referred from <a class="reference external" href="https://github.com/SeismicData/asdf-library">the ASDF document</a></p>
+<p>One thing to note is that here we should use the parallel version of HDF5. On some HPC systems such as stampede2, the module system has provided
+the parallel HDF5, we can directly load it. However, in some other systems, we might have to compile the parallel version by ourself. The detail of
+compiling parallel HDF5 could refer to <a class="reference external" href="https://support.hdfgroup.org/HDF5/PHDF5/">The document of HDF5</a></p>
+</div>
+<div class="section" id="edit-parfile">
+<h3>Edit Parfile<a class="headerlink" href="#edit-parfile" title="Permalink to this headline">¶</a></h3>
+<p>Before compilation, the first step is to edit the Parfile in the DATA directory. One feature of Specfem3D-globe is that the editing of
+the Parfile might result in a recompilation. It’s because some contents in Parfile will be included in some generated <code class="docutils literal notranslate"><span class="pre">.h</span></code> files and these
+files will be included in the source code in the compilation. The configuration of Parfile could refer to <a class="reference external" href="https://geodynamics.org/cig/software/specfem3d_globe/">the Document</a>.
+We should let <code class="docutils literal notranslate"><span class="pre">OUTPUT_SEISMOS_ASDF</span></code> and <code class="docutils literal notranslate"><span class="pre">READ_ADJSRC_ASDF</span></code> to be true.</p>
+</div>
+<div class="section" id="compile-specfem3d-globe">
+<h3>Compile Specfem3D-globe<a class="headerlink" href="#compile-specfem3d-globe" title="Permalink to this headline">¶</a></h3>
+<p>The detail of compiling Specfem3D-globe could refer to the <a class="reference external" href="https://geodynamics.org/cig/software/specfem3d_globe/">Document</a>. The main difference between
+is that we will need to enable ASDF in configuration. Here we take the example in stampede2:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># config to use the asdf files</span>
+<span class="n">HDF5</span><span class="o">=/</span><span class="n">opt</span><span class="o">/</span><span class="n">apps</span><span class="o">/</span><span class="n">intel18</span><span class="o">/</span><span class="n">impi18_0</span><span class="o">/</span><span class="n">phdf5</span><span class="o">/</span><span class="mf">1.8</span><span class="o">.</span><span class="mi">16</span><span class="o">/</span><span class="n">x86_64</span><span class="o">/</span><span class="n">lib</span>
+<span class="n">ASDF</span><span class="o">=/</span><span class="n">work</span><span class="o">/</span><span class="mi">05880</span><span class="o">/</span><span class="n">tg851791</span><span class="o">/</span><span class="n">stampede2</span><span class="o">/</span><span class="n">asdf</span><span class="o">-</span><span class="n">library</span><span class="o">-</span><span class="mf">1.0</span><span class="o">.</span><span class="mi">0</span><span class="o">/</span><span class="n">asdf</span><span class="o">/</span><span class="n">lib</span>
+
+<span class="o">./</span><span class="n">configure</span> <span class="n">FC</span><span class="o">=</span><span class="n">ifort</span> <span class="n">CC</span><span class="o">=</span><span class="n">icc</span> <span class="n">CXX</span><span class="o">=</span><span class="n">icpc</span> <span class="n">MPIFC</span><span class="o">=</span><span class="n">mpif90</span> <span class="n">ASDF_LIBS</span><span class="o">=</span><span class="s2">&quot;-L$</span><span class="si">{ASDF}</span><span class="s2"> -L$</span><span class="si">{HDF5}</span><span class="s2"> -lpthread&quot;</span>  <span class="o">--</span><span class="k">with</span><span class="o">-</span><span class="n">asdf</span>
+</pre></div>
+</div>
+<p>Here I install the ASDF library in <code class="docutils literal notranslate"><span class="pre">/work/05880/tg851791/stampede2/asdf-library-1.0.0/asdf/lib</span></code>, and I am loading phdf5-1.8.16. And
+The Intel compilers have also been used. The content in <code class="docutils literal notranslate"><span class="pre">ASDF_LIBS</span></code> is a trick as in the compilation, there might be the errors like some
+libraries are not found, in which cases we should use <code class="docutils literal notranslate"><span class="pre">-L</span></code> or <code class="docutils literal notranslate"><span class="pre">-l</span></code> to provide the  path of the libraries.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Seisflow</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Getting Started</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installing</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Configuring Specfem3D-globe</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#why-asdf">Why ASDF?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#enable-the-asdf-feature-of-specfem3d-globe">Enable the ASDF feature of Specfem3D-globe</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/structure_inversion.html">Structure inversion on stampede2</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="install.html" title="previous chapter">Installing</a></li>
+      <li>Next: <a href="../tutorials/structure_inversion.html" title="next chapter">Structure inversion on stampede2</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019-2020, Ziyi Xi..
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/getting_started/specfem.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

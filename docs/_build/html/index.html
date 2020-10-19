@@ -1,0 +1,152 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home &#8212; Seisflow 0.1.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Installing" href="getting_started/install.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="seisflow">
+<h1>Seisflow<a class="headerlink" href="#seisflow" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="about">
+<h2>About<a class="headerlink" href="#about" title="Permalink to this headline">¶</a></h2>
+<p>🚨 <strong>This package is still undergoing rapid development.</strong> 🚨</p>
+<p>Seisflow is a package for building up the workflow in FWI and has provided lots of useful scripts that are commonly used in the inversion which are highly embedded into the
+full workflow.</p>
+<p>Seisflow has mainly provided functions as:</p>
+<ul class="simple">
+<li><p>Handle the mesh files of Specfem3D-globe.</p></li>
+<li><p>A workflow to perform the source inversion based on the adjoint method.</p></li>
+<li><p>A workflow to perform the structure inversion based on the adjoint method.</p></li>
+<li><p>Scripts to handle ASDF files. (a a conversion with SAC, processing, etc.)</p></li>
+<li><p>Scripts to download the data. (from hinet, etc.)</p></li>
+<li><p>Scripts to do the Point Spread Function (PSF) test to get the model resolution.</p></li>
+<li><p>Plotting Scripts for the generated model based on <a class="reference external" href="https://www.pygmt.org/">pygmt</a></p></li>
+</ul>
+</div>
+<div class="section" id="designs">
+<h2>Designs<a class="headerlink" href="#designs" title="Permalink to this headline">¶</a></h2>
+<p>Due to the complexity of the FWI, it’s hard to design a package that meets the needs of everyone. When I develop the package, I intend to split the whole package into small parts.
+And in each part, it might be a python file that you can modify the content. By exposing the same API, there is no need to concern how other parts are designed. For example, if you
+want to use a new misfit function, you can just modify one function to calculate the misfit windows, and it can be assured that this function is the only part to calculate the misfit and other
+functions will need to import it.</p>
+</div>
+<div class="section" id="license">
+<h2>License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h2>
+<p>Seisflow is free software: you can redistribute it and/or modify it under the terms of
+the <strong>BSD 3-clause License</strong>. A copy of this license is provided in
+<a class="reference external" href="https://github.com/ziyixi/seisflow/blob/master/LICENSE">LICENSE</a>.</p>
+</div>
+<div class="section" id="support">
+<h2>Support<a class="headerlink" href="#support" title="Permalink to this headline">¶</a></h2>
+<p>The development of Seisflow is funded by
+<a class="reference external" href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=1802247">NSF grant EAR-1802247</a>.</p>
+<div class="toctree-wrapper compound">
+</div>
+<div class="toctree-wrapper compound">
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="#">Seisflow</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started/install.html">Installing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started/specfem.html">Configuring Specfem3D-globe</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/structure_inversion.html">Structure inversion on stampede2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/source_inversion.html">Source inversion on stampede2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/handle_bin_files.html">Handle bin files</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+      <li>Next: <a href="getting_started/install.html" title="next chapter">Installing</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019-2020, Ziyi Xi..
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

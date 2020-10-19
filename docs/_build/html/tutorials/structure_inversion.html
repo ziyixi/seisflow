@@ -1,0 +1,261 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Structure inversion on stampede2 &#8212; Seisflow 0.1.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Source inversion on stampede2" href="source_inversion.html" />
+    <link rel="prev" title="Configuring Specfem3D-globe" href="../getting_started/specfem.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="structure-inversion-on-stampede2">
+<span id="structure-inversion"></span><h1>Structure inversion on stampede2<a class="headerlink" href="#structure-inversion-on-stampede2" title="Permalink to this headline">¶</a></h1>
+<p>Here we use an example to perform the structure inversion on stampede2, the data we are using could be downloaded from <a class="reference external" href="https://drive.google.com/drive/folders/1qdsAGgrIzXniRc55wP-23Fnd1DWoq7Wf?usp=sharing">the Google Drive</a>. All the data
+are processed ASDF files. As for how to process the raw ASDF files and the conversion between the ASDF files and the SAC files, you can refer to the
+next section.</p>
+<p>The workflow of doing the structure inversion is:</p>
+<ol class="arabic simple">
+<li><p>Perform the forward simulation to calculate the wave field and the synthetics of the current model.</p></li>
+<li><p>Based on the current data, calculate the misfit and the corresponding adjoint sources.</p></li>
+<li><p>Do the kernel simulation using the adjoint sources.</p></li>
+<li><p>Process the kernel, including summing up, preconditioning, and smoothing.</p></li>
+<li><p>Calculate the synthetics of the perturbed model using the conjugate gradient method.</p></li>
+<li><p>Assume the synthetics are in the linear relationship with the amplitude of the model perturbation, approximate the synthetics of different model perturbation, and do the line search to find the optimal step length.</p></li>
+<li><p>Generate the new model for the next iteration.</p></li>
+</ol>
+<div class="section" id="prepare-for-the-inversion">
+<h2>Prepare for the inversion<a class="headerlink" href="#prepare-for-the-inversion" title="Permalink to this headline">¶</a></h2>
+<p>Firstly, we can download the data and the package in the root directory. Additionally, we should also copy the STATIONS file of Specfem.</p>
+<a class="reference internal image-reference" href="../_images/tutorial_1.png"><img alt="../_images/tutorial_1.png" src="../_images/tutorial_1.png" style="width: 60%;" /></a>
+<p>And then, we should extract the “data info” and build up the “windows”.</p>
+<ul>
+<li><p><strong>data info:</strong> the data info is a set of pickle files storing the information of the arrival time of different phases,
+the great circle distance between the source and the stations, etc.. Since such information is widely used in the
+inversion, it’s better to store them permanently. We can run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="o">-</span><span class="n">p</span> <span class="n">data_info</span>
+<span class="n">mpirun</span> <span class="o">-</span><span class="n">np</span> <span class="mi">1</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">seisflow</span><span class="o">.</span><span class="n">scripts</span><span class="o">.</span><span class="n">shared</span><span class="o">.</span><span class="n">mpi_extract_data_info</span> <span class="o">--</span><span class="n">asdf_directory</span> <span class="n">data</span> <span class="o">--</span><span class="n">station_fname</span> <span class="n">STATIONS</span> <span class="o">--</span><span class="n">output_dir</span> <span class="n">data_info</span><span class="o">/</span>
+</pre></div>
+</div>
+<p>Here we use <code class="docutils literal notranslate"><span class="pre">mpirun</span></code> as this program is written in parallel. Since we have only one event here, we might only run <code class="docutils literal notranslate"><span class="pre">mpirun</span> <span class="pre">-np</span> <span class="pre">1</span></code>. If we have
+more events, we can run it using more processes. (it’s also fine if smaller than the number of events.)</p>
+<p>It may take a while (~5 min) to finish as calculating the travel time for lots of stations is time consuming. After finishing calculating, we can check
+the content in the data_info.</p>
+<p>The structure of the data_info directory is:</p>
+<a class="reference internal image-reference" href="../_images/tutorial_2.png"><img alt="../_images/tutorial_2.png" src="../_images/tutorial_2.png" style="width: 60%;" /></a>
+<p>For each file, it stores the information of one kind of parameter we are interested in of all the events. In the root directory, we can check the content of one pickle
+file using the IPython console:</p>
+<a class="reference internal image-reference" href="../_images/tutorial_3.png"><img alt="../_images/tutorial_3.png" src="../_images/tutorial_3.png" style="width: 60%;" /></a>
+<p>As you can see, for the event <strong>201806172258A</strong> and the station <strong>KG.YKB</strong>, the travel time of P wave is 100.29340264265632 predicted by the 1D model.</p>
+<p>The idea of storing each parameter in a single file is that users can further add more parameters they are interested in and store in other files while not
+influencing the current data_info files. So it can extend the current seisflow package easily.</p>
+</li>
+<li><p><strong>build up the windows:</strong> The windows are important as within the windows we calculate the misfit and further the adjoint source. Seisflow has provided a class named
+Window to store the information of a single window and a class named Windows_collection to store a set of Window class. Any new scripts that generate the same classes
+is able to be incorporated into the whole workflow. Here we use a constant window with the definition the same as <a class="reference external" href="https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2018GC007460">Tao, 2018</a>.
+We can also write some script to convert the windows from <a class="reference external" href="https://geodynamics.org/cig/software/flexwin/">Flexwin</a> or <a class="reference external" href="https://krischer.github.io/pyflex/">Pyflex</a> to our windows pickle files.
+We can run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="n">windows</span>
+<span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">seisflow</span><span class="o">.</span><span class="n">scripts</span><span class="o">.</span><span class="n">shared</span><span class="o">.</span><span class="n">mpi_tao_2018_ggg_windows</span> <span class="o">--</span><span class="n">data_info_directory</span> <span class="n">data_info</span><span class="o">/</span> <span class="o">--</span><span class="n">time_length</span> <span class="mi">1800</span> <span class="o">--</span><span class="n">output_dir</span> <span class="n">windows</span>
+</pre></div>
+</div>
+<p>It will generate a file named <code class="docutils literal notranslate"><span class="pre">201806172258A.pkl</span></code> in the <code class="docutils literal notranslate"><span class="pre">windows</span></code> directory. If we have more than one event, each file will generate a single windows file.</p>
+<p>If we look into the windows file:</p>
+<a class="reference internal image-reference" href="../_images/tutorial_4.png"><img alt="../_images/tutorial_4.png" src="../_images/tutorial_4.png" style="width: 100%;" /></a>
+<p>It represents that for the station <code class="docutils literal notranslate"><span class="pre">SN.XAN</span></code>, in the category <code class="docutils literal notranslate"><span class="pre">t</span></code>, we have two windows. In FWI, generally we will consider to divide windows into different categories. And in each category, we have
+different stations, each station might contain several windows. This structure will help us calculating and applying appropriate weighting scheme.</p>
+</li>
+</ul>
+</div>
+<div class="section" id="set-up-the-root-directory">
+<h2>Set up the root directory<a class="headerlink" href="#set-up-the-root-directory" title="Permalink to this headline">¶</a></h2>
+<p>Below is an example of a shell file named <code class="docutils literal notranslate"><span class="pre">inversion.sh</span></code> placed into the root directory, which is used in my inversion. This shell script is:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+
+<span class="nv">PY</span><span class="o">=</span>/work/05880/tg851791/stampede2/anaconda3/envs/seismology/bin/python <span class="c1"># the python path</span>
+<span class="nv">BASE</span><span class="o">=</span>/scratch/05880/tg851791/big_region_structure_inversion <span class="c1"># the base directory</span>
+<span class="nv">ITER</span><span class="o">=</span><span class="m">25</span> <span class="c1"># iteration number</span>
+<span class="nv">CURRENT</span><span class="o">=</span><span class="si">${</span><span class="nv">BASE</span><span class="si">}</span>/iter<span class="si">${</span><span class="nv">ITER</span><span class="si">}</span> <span class="c1"># the root directory</span>
+
+<span class="nv">base_directory</span><span class="o">=</span><span class="si">${</span><span class="nv">CURRENT</span><span class="si">}</span>/inversion <span class="c1"># all the simulation will be performed inside it</span>
+<span class="nv">cmts_directory</span><span class="o">=</span><span class="si">${</span><span class="nv">CURRENT</span><span class="si">}</span>/cmts <span class="c1"># the cmt solution directory</span>
+<span class="nv">ref_directory</span><span class="o">=</span><span class="si">${</span><span class="nv">CURRENT</span><span class="si">}</span>/ref <span class="c1"># the reference specfem3D-globe directory</span>
+<span class="nv">windows_directory</span><span class="o">=</span><span class="si">${</span><span class="nv">CURRENT</span><span class="si">}</span>/windows <span class="c1"># the windows directory</span>
+<span class="nv">data_asdf_directory</span><span class="o">=</span><span class="si">${</span><span class="nv">CURRENT</span><span class="si">}</span>/data_asdf <span class="c1"># the processed data directory</span>
+<span class="nv">data_info_directory</span><span class="o">=</span><span class="si">${</span><span class="nv">CURRENT</span><span class="si">}</span>/data_info <span class="c1"># the data info directory</span>
+<span class="nv">last_step_model_update_directory</span><span class="o">=</span><span class="si">${</span><span class="nv">CURRENT</span><span class="si">}</span>/last_step_model_update <span class="c1"># the directory storing the gradient for the last iteration</span>
+<span class="nv">stations_path</span><span class="o">=</span><span class="si">${</span><span class="nv">CURRENT</span><span class="si">}</span>/stations <span class="c1"># the stations path</span>
+<span class="nv">sem_utils_directory</span><span class="o">=</span><span class="si">${</span><span class="nv">CURRENT</span><span class="si">}</span>/sem_utils <span class="c1"># the directory of sem_utils</span>
+<span class="nv">source_mask_directory</span><span class="o">=</span><span class="si">${</span><span class="nv">CURRENT</span><span class="si">}</span>/source_mask <span class="c1"># the directory of the external source mask</span>
+
+<span class="nv">n_total</span><span class="o">=</span><span class="m">142</span> <span class="c1"># total number of events</span>
+<span class="nv">n_each</span><span class="o">=</span><span class="m">13</span> <span class="c1"># for each iteration of the modeling, how many events we are running</span>
+<span class="nv">n_iter</span><span class="o">=</span><span class="m">11</span> <span class="c1"># the total number of iterations we are running</span>
+<span class="nv">nproc</span><span class="o">=</span><span class="m">441</span> <span class="c1"># for each event, how many MPI processes we are using</span>
+<span class="nv">n_node</span><span class="o">=</span><span class="m">120</span> <span class="c1"># the total number of nodes</span>
+<span class="nv">partition</span><span class="o">=</span>skx-normal <span class="c1"># the partition in stampede2</span>
+<span class="nv">time_forward</span><span class="o">=</span><span class="m">20</span>:00:00 <span class="c1"># the time of the forward modeling</span>
+<span class="nv">account</span><span class="o">=</span>TG-EAR140030 <span class="c1"># the account of the project</span>
+<span class="nv">n_node_process_kernel</span><span class="o">=</span><span class="m">10</span> <span class="c1"># the number of nodes to process the kernel</span>
+<span class="nv">time_process_kernel</span><span class="o">=</span><span class="m">02</span>:00:00 <span class="c1"># the time of processing the kernel</span>
+<span class="nv">time_run_perturbation</span><span class="o">=</span><span class="m">08</span>:00:00 <span class="c1"># the time of calculating the perturbed model and doing the line search</span>
+<span class="nv">periods</span><span class="o">=</span><span class="m">8</span>,40/20,120 <span class="c1"># the filtering time periods, / seprate the body and surface waves</span>
+<span class="nv">waveform_length</span><span class="o">=</span><span class="m">1800</span> <span class="c1"># the waveform length in seconds</span>
+<span class="nv">sampling_rate</span><span class="o">=</span><span class="m">10</span> <span class="c1"># the sampling rate</span>
+<span class="nv">taper_tmin_tmaxs</span><span class="o">=</span><span class="m">1</span>,50/1,150 <span class="c1"># the tapering time, / seprate the body and surface waves</span>
+<span class="nv">sigma_h</span><span class="o">=</span><span class="m">25</span> <span class="c1"># the horizontal raidus of gaussian smoothing</span>
+<span class="nv">sigma_v</span><span class="o">=</span><span class="m">10</span> <span class="c1"># the vertical raidus of gaussian smoothing</span>
+<span class="nv">search_range</span><span class="o">=</span><span class="m">0</span>,0.05 <span class="c1"># the line search range, from 0 to 5%</span>
+<span class="nv">search_step</span><span class="o">=</span><span class="m">0</span>.002 <span class="c1"># the line search steo length</span>
+
+<span class="c1"># * run the inversion script</span>
+<span class="si">${</span><span class="nv">PY</span><span class="si">}</span> -m seisflow.scripts.xsede.xsede_perform_structure_inversion --base_directory <span class="si">${</span><span class="nv">base_directory</span><span class="si">}</span> --cmts_directory <span class="si">${</span><span class="nv">cmts_directory</span><span class="si">}</span> --ref_directory <span class="si">${</span><span class="nv">ref_directory</span><span class="si">}</span> --windows_directory <span class="si">${</span><span class="nv">windows_directory</span><span class="si">}</span> --data_asdf_directory <span class="si">${</span><span class="nv">data_asdf_directory</span><span class="si">}</span> --data_info_directory <span class="si">${</span><span class="nv">data_info_directory</span><span class="si">}</span> --last_step_model_update_directory <span class="si">${</span><span class="nv">last_step_model_update_directory</span><span class="si">}</span> --stations_path <span class="si">${</span><span class="nv">stations_path</span><span class="si">}</span> --sem_utils_directory <span class="si">${</span><span class="nv">sem_utils_directory</span><span class="si">}</span> --source_mask_directory <span class="si">${</span><span class="nv">source_mask_directory</span><span class="si">}</span> --n_total <span class="si">${</span><span class="nv">n_total</span><span class="si">}</span> --n_each <span class="si">${</span><span class="nv">n_each</span><span class="si">}</span> --n_iter <span class="si">${</span><span class="nv">n_iter</span><span class="si">}</span> --nproc <span class="si">${</span><span class="nv">nproc</span><span class="si">}</span> --n_node <span class="si">${</span><span class="nv">n_node</span><span class="si">}</span> --partition <span class="si">${</span><span class="nv">partition</span><span class="si">}</span> --time_forward <span class="si">${</span><span class="nv">time_forward</span><span class="si">}</span> --account <span class="si">${</span><span class="nv">account</span><span class="si">}</span> --n_node_process_kernel <span class="si">${</span><span class="nv">n_node_process_kernel</span><span class="si">}</span> --time_process_kernel <span class="si">${</span><span class="nv">time_process_kernel</span><span class="si">}</span> --time_run_perturbation <span class="si">${</span><span class="nv">time_run_perturbation</span><span class="si">}</span> --periods <span class="si">${</span><span class="nv">periods</span><span class="si">}</span> --waveform_length <span class="si">${</span><span class="nv">waveform_length</span><span class="si">}</span> --sampling_rate <span class="si">${</span><span class="nv">sampling_rate</span><span class="si">}</span> --taper_tmin_tmaxs <span class="si">${</span><span class="nv">taper_tmin_tmaxs</span><span class="si">}</span> --sigma_h <span class="si">${</span><span class="nv">sigma_h</span><span class="si">}</span> --sigma_v <span class="si">${</span><span class="nv">sigma_v</span><span class="si">}</span> --search_range <span class="si">${</span><span class="nv">search_range</span><span class="si">}</span> --search_step <span class="si">${</span><span class="nv">search_step</span><span class="si">}</span>
+</pre></div>
+</div>
+<p>The idea here is that we should prepare every files used in the inversion and configure everything, then we simply run <code class="docutils literal notranslate"><span class="pre">sh</span> <span class="pre">shell.sh</span></code>.
+<code class="docutils literal notranslate"><span class="pre">seisflow.scripts.xsede.xsede_perform_structure_inversion</span></code> will generate 3 slurm job scripts stored in the <code class="docutils literal notranslate"><span class="pre">slurm-scripts</span></code> directory.
+(no need to make this directory by ourselves) And it will submit the 3 jobs in order with the dependency. The first job will do the forward
+simulation, calculate the misfits and the adjoint sources, set up the environment for the adjoint simulation and then run the adjoint simulation.
+The second job depends on the first job, and it focus on processing the kernel. (summing up, preconditioning, smoothing, etc..) By using the kernel
+generated in the second job and generate the perturbed model files, the third job will run the forward simulation of the perturbed model. By comparing
+the synthetics from the perturbed model and the initial model, we can do the line search and finally get the optimized model at this iteration.</p>
+<p>It’s recommended to read the source code to understand the meaning of each flag, but there are something that needs to be care:</p>
+<ul class="simple">
+<li><p><strong>base_directory:</strong> It should be empty.</p></li>
+<li><p><strong>cmts_directory:</strong> It should store the GCMT solution files with the name as the GCMT id.</p></li>
+<li><p><strong>ref_directory:</strong> It’s the reference Specfem3D-globe directory, and should be compiled. All of our simulation directories (for each event) will make soft links to the bin files.
+The ref directory should use the GLL model of the last iteration. (or the initial model) The detail about how to set up the GLL model will be introduced in other sections.</p></li>
+<li><p><strong>last_step_model_update_directory:</strong> Used for the conjugate gradient method, usually the <code class="docutils literal notranslate"><span class="pre">inversion/process_kernel/INPUT_GRADIENT/</span></code> directory of the last iteration. At the first iteration, users can cancel the second job, and modify the job script to use the gradient descent method.
+So this directory can be empty then.</p></li>
+<li><p><strong>sem_utils_directory:</strong> We use the smoothing script provided by this package. The <a class="reference external" href="https://github.com/taotaokai/sem_utils">sem_utils</a> package is designed by Kao Tao for his paper <a class="reference external" href="https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2018GC007460">Tao, 2018</a>.
+This package should be compiled using the <code class="docutils literal notranslate"><span class="pre">.h</span></code> files in the <strong>ref_directory:</strong>. (Detail could refer to the sem_utils package)</p></li>
+<li><p><strong>source_mask_directory:</strong> This directory is used for providing external source mask files. The detail will be discussed in other sections.</p></li>
+<li><p><strong>n_each and n_iter:</strong> since doing FWI usually requires lots of computational resources, when we are doing the forward modeling and the adjoint simulation, we usually</p></li>
+</ul>
+<p>divide the whole simulation into several iterations, and in each iteration, we run several for several events simultaneously. Here <strong>n_each</strong> is the number of events for each
+iteration and <strong>n_iter</strong> is the total number of iterations.</p>
+</div>
+<div class="section" id="execute-the-inversion-script">
+<h2>Execute the inversion script<a class="headerlink" href="#execute-the-inversion-script" title="Permalink to this headline">¶</a></h2>
+<p>By executing the shell script, inside the <code class="docutils literal notranslate"><span class="pre">inversion</span></code> directory, we will see it will be filled with some generated directories:</p>
+<a class="reference internal image-reference" href="../_images/tutorial_5.png"><img alt="../_images/tutorial_5.png" src="../_images/tutorial_5.png" style="width: 60%;" /></a>
+<p>In this directory, each sub-directory will store some generated files during the inversion. For example. the <code class="docutils literal notranslate"><span class="pre">misfit_windows</span></code> directory will store the misfit information of the initial model,
+and the <code class="docutils literal notranslate"><span class="pre">adjoint_source</span></code> directory will store the adjoint sources in the ASDF format. The <code class="docutils literal notranslate"><span class="pre">simulation</span></code> directory contains simulation directories for each event and all the kernel processing
+tasks are performed in <code class="docutils literal notranslate"><span class="pre">process_kernel</span></code>.</p>
+<p>After finishing the three jobs, the output model will be placed in <code class="docutils literal notranslate"><span class="pre">inversion/process_kernel/OUTPUT_MODEL/</span></code>. Usually in the directory, the model file will be named as:
+<code class="docutils literal notranslate"><span class="pre">proc000000_reg1_vsv_new.bin</span></code>. However, when we are using the GLL model in Specfem3D-globe, we should use the name as <code class="docutils literal notranslate"><span class="pre">proc000000_reg1_vsv.bin</span></code>. Seisflow has provide a
+script <code class="docutils literal notranslate"><span class="pre">seisflow.scripts.structure_inversion.ln_new_model_to_gll</span></code> to make soft links from files like <code class="docutils literal notranslate"><span class="pre">proc000000_reg1_vsv_new.bin</span></code> to <code class="docutils literal notranslate"><span class="pre">proc000000_reg1_vsv.bin</span></code>.</p>
+<p>Now you have the output model and can start to do the next iteration. Usually it’s better to hold the third job and check the result of the second job, since in some cases
+the program complains that we should use the gradient descent method at this step since the critical point is met. And for this case, we can modify the slurm script of the second
+job and use the gradient descent method instead.</p>
+<p>In stampede2, there are always cases such the job has exceeded the time limit, some nodes are crashed, and lots of annoying problems. So understand every parts of the package and
+Specfem3D-globe is essential to make everything correct.</p>
+<p>For other HPC systems, users can consider to modify the function about the slurm job submission, which should be the most different part across HPC systems.</p>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Seisflow</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/install.html">Installing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/specfem.html">Configuring Specfem3D-globe</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Tutorials</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Structure inversion on stampede2</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#prepare-for-the-inversion">Prepare for the inversion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#set-up-the-root-directory">Set up the root directory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#execute-the-inversion-script">Execute the inversion script</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="source_inversion.html">Source inversion on stampede2</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="../getting_started/specfem.html" title="previous chapter">Configuring Specfem3D-globe</a></li>
+      <li>Next: <a href="source_inversion.html" title="next chapter">Source inversion on stampede2</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019-2020, Ziyi Xi..
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/tutorials/structure_inversion.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

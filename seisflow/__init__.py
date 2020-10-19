@@ -16,3 +16,6 @@ def get_julia(path):
 
 def get_requirements():
     return os.path.join(_ROOT, "..", "requirements.txt")
+
+
+__version__ = "0.1.0"

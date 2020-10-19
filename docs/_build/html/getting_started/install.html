@@ -1,0 +1,183 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Installing &#8212; Seisflow 0.1.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Configuring Specfem3D-globe" href="specfem.html" />
+    <link rel="prev" title="Seisflow" href="../index.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="installing">
+<span id="install"></span><h1>Installing<a class="headerlink" href="#installing" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="the-environments">
+<h2>The environments<a class="headerlink" href="#the-environments" title="Permalink to this headline">¶</a></h2>
+<p>You’ll need <strong>Python 3.6 or greater</strong> to use seisflow (as f-string is widely used in the package).</p>
+<p>Using <a class="reference external" href="https://www.anaconda.com/distribution">Anaconda</a> is recommended as it could ensure all the dependencies to be installed properly. And it’s also the
+development environment I’m currently using.</p>
+<p>The <strong>parallel version</strong> of <a class="reference external" href="https://seismicdata.github.io/pyasdf/">Pyasdf</a> is required when the data or synthetics processing is included (such as doing the structure inversion).
+It could not be directly downloaded through anaconda, and the detail could refer to the documentation of Pyasdf.</p>
+<p>The <a class="reference external" href="https://geodynamics.org/cig/software/specfem3d_globe/">Specfem3D-globe</a> should <strong>support ASDF</strong> in compilation. The details will be discussed in the next section.</p>
+</div>
+<div class="section" id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">click</span><span class="o">&gt;=</span><span class="mf">7.1</span><span class="o">.</span><span class="mi">0</span>
+<span class="n">pandas</span><span class="o">&gt;=</span><span class="mf">1.1</span><span class="o">.</span><span class="mi">0</span>
+<span class="n">scipy</span><span class="o">&gt;=</span><span class="mf">1.5</span><span class="o">.</span><span class="mi">0</span>
+<span class="n">sh</span><span class="o">&gt;=</span><span class="mf">1.13</span><span class="o">.</span><span class="mi">0</span>
+<span class="n">xarray</span><span class="o">&gt;=</span><span class="mf">0.16</span><span class="o">.</span><span class="mi">0</span>
+<span class="n">matplotlib</span><span class="o">&gt;=</span><span class="mf">3.3</span><span class="o">.</span><span class="mi">0</span>
+<span class="n">numpy</span><span class="o">&gt;=</span><span class="mf">1.19</span><span class="o">.</span><span class="mi">0</span>
+<span class="n">tqdm</span><span class="o">&gt;=</span><span class="mf">4.48</span><span class="o">.</span><span class="mi">0</span>
+<span class="n">pyproj</span><span class="o">&gt;=</span><span class="mf">2.6</span><span class="o">.</span><span class="mi">0</span>
+<span class="n">pygmt</span><span class="o">&gt;=</span><span class="mf">0.1</span><span class="o">.</span><span class="mi">0</span>
+<span class="n">Cartopy</span><span class="o">&gt;=</span><span class="mf">0.18</span><span class="o">.</span><span class="mi">0</span>
+<span class="n">mpi4py</span><span class="o">&gt;=</span><span class="mf">3.0</span><span class="o">.</span><span class="mi">0</span>
+<span class="n">obspy</span><span class="o">&gt;=</span><span class="mf">1.2</span><span class="o">.</span><span class="mi">0</span>
+<span class="n">pyasdf</span><span class="o">&gt;=</span><span class="mf">0.7</span><span class="o">.</span><span class="mi">0</span>
+<span class="n">HinetPy</span><span class="o">&gt;=</span><span class="mf">0.6</span><span class="o">.</span><span class="mi">0</span>
+<span class="n">loguru</span><span class="o">&gt;=</span><span class="mf">0.5</span><span class="o">.</span><span class="mi">0</span>
+<span class="n">netCDF4</span><span class="o">&gt;=</span><span class="mf">1.5</span><span class="o">.</span><span class="mi">0</span>
+<span class="n">numba</span><span class="o">&gt;=</span><span class="mf">0.51</span><span class="o">.</span><span class="mi">0</span>
+<span class="n">PyPDF2</span><span class="o">&gt;=</span><span class="mf">1.26</span><span class="o">.</span><span class="mi">0</span>
+<span class="n">recordtype</span><span class="o">&gt;=</span><span class="mf">1.3</span>
+<span class="n">seaborn</span><span class="o">&gt;=</span><span class="mf">0.11</span><span class="o">.</span><span class="mi">0</span>
+<span class="n">sympy</span><span class="o">&gt;=</span><span class="mf">1.6</span><span class="o">.</span><span class="mi">0</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="install-seisflow">
+<h2>Install seisflow<a class="headerlink" href="#install-seisflow" title="Permalink to this headline">¶</a></h2>
+<p>Since the package is under development and aimed for the code modification by users, the recommended usage is to directly clone this package into a directory and use
+it there:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">&lt;</span><span class="n">your</span> <span class="n">directory</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>And then we download the package, but rename it to <cite>repo</cite> since the seisflow directory inside <cite>repo</cite> is the python package:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/ziyixi?tab=repositories repo
+</pre></div>
+</div>
+<p>Here we could make a soft link:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ln</span> <span class="o">-</span><span class="n">s</span> <span class="n">repo</span><span class="o">/</span><span class="n">seisflow</span> <span class="o">.</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="test-installation">
+<h2>Test Installation<a class="headerlink" href="#test-installation" title="Permalink to this headline">¶</a></h2>
+<p>To test the installation, in the directory you clone the package, you can run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">seisflow</span><span class="o">.</span><span class="n">check_installing</span>
+</pre></div>
+</div>
+<p>It checks whether you have installed all the required packages. If everything is OK, it will output:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">All</span> <span class="n">your</span> <span class="n">dependencies</span> <span class="n">have</span> <span class="n">been</span> <span class="n">installed</span><span class="o">.</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Seisflow</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Getting Started</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#the-environments">The environments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#install-seisflow">Install seisflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#test-installation">Test Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="specfem.html">Configuring Specfem3D-globe</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/structure_inversion.html">Structure inversion on stampede2</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="../index.html" title="previous chapter">Seisflow</a></li>
+      <li>Next: <a href="specfem.html" title="next chapter">Configuring Specfem3D-globe</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019-2020, Ziyi Xi..
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/getting_started/install.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

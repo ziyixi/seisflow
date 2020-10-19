@@ -1,0 +1,195 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Source inversion on stampede2 &#8212; Seisflow 0.1.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Structure inversion on stampede2" href="structure_inversion.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="source-inversion-on-stampede2">
+<span id="source-inversion"></span><h1>Source inversion on stampede2<a class="headerlink" href="#source-inversion-on-stampede2" title="Permalink to this headline">¶</a></h1>
+<p>In Seisflow, we perform the source inversion using <strong>the Adjoint Method</strong> based on Specfem3D-globe. When we do the seismic tomography using FWI,
+it’s usually important to invert both the source and structure, as they will all influence the waveform.</p>
+<p>We perform the source inversion for the location and the focal mechanism, as well as the event time. Following the method in the paper <a class="reference external" href="https://academic.oup.com/gji/article/186/1/264/698300">Adjoint centroid-moment tensor inversions</a>.
+We divided the workflow into the following parts.</p>
+<ol class="arabic simple">
+<li><p>Do the forward simulation of the current cmt solution and calculate the synthetics and the wave field.</p></li>
+<li><p>Calculate the misfit and the adjoint sources.</p></li>
+<li><p>Based on the method in adjoint centroid-moment tensor inversions, do the adjoint simulation and calculate the gradient for
+each component of the focal mechanism and the location. (Note: The use of the development branch of Specfem3D-globe is needed as
+in older versions, there is a bug that influences the gradient.)</p></li>
+<li><p>We take the gradients into two groups, one group contains the focal mechanism and another group contains the locations. In each group,
+we use one common step length as the gradients are comparable within the group. For the two step lengths of the groups, we use a scaling
+factor proposed in the method paper.</p></li>
+<li><p>After getting the gradient, we use the steepest descent method to generate a perturbed cmt solution file of a fixed step length, and use that to calculate the
+synthetics of the perturbed source.</p></li>
+<li><p>Calculate the synthetics of the perturbed source, if we assume the synthetics is linear to the step length we calculate the perturbed source, we can approximate the
+synthetics of different step lengths and do the line search. Apart from the step length of the focal mechanism and the locations, we will also invert for another parameter
+named event time shift. Since we can just shift the synthetics to simulate the shift of the event time, we can just do the grid search to find the optimal step length
+and the event time shift. This process is kind of time-consuming and we use the
+method of the <a class="reference external" href="https://github.com/fmfn/BayesianOptimization">Bayesian Optimization</a> to do the grid search.</p></li>
+</ol>
+<div class="section" id="prepare-for-the-inversion">
+<h2>Prepare for the inversion<a class="headerlink" href="#prepare-for-the-inversion" title="Permalink to this headline">¶</a></h2>
+<p>We also need the windows, the data-info and the processed data which are the same as the structure inversion. You can refer to the structure inversion to see how to prepare these files.
+In the practice, these files are the same so we might just copied them to the root directory of the source inversion.</p>
+</div>
+<div class="section" id="execute-the-inversion-script">
+<h2>Execute the inversion script<a class="headerlink" href="#execute-the-inversion-script" title="Permalink to this headline">¶</a></h2>
+<p>Here we give an example of the source inversion shell script which calls <code class="docutils literal notranslate"><span class="pre">seisflow.scripts.xsede.xsede_perform_source_inversion</span></code>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+
+<span class="nv">PY</span><span class="o">=</span>/work/05880/tg851791/stampede2/anaconda3/envs/seismology/bin/python <span class="c1"># the python path</span>
+<span class="nv">BASE</span><span class="o">=</span>/scratch/05880/tg851791/big_region_structure_inversion <span class="c1"># the base directory</span>
+<span class="nv">CURRENT</span><span class="o">=</span><span class="si">${</span><span class="nv">BASE</span><span class="si">}</span>/source_inversion_after_iter20 <span class="c1"># the root directory</span>
+
+<span class="nv">inversion_directory</span><span class="o">=</span><span class="si">${</span><span class="nv">CURRENT</span><span class="si">}</span>/inversion <span class="c1"># the inversion directory</span>
+<span class="nv">cmtfiles_directory</span><span class="o">=</span><span class="si">${</span><span class="nv">CURRENT</span><span class="si">}</span>/cmts <span class="c1"># the cmtfiles directory</span>
+<span class="nv">ref_directory</span><span class="o">=</span><span class="si">${</span><span class="nv">CURRENT</span><span class="si">}</span>/ref <span class="c1"># the specfem reference directory</span>
+<span class="nv">data_directory</span><span class="o">=</span><span class="si">${</span><span class="nv">CURRENT</span><span class="si">}</span>/data_asdf <span class="c1"># the processed data directory</span>
+<span class="nv">windows_directory</span><span class="o">=</span><span class="si">${</span><span class="nv">CURRENT</span><span class="si">}</span>/windows <span class="c1"># the windows directory</span>
+<span class="nv">data_info_directory</span><span class="o">=</span><span class="si">${</span><span class="nv">CURRENT</span><span class="si">}</span>/data_info <span class="c1"># the datainfo directory</span>
+<span class="nv">stations_path</span><span class="o">=</span><span class="si">${</span><span class="nv">CURRENT</span><span class="si">}</span>/stations <span class="c1"># the stations path</span>
+<span class="nv">raw_sync_directory</span><span class="o">=</span><span class="si">${</span><span class="nv">CURRENT</span><span class="si">}</span>/raw_sync <span class="c1"># the raw sync directory, we can just generate a set of &quot;.h5&quot; files for all the events as if they are raw synthetic files.</span>
+
+<span class="nv">n_total</span><span class="o">=</span><span class="m">142</span> <span class="c1"># total number of events</span>
+<span class="nv">n_each</span><span class="o">=</span><span class="m">13</span> <span class="c1"># number of events for each iteration in specfem simulation</span>
+<span class="nv">n_iter</span><span class="o">=</span><span class="m">11</span> <span class="c1"># number of iterations in specfem simulation</span>
+<span class="nv">nproc</span><span class="o">=</span><span class="m">441</span> <span class="c1"># the number of processes for each specfem simulation</span>
+<span class="nv">n_node</span><span class="o">=</span><span class="m">120</span> <span class="c1"># the total number of nodes to use</span>
+<span class="nv">ntasks</span><span class="o">=</span><span class="m">5733</span> <span class="c1"># the total number of mpi processes to use</span>
+<span class="nv">partition</span><span class="o">=</span>skx-normal <span class="c1"># the partion to use</span>
+<span class="nv">simulation_time_step1</span><span class="o">=</span><span class="m">24</span>:00:00 <span class="c1"># the simulation time for step 1 (forward+adjoint+forward for perturbed model)</span>
+<span class="nv">account</span><span class="o">=</span>TG-EAR140030 <span class="c1"># the account to use</span>
+<span class="nv">n_node_line_search</span><span class="o">=</span><span class="m">10</span> <span class="c1"># the total number of nodes to use in step 2 (grid search for the step length and the event time shift)</span>
+<span class="nv">ntasks_line_search</span><span class="o">=</span><span class="m">142</span> <span class="c1"># the total number of processes to use in step 2</span>
+<span class="nv">partition_line_search</span><span class="o">=</span>skx-normal <span class="c1"># the partion to use in step 2</span>
+<span class="nv">simulation_time_step2</span><span class="o">=</span><span class="m">02</span>:00:00 <span class="c1"># the simulation time for step 2</span>
+<span class="nv">waveform_length</span><span class="o">=</span><span class="m">1800</span> <span class="c1"># the waveform length</span>
+<span class="nv">taper_tmin_tmaxs</span><span class="o">=</span><span class="m">1</span>,50/1,150 <span class="c1"># the taper time bands: minp1,maxp1/minp2,maxp2/...</span>
+<span class="nv">periods</span><span class="o">=</span><span class="m">8</span>,40/20,120 <span class="c1"># periods in filtering: minp1,maxp1/minp2,maxp2/...</span>
+<span class="nv">sampling_rate</span><span class="o">=</span><span class="m">10</span> <span class="c1"># the sampling rate to use</span>
+<span class="nv">alpha_range</span><span class="o">=</span>-10,10 <span class="c1"># the line search range for alpha (step length for the focal mechanism and the location)</span>
+<span class="nv">t0_range</span><span class="o">=</span>-3,3 <span class="c1"># the line search range for t0</span>
+<span class="nv">tau_range</span><span class="o">=</span>fixed <span class="c1"># the line search range for tau, use &#39;fixed&#39; if no change</span>
+
+<span class="si">${</span><span class="nv">PY</span><span class="si">}</span> -m seisflow.scripts.xsede.xsede_perform_source_inversion --iter_number <span class="si">${</span><span class="nv">iter_number</span><span class="si">}</span> --py <span class="si">${</span><span class="nv">PY</span><span class="si">}</span> --n_total <span class="si">${</span><span class="nv">n_total</span><span class="si">}</span> --n_each <span class="si">${</span><span class="nv">n_each</span><span class="si">}</span> --n_iter <span class="si">${</span><span class="nv">n_iter</span><span class="si">}</span> --nproc <span class="si">${</span><span class="nv">nproc</span><span class="si">}</span> --n_node <span class="si">${</span><span class="nv">n_node</span><span class="si">}</span> --ntasks <span class="si">${</span><span class="nv">ntasks</span><span class="si">}</span> --partition <span class="si">${</span><span class="nv">partition</span><span class="si">}</span> --simulation_time_step1 <span class="si">${</span><span class="nv">simulation_time_step1</span><span class="si">}</span> --account <span class="si">${</span><span class="nv">account</span><span class="si">}</span> --n_node_line_search <span class="si">${</span><span class="nv">n_node_line_search</span><span class="si">}</span> --ntasks_line_search <span class="si">${</span><span class="nv">ntasks_line_search</span><span class="si">}</span> --partition_line_search <span class="si">${</span><span class="nv">partition_line_search</span><span class="si">}</span> --simulation_time_step2 <span class="si">${</span><span class="nv">simulation_time_step2</span><span class="si">}</span> --inversion_directory <span class="si">${</span><span class="nv">inversion_directory</span><span class="si">}</span> --cmtfiles_directory <span class="si">${</span><span class="nv">cmtfiles_directory</span><span class="si">}</span> --ref_directory <span class="si">${</span><span class="nv">ref_directory</span><span class="si">}</span> --data_directory <span class="si">${</span><span class="nv">data_directory</span><span class="si">}</span> --windows_directory <span class="si">${</span><span class="nv">windows_directory</span><span class="si">}</span> --data_info_directory <span class="si">${</span><span class="nv">data_info_directory</span><span class="si">}</span> --stations_path <span class="si">${</span><span class="nv">stations_path</span><span class="si">}</span> --raw_sync_directory <span class="si">${</span><span class="nv">raw_sync_directory</span><span class="si">}</span> --waveform_length <span class="si">${</span><span class="nv">waveform_length</span><span class="si">}</span> --taper_tmin_tmaxs <span class="si">${</span><span class="nv">taper_tmin_tmaxs</span><span class="si">}</span> --periods <span class="si">${</span><span class="nv">periods</span><span class="si">}</span> --sampling_rate <span class="si">${</span><span class="nv">sampling_rate</span><span class="si">}</span> --alpha_range <span class="si">${</span><span class="nv">alpha_range</span><span class="si">}</span> --t0_range <span class="si">${</span><span class="nv">t0_range</span><span class="si">}</span> --tau_range <span class="si">${</span><span class="nv">tau_range</span><span class="si">}</span>
+</pre></div>
+</div>
+<p>So everything is very similar to the structure inversion, but there are some flags that need to be explained:</p>
+<ul class="simple">
+<li><p><strong>alpha_range:</strong> To decide an appropriate search range of the step length, it’s better to use the default range in the script.
+As the meaning of the step length in the source inversion is difficult to explain (related to the magnitude of the gradient), it’s better to
+have a test when it’s applied to the real inversion.</p></li>
+<li><p><strong>tau_range:</strong> Apart from the focal mechanism, the locations, and the event time, we can also invert for the half duration. However, according to my
+test, the misfit is almost insensitive to the half duration. According to the paper of the global cmt solution, the source half duration is simply determined
+by the magnitude of the source, so we should avoid inverting it.</p></li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Seisflow</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/install.html">Installing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/specfem.html">Configuring Specfem3D-globe</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Tutorials</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="structure_inversion.html">Structure inversion on stampede2</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Source inversion on stampede2</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#prepare-for-the-inversion">Prepare for the inversion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#execute-the-inversion-script">Execute the inversion script</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="structure_inversion.html" title="previous chapter">Structure inversion on stampede2</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019-2020, Ziyi Xi..
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/tutorials/source_inversion.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

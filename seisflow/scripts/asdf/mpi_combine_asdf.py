@@ -17,9 +17,6 @@ rank = comm.Get_rank()
 
 
 def get_asdf_pairs(base_directory, append_directory, output_directory):
-    """
-    The file names in the twp directory should be the same.
-    """
     # * we will always base on the number of the base directory
     all_base_paths = sorted(glob(join(base_directory, "*")))
     pair_list = []
