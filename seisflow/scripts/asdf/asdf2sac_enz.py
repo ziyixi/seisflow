@@ -49,72 +49,75 @@ def main(asdf_path, data_info_dir, stations_fname, output_dir, az_range):
     az_range = list(map(float, az_range.split(",")))
     for net_sta in sorted(avaliable_net_sta):
         if(az_range[0] <= az_dict[gcmtid][net_sta] <= az_range[1]):
-            # z
-            tr = asdf_file.waveforms[net_sta][tag].select(component="Z")[
-                0].copy()
-            tr.write(join(output_dir, tr.id), format="SAC")
-            tr = obspy.read(join(output_dir, tr.id))[0]
-            tr.stats.sac.az = az_dict[gcmtid][net_sta]
-            tr.stats.sac.baz = baz_dict[gcmtid][net_sta]
-            tr.stats.sac.evdp = evdp_dict[gcmtid][net_sta]
-            tr.stats.sac.evla = evla_dict[gcmtid][net_sta]
-            tr.stats.sac.evlo = evlo_dict[gcmtid][net_sta]
-            tr.stats.sac.gcarc = gcarc_dict[gcmtid][net_sta]
-            tr.stats.sac.t1 = t1_dict[gcmtid][net_sta]
-            tr.stats.sac.t2 = t2_dict[gcmtid][net_sta]
-            tr.stats.sac.kt1 = "P"
-            tr.stats.sac.kt2 = "S"
-            tr.stats.sac.stla = stations_mapper[net_sta][0]
-            tr.stats.sac.stlo = stations_mapper[net_sta][1]
-            tr.stats.sac.stel = stations_mapper[net_sta][2]
-            tr.stats.sac.stdp = 0.0
-            tr.write(join(output_dir, tr.id), format="SAC")
+            try:
+                # z
+                tr = asdf_file.waveforms[net_sta][tag].select(component="Z")[
+                    0].copy()
+                tr.write(join(output_dir, tr.id), format="SAC")
+                tr = obspy.read(join(output_dir, tr.id))[0]
+                tr.stats.sac.az = az_dict[gcmtid][net_sta]
+                tr.stats.sac.baz = baz_dict[gcmtid][net_sta]
+                tr.stats.sac.evdp = evdp_dict[gcmtid][net_sta]
+                tr.stats.sac.evla = evla_dict[gcmtid][net_sta]
+                tr.stats.sac.evlo = evlo_dict[gcmtid][net_sta]
+                tr.stats.sac.gcarc = gcarc_dict[gcmtid][net_sta]
+                tr.stats.sac.t1 = t1_dict[gcmtid][net_sta]
+                tr.stats.sac.t2 = t2_dict[gcmtid][net_sta]
+                tr.stats.sac.kt1 = "P"
+                tr.stats.sac.kt2 = "S"
+                tr.stats.sac.stla = stations_mapper[net_sta][0]
+                tr.stats.sac.stlo = stations_mapper[net_sta][1]
+                tr.stats.sac.stel = stations_mapper[net_sta][2]
+                tr.stats.sac.stdp = 0.0
+                tr.write(join(output_dir, tr.id), format="SAC")
 
-            # r
-            tr = asdf_file.waveforms[net_sta][tag].select(component="E")[
-                0].copy()
-            tr.write(join(output_dir, tr.id), format="SAC")
-            tr = obspy.read(join(output_dir, tr.id))[0]
-            tr.stats.sac.az = az_dict[gcmtid][net_sta]
-            tr.stats.sac.baz = baz_dict[gcmtid][net_sta]
-            tr.stats.sac.evdp = evdp_dict[gcmtid][net_sta]
-            tr.stats.sac.evla = evla_dict[gcmtid][net_sta]
-            tr.stats.sac.evlo = evlo_dict[gcmtid][net_sta]
-            tr.stats.sac.gcarc = gcarc_dict[gcmtid][net_sta]
-            tr.stats.sac.t1 = t1_dict[gcmtid][net_sta]
-            tr.stats.sac.t2 = t2_dict[gcmtid][net_sta]
-            tr.stats.sac.kt1 = "P"
-            tr.stats.sac.kt2 = "S"
-            tr.stats.sac.stla = stations_mapper[net_sta][0]
-            tr.stats.sac.stlo = stations_mapper[net_sta][1]
-            tr.stats.sac.stel = stations_mapper[net_sta][2]
-            tr.stats.sac.stdp = 0.0
-            tr.write(join(output_dir, tr.id), format="SAC")
+                # r
+                tr = asdf_file.waveforms[net_sta][tag].select(component="E")[
+                    0].copy()
+                tr.write(join(output_dir, tr.id), format="SAC")
+                tr = obspy.read(join(output_dir, tr.id))[0]
+                tr.stats.sac.az = az_dict[gcmtid][net_sta]
+                tr.stats.sac.baz = baz_dict[gcmtid][net_sta]
+                tr.stats.sac.evdp = evdp_dict[gcmtid][net_sta]
+                tr.stats.sac.evla = evla_dict[gcmtid][net_sta]
+                tr.stats.sac.evlo = evlo_dict[gcmtid][net_sta]
+                tr.stats.sac.gcarc = gcarc_dict[gcmtid][net_sta]
+                tr.stats.sac.t1 = t1_dict[gcmtid][net_sta]
+                tr.stats.sac.t2 = t2_dict[gcmtid][net_sta]
+                tr.stats.sac.kt1 = "P"
+                tr.stats.sac.kt2 = "S"
+                tr.stats.sac.stla = stations_mapper[net_sta][0]
+                tr.stats.sac.stlo = stations_mapper[net_sta][1]
+                tr.stats.sac.stel = stations_mapper[net_sta][2]
+                tr.stats.sac.stdp = 0.0
+                tr.write(join(output_dir, tr.id), format="SAC")
 
-            # t
-            tr = asdf_file.waveforms[net_sta][tag].select(component="N")[
-                0].copy()
-            tr.write(join(output_dir, tr.id), format="SAC")
-            tr = obspy.read(join(output_dir, tr.id))[0]
-            tr.stats.sac.az = az_dict[gcmtid][net_sta]
-            tr.stats.sac.baz = baz_dict[gcmtid][net_sta]
-            tr.stats.sac.evdp = evdp_dict[gcmtid][net_sta]
-            tr.stats.sac.evla = evla_dict[gcmtid][net_sta]
-            tr.stats.sac.evlo = evlo_dict[gcmtid][net_sta]
-            tr.stats.sac.gcarc = gcarc_dict[gcmtid][net_sta]
-            tr.stats.sac.t1 = t1_dict[gcmtid][net_sta]
-            tr.stats.sac.t2 = t2_dict[gcmtid][net_sta]
-            tr.stats.sac.kt1 = "P"
-            tr.stats.sac.kt2 = "S"
-            tr.stats.sac.stla = stations_mapper[net_sta][0]
-            tr.stats.sac.stlo = stations_mapper[net_sta][1]
-            tr.stats.sac.stel = stations_mapper[net_sta][2]
-            tr.stats.sac.stdp = 0.0
-            tr.write(join(output_dir, tr.id), format="SAC")
+                # t
+                tr = asdf_file.waveforms[net_sta][tag].select(component="N")[
+                    0].copy()
+                tr.write(join(output_dir, tr.id), format="SAC")
+                tr = obspy.read(join(output_dir, tr.id))[0]
+                tr.stats.sac.az = az_dict[gcmtid][net_sta]
+                tr.stats.sac.baz = baz_dict[gcmtid][net_sta]
+                tr.stats.sac.evdp = evdp_dict[gcmtid][net_sta]
+                tr.stats.sac.evla = evla_dict[gcmtid][net_sta]
+                tr.stats.sac.evlo = evlo_dict[gcmtid][net_sta]
+                tr.stats.sac.gcarc = gcarc_dict[gcmtid][net_sta]
+                tr.stats.sac.t1 = t1_dict[gcmtid][net_sta]
+                tr.stats.sac.t2 = t2_dict[gcmtid][net_sta]
+                tr.stats.sac.kt1 = "P"
+                tr.stats.sac.kt2 = "S"
+                tr.stats.sac.stla = stations_mapper[net_sta][0]
+                tr.stats.sac.stlo = stations_mapper[net_sta][1]
+                tr.stats.sac.stel = stations_mapper[net_sta][2]
+                tr.stats.sac.stdp = 0.0
+                tr.write(join(output_dir, tr.id), format="SAC")
 
             # # PZ file
             # stationxml = asdf_file.waveforms[net_sta].StationXML
             # stationxml.write(join(output_dir, f"{net_sta}.PZ"), format="SACPZ")
+            except:
+                pass
 
 
 if __name__ == "__main__":
