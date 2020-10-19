@@ -46,7 +46,7 @@ def main(asdf_path, data_info_dir, stations_fname, output_dir, az_range):
     tag = thebasename.split(".")[1]
     avaliable_net_sta = set(list(stations_mapper.keys())) & set(
         asdf_file.waveforms.list())
-    az_range = map(float, az_range.split(","))
+    az_range = list(map(float, az_range.split(",")))
     for net_sta in sorted(avaliable_net_sta):
         if(az_range[0] <= az_dict[gcmtid][net_sta] <= az_range[1]):
             # z
