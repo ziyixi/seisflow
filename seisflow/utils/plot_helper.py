@@ -6,6 +6,7 @@ from functools import partial
 import numpy as np
 import pyproj
 from obspy.geodetics import degrees2kilometers
+from scipy.interpolate import RegularGridInterpolator
 from scipy.optimize import minimize
 
 
@@ -40,6 +41,9 @@ def gmt_lon_project(lon_start, lon_end, lon0, lat0, az):
         sol = minimize(find_lat, 0, bounds=[(-90, 90)])
         result_lats.append(sol.x[0])
     result_lats = np.array(result_lats)
+    # * fix the issue when lon0==lon_start
+    if(lon0 == lon_start):
+        result_lats[0] = lat0
 
     return result_lons, result_lats
 
@@ -97,3 +101,47 @@ def gmt_dist_project(dist_start, dist_end, lon0, lat0, az):
     result = np.array(result)
 
     return result[:, 0], result[:, 1]
+
+
+def model_interp(to_interp_data, lons, lats, deps):
+    """
+    Give an xarray model, interp it based on the given lats, lons, deps and construct a new xarray dataset.
+    mainly used to generate the vertical cross-sections
+    """
+    # * len(lons) should be the same as len(lats)
+    profile_list = []
+    for idep in range(len(deps)):
+        for ilon in range(len(lons)):
+            profile_list.append([lons[ilon], lats[ilon], deps[idep]])
+    model_interpolating_function = RegularGridInterpolator(
+        (to_interp_data.longitude.data, to_interp_data.latitude.data, to_interp_data.depth.data), to_interp_data.data)
+    interp_result = model_interpolating_function(profile_list)
+    cross_section = np.zeros((len(lons), len(deps)))
+
+    icount = 0
+    for idep in range(len(deps)):
+        for ilon in range(len(lons)):
+            cross_section[ilon, idep] = interp_result[icount]
+            icount += 1
+
+    # cross_section_xarray = xr.DataArray(cross_section, dims=(
+    #     'h', "v"), coords={'h': lons, "v": deps})
+
+    return cross_section
+
+
+def topo_interp(to_interp_data, lons, lats):
+    """
+    Give the xarray topography model, interp the elevation line along the given (lons,lats) pair. 
+    """
+    profile_list = []
+    for ilon in range(len(lons)):
+        profile_list.append([lons[ilon], lats[ilon]])
+    # the names and the transverse might be adjusted, this is the gmt format
+    grd_interpolating_function = RegularGridInterpolator(
+        (to_interp_data.lon.data, to_interp_data.lat.data), to_interp_data.data.T)
+
+    grd_interp_result = grd_interpolating_function(profile_list)
+
+    # * return the 1d array
+    return grd_interp_result
