@@ -192,7 +192,7 @@ def kernel(kernel_process_directory, sigma_h, sigma_v, n_tasks, itern=False):
     result = ""
     result = "date; "
     result += "module load boost/1.68; "
-    result += "module load phdf5/1.8.16;\n"
+    result += "module load phdf5/1.10.4;\n"
     # sum kernels, hessians and do precondition
     result += do_preconditioned_summation(kernel_process_directory)
     # do smoothing

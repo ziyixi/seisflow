@@ -246,7 +246,7 @@ def source_inversion_single_step(iter_number, py, n_total, n_each, n_iter, nproc
     current_directory = str(sh.pwd())[:-1]  # pylint: disable=not-callable
     result = "date; "
     result += "module load boost/1.68; "
-    result += "module load phdf5/1.8.16; "
+    result += "module load phdf5/1.10.4; "
     # later we generate the cmt solution files for the green function [specfem_cmtfiles->cmtfiles_directory/iter_next_cmt]
     result += generate_green_cmtsolutions(py,
                                           specfem_cmtfiles, iter_green1_cmt)
@@ -322,7 +322,7 @@ def source_inversion_single_step(iter_number, py, n_total, n_each, n_iter, nproc
     # init
     result = "date; "
     result += "module load boost/1.68; "
-    result += "module load phdf5/1.8.16; "
+    result += "module load phdf5/1.10.4; "
     # do the source line search
     result += source_line_search(py, n_total, iter_green1_sync, iter_green2_sync, data_processed, windows, data_info, stations,
                                  iter_src_frechets, specfem_cmtfiles, iter_next_cmt,

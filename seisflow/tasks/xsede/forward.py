@@ -9,7 +9,7 @@ def get_dirs(base):
 def get_scripts(thedirs, N_total, N_each, N_iter, nproc, run_mesh=True):
     result = "date; "
     result += "module load boost/1.68; "
-    result += "module load phdf5/1.8.16; "
+    result += "module load phdf5/1.10.4; "
     # for xmeshfem3D
     if(run_mesh):
         result += f"echo 'start xmeshfem3D'; "
