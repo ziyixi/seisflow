@@ -60,7 +60,7 @@ def cal_overall_misfit(weights,misfits):
 def main(misfit_directory,weight_file):
     weights,misfits=read_files(misfit_directory,weight_file)
     result=cal_overall_misfit(weights,misfits)
-    print(result)
+    print(" ".join([str(i) for i in list(result)]))
 
 if __name__ == "__main__":
     main()  # pylint: disable=no-value-for-parameter
