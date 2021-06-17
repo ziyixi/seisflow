@@ -78,7 +78,7 @@ def run_generate_model_perturbation_kernel(index, tags, database_list, base_dire
     mesh_basedir = join(base_directory, "mesh", name)
     output_basedir = join(base_directory, "perturbation", name)
     # * set up the command
-    result += f"ibrun -n 1 julia '{julia_path}' --target_basedir {target_basedir} --reference_basedir {reference_basedir} --mesh_basedir {mesh_basedir} \
+    result += f"ibrun -n 1 julia -t 68 '{julia_path}' --target_basedir {target_basedir} --reference_basedir {reference_basedir} --mesh_basedir {mesh_basedir} \
         --output_basedir {output_basedir} --tags {tags} --nproc {nproc} ; \n"
     return result
 
@@ -130,7 +130,7 @@ def run_retrive_model(tags, database_list, base_directory):
     # * build up the command
     julia_path = get_julia("scripts/retrive_model.jl")
     result = ""
-    result += f"ibrun -n 1 julia '{julia_path}' --target_basedir {target_basedir} --reference_basedir {reference_basedir} --mesh_basedir {mesh_basedir} --output_basedir {output_basedir}  \
+    result += f"ibrun -n 1 julia -t 68 '{julia_path}' --target_basedir {target_basedir} --reference_basedir {reference_basedir} --mesh_basedir {mesh_basedir} --output_basedir {output_basedir}  \
         --tags {tags} --nproc {nproc};\n "
     return result
 
