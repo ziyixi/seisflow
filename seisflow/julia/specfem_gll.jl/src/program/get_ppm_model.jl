@@ -1,3 +1,4 @@
+using Base:func_for_method_checked
 import MPI
 
 include("../types/types.jl")

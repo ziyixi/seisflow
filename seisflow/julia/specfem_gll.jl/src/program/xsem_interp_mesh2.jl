@@ -80,7 +80,7 @@ function run_interp(myrank::Int64, nrank::Int64, command_args::Dict{String,Any})
         stat_final .= -1
         misloc_final .= HUGEVAL
 
-        model_interp = zeros(nmodel, ngll_new)
+        model_interp = zeros(Float64, nmodel, ngll_new)
 
         # * read in the new model as the background model
         model_gll_new = zeros(Float64, nmodel, NGLLX, NGLLY, NGLLZ, nspec_new)
@@ -110,25 +110,37 @@ function run_interp(myrank::Int64, nrank::Int64, command_args::Dict{String,Any})
 
             # locate points in this mesh slice
             nnearest = 10
-            location_1slice = sem_mesh_locate_kdtree2!(mesh_old, ngll_new, xyz_new, idoubling_new, nnearest, max_search_dist, max_misloc, iproc_old)
+        #     location_1slice = sem_mesh_locate_kdtree2!(mesh_old, ngll_new, xyz_new, idoubling_new, nnearest, max_search_dist, max_misloc, iproc_old)
+        #     for igll = 1:ngll_new
+        #         if (stat_final[igll] == 1 && location_1slice[igll].stat == 1)
+        #             @info "[$(myrank)]# multi-located, $(xyz_new[:,igll])"
+        #             continue
+        #         end
+        #         # for point located inside one element in the first time or closer to one element than located before
+        #         if location_1slice[igll].stat == 1 || (location_1slice[igll].stat == 0 && location_1slice[igll].misloc < misloc_final[igll])
+        #             for imodel = 1:nmodel
+        #                 model_interp[imodel,igll] = sum(location_1slice[igll].lagrange .* model_gll_old[imodel,:,:,:,location_1slice[igll].eid])
+        #             end
+        #             stat_final[igll] = location_1slice[igll].stat
+        #             misloc_final[igll] = location_1slice[igll].misloc
+        #         end
+        #         # if location_1slice[igll].stat == 1 || (location_1slice[igll].stat == 0 && location_1slice[igll].misloc < misloc_final[igll])
+        #             # flag = false
+        #         # end
+        #     end
+        # end
+
+        # * saved memory version
+            kdtree, xyz_elem, xyz_anchor, xigll, yigll, zigll, hlagx, hlagy, hlagz = prepare_kdtree(mesh_old)
             for igll = 1:ngll_new
-                if (stat_final[igll] == 1 && location_1slice[igll].stat == 1)
-                    @info "[$(myrank)]# multi-located, $(xyz_new[:,igll])"
-                    continue
-                end
-                # for point located inside one element in the first time or closer to one element than located before
-                if location_1slice[igll].stat == 1 || (location_1slice[igll].stat == 0 && location_1slice[igll].misloc < misloc_final[igll])
-                    for imodel = 1:nmodel
-                        model_interp[imodel,igll] = sum(location_1slice[igll].lagrange .* model_gll_old[imodel,:,:,:,location_1slice[igll].eid])
-                    end
-                    stat_final[igll] = location_1slice[igll].stat
-                    misloc_final[igll] = location_1slice[igll].misloc
-                end
-                # if location_1slice[igll].stat == 1 || (location_1slice[igll].stat == 0 && location_1slice[igll].misloc < misloc_final[igll])
-                    # flag = false
-                # end
+                # * loop for all the points
+                sem_mesh_locate_kdtree_series!(igll, max_search_dist, max_misloc, nmodel, kdtree, mesh_old, xyz_new, idoubling_new, xyz_elem, xyz_anchor, xigll, yigll, zigll, model_gll_old,hlagx, 
+                # modified values
+                hlagy, hlagz, stat_final, misloc_final, model_interp)
             end
         end
+
+
         # * write out gll files for this new mesh slice
 
         # reshape model_interp to model_gll

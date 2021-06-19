@@ -125,7 +125,7 @@ function sem_mesh_locate_kdtree2!(mesh_data::sem_mesh_data, npoint::Int64, xyz::
                 end
             end
         end
-        #to debug
+        # to debug
         # if (ipoint == 492835) && (location_result[ipoint].stat != -1)
         #     @info "@@@@"
         #     @info iproc_old
@@ -139,4 +139,129 @@ function sem_mesh_locate_kdtree2!(mesh_data::sem_mesh_data, npoint::Int64, xyz::
         # end
     end  
     return location_result
+end
+
+function prepare_kdtree(mesh_data::sem_mesh_data)
+    # * GLL colocation points and lagrange interpolation weights
+    xigll = zeros(Float64, NGLLX)
+    wxgll = zeros(Float64, NGLLX)
+    yigll = zeros(Float64, NGLLY)
+    wygll = zeros(Float64, NGLLY)
+    zigll = zeros(Float64, NGLLZ)
+    wzgll = zeros(Float64, NGLLZ)
+    hlagx = zeros(Float64, NGLLX)
+    hlagy = zeros(Float64, NGLLY)
+    hlagz = zeros(Float64, NGLLZ)
+
+    # * mesh dimension variable
+    nspec = mesh_data.nspec
+
+    # * coordinates of GLL points
+    zwgljd!(xigll, wxgll, NGLLX, GAUSSALPHA, GAUSSBETA)
+    zwgljd!(yigll, wygll, NGLLY, GAUSSALPHA, GAUSSBETA)
+    zwgljd!(zigll, wzgll, NGLLZ, GAUSSALPHA, GAUSSBETA)
+
+    # * anchor points of mesh elements 
+
+    # get index of anchor points in the GLL element
+    iax = zeros(Int32, NGNOD)
+    iay = zeros(Int32, NGNOD)
+    iaz = zeros(Int32, NGNOD)
+    anchor_point_index!(iax, iay, iaz)
+
+    # get anchor and center points of each GLL element 
+    xyz_elem = zeros(Float64, 3, nspec)
+    xyz_anchor = zeros(Float64, 3, NGNOD, nspec)
+
+    for ispec = 1:nspec
+        for ia = 1:NGNOD
+            iglob = mesh_data.ibool[iax[ia], iay[ia], iaz[ia], ispec]
+            xyz_anchor[:,ia,ispec] = mesh_data.xyz_glob[:,iglob]
+        end
+        # the last anchor point is the element center
+        xyz_elem[:,ispec] = xyz_anchor[:,NGNOD,ispec]
+    end
+    # * build kdtree
+    kdtree = KDTree(xyz_elem)
+
+    return kdtree, xyz_elem, xyz_anchor, xigll, yigll, zigll, hlagx, hlagy, hlagz
+end
+
+function sem_mesh_locate_kdtree_series!(ipoint::Int64, max_search_dist::Float64, max_misloc::Float64, nmodel::Int64, kdtree::KDTree, mesh_data::sem_mesh_data, xyz::Array{Float64,2}, idoubling::Vector{Int64}, xyz_elem::Array{Float64,2}, xyz_anchor::Array{Float64,3}, xigll::Array{Float64,1}, yigll::Array{Float64,1}, zigll::Array{Float64,1}, model_gll_old::Array{Float64,5}, hlagx::Array{Float64,1}, hlagy::Array{Float64,1}, hlagz::Array{Float64,1}, stat_final::Array{Int64,1}, misloc_final::Array{Float64,1}, model_interp::Array{Float64,2})
+    location_result = sem_mesh_location()
+    # init
+    location_result.stat = -1
+    location_result.eid = -1
+    location_result.misloc = HUGEVAL
+    location_result.lagrange = zeros(Float64, NGLLX, NGLLY, NGLLZ)
+    location_result.uvw = zeros(Float64, 3)
+
+    # calculate location_result
+    # * get the n nearest elements in the mesh
+    xyz1 = xyz[:,ipoint]
+    idxs, _ = knn(kdtree, xyz1, nnearest)
+
+    # * test each neighbour elements to see if target point is located inside
+    for inn = 1:nnearest
+        ispec = idxs[inn]
+        # skip the element a certain distance away
+        dist = sqrt(sum((xyz_elem[:,ispec] .- xyz1).^2))
+        if dist > max_search_dist
+            continue
+        end
+        # only use element with the same layer ID (i.e. idoubling)
+        if (idoubling[ipoint] != IFLAG_DUMMY && mesh_data.idoubling[ispec] != idoubling[ipoint])
+            continue
+        end
+
+        # locate point to this element
+        uvw1 = similar(xyz1)
+        misloc1 = HUGEVAL
+        flag_inside = false
+        misloc1, flag_inside = xyz2cube_bounded!(xyz_anchor[:,:,ispec], xyz1, uvw1, misloc1, flag_inside)
+
+        if flag_inside == true
+            location_result.stat = 1
+            location_result.eid = ispec
+            location_result.misloc = misloc1
+            location_result.uvw = uvw1
+            break
+        else
+            if (misloc1 < max_misloc) && (misloc1 < location_result.misloc)
+                location_result.stat = 0
+                location_result.eid = ispec
+                location_result.misloc = misloc1
+                location_result.uvw = uvw1
+            end
+        end
+    end
+
+    # * set interpolation weights on GLL points if located
+    if location_result.stat != -1
+        lagrange_poly!(location_result.uvw[1], NGLLX, xigll, hlagx)
+        lagrange_poly!(location_result.uvw[2], NGLLY, yigll, hlagy)
+        lagrange_poly!(location_result.uvw[3], NGLLZ, zigll, hlagz)
+        for igllz = 1:NGLLZ
+            for iglly = 1:NGLLY
+                for igllx = 1:NGLLX
+                    location_result.lagrange[igllx,iglly,igllz] = hlagx[igllx] * hlagy[iglly] * hlagz[igllz]
+                end
+            end
+        end
+    end
+
+    # * perform the model interpolation
+    if (stat_final[ipoint] == 1 && location_result.stat == 1)
+        @info "[$(myrank)]# multi-located, $(xyz_new[:,igll])"
+        return
+    end
+    # for point located inside one element in the first time or closer to one element than located before
+    if location_result.stat == 1 || (location_result.stat == 0 && location_result.misloc < misloc_final[ipoint])
+        for imodel = 1:nmodel
+            model_interp[imodel,ipoint] = sum(location_result.lagrange .* model_gll_old[imodel,:,:,:,location_result.eid])
+        end
+        stat_final[ipoint] = location_result.stat
+        misloc_final[ipoint] = location_result.misloc
+    end
+
 end
