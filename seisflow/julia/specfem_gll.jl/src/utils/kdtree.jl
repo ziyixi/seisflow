@@ -187,7 +187,7 @@ function prepare_kdtree(mesh_data::sem_mesh_data)
     return kdtree, xyz_elem, xyz_anchor, xigll, yigll, zigll, hlagx, hlagy, hlagz
 end
 
-function sem_mesh_locate_kdtree_series!(ipoint::Int64, max_search_dist::Float64, max_misloc::Float64, nmodel::Int64, kdtree::KDTree, mesh_data::sem_mesh_data, xyz::Array{Float64,2}, idoubling::Vector{Int64}, xyz_elem::Array{Float64,2}, xyz_anchor::Array{Float64,3}, xigll::Array{Float64,1}, yigll::Array{Float64,1}, zigll::Array{Float64,1}, model_gll_old::Array{Float64,5}, hlagx::Array{Float64,1}, hlagy::Array{Float64,1}, hlagz::Array{Float64,1}, stat_final::Array{Int64,1}, misloc_final::Array{Float64,1}, model_interp::Array{Float64,2})
+function sem_mesh_locate_kdtree_series!(ipoint::Int64, nnearest::Int64, max_search_dist::Float64, max_misloc::Float64, nmodel::Int64, kdtree::KDTree, mesh_data::sem_mesh_data, xyz::Array{Float64,2}, idoubling::Vector{Int64}, xyz_elem::Array{Float64,2}, xyz_anchor::Array{Float64,3}, xigll::Array{Float64,1}, yigll::Array{Float64,1}, zigll::Array{Float64,1}, model_gll_old::Array{Float64,5}, hlagx::Array{Float64,1}, hlagy::Array{Float64,1}, hlagz::Array{Float64,1}, stat_final::Array{Int64,1}, misloc_final::Array{Float64,1}, model_interp::Array{Float64,2})
     location_result = sem_mesh_location()
     # init
     location_result.stat = -1
@@ -252,7 +252,6 @@ function sem_mesh_locate_kdtree_series!(ipoint::Int64, max_search_dist::Float64,
 
     # * perform the model interpolation
     if (stat_final[ipoint] == 1 && location_result.stat == 1)
-        @info "[$(myrank)]# multi-located, $(xyz_new[:,igll])"
         return
     end
     # for point located inside one element in the first time or closer to one element than located before

@@ -134,7 +134,7 @@ function run_interp(myrank::Int64, nrank::Int64, command_args::Dict{String,Any})
             kdtree, xyz_elem, xyz_anchor, xigll, yigll, zigll, hlagx, hlagy, hlagz = prepare_kdtree(mesh_old)
             for igll = 1:ngll_new
                 # * loop for all the points
-                sem_mesh_locate_kdtree_series!(igll, max_search_dist, max_misloc, nmodel, kdtree, mesh_old, xyz_new, idoubling_new, xyz_elem, xyz_anchor, xigll, yigll, zigll, model_gll_old,hlagx, 
+                sem_mesh_locate_kdtree_series!(igll,nnearest, max_search_dist, max_misloc, nmodel, kdtree, mesh_old, xyz_new, idoubling_new, xyz_elem, xyz_anchor, xigll, yigll, zigll, model_gll_old,hlagx, 
                 # modified values
                 hlagy, hlagz, stat_final, misloc_final, model_interp)
             end
