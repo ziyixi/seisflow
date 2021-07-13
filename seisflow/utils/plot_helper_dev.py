@@ -38,32 +38,34 @@ def gmt_project(startlon, startlat, endlon, endlat, thetype, npts=1001):
     else:
         raise Exception("not supported type")
 
-def gmt_lon_as_dist(startlon, startlat, endlon, endlat,a_list=None,g_interval=None,npts=1001):
+
+def gmt_lat_as_dist(startlon, startlat, endlon, endlat, a_list=None, g_interval=None, npts=1001):
     g = pyproj.Geod(ellps='WGS84')
-    gcarc=locations2degrees(startlat,startlon,endlat,endlon)
-    if startlon>endlon:
-        startlon,endlon=endlon,startlon
-        startlat,endlat=endlat,startlat
-    test_points = np.array(g.npts(startlon, startlat, endlon, endlat, (npts-1)*10+1))
-    tree = KDTree(test_points[:, 0].reshape(test_points.shape[0], -1))
+    gcarc = locations2degrees(startlat, startlon, endlat, endlon)
+    if startlat > endlat:
+        startlon, endlon = endlon, startlon
+        startlat, endlat = endlat, startlat
+    test_points = np.array(
+        g.npts(startlon, startlat, endlon, endlat, (npts-1)*10+1))
+    tree = KDTree(test_points[:, 1].reshape(test_points.shape[0], -1))
     # * generate the gmt custome axis file when use lon to plot the cross-section
-    num_list=[]
-    type_list=[]
-    annote_list=[]
+    num_list = []
+    type_list = []
+    annote_list = []
     # before first a
-    for each_lon in np.arange(a_list[0]-g_interval,startlon,-1*g_interval)[::-1]:
-        num_list.append(each_lon)
+    for each_lat in np.arange(a_list[0]-g_interval, startlat, -1*g_interval)[::-1]:
+        num_list.append(each_lat)
         type_list.append("f")
         annote_list.append("")
     # start from first a
     for ia in range(len(a_list)-1):
-        starta=a_list[ia]
-        enda=a_list[ia+1]
+        starta = a_list[ia]
+        enda = a_list[ia+1]
         # first a
         num_list.append(starta)
         type_list.append("a")
         annote_list.append(f"{starta}")
-        for each_g in np.arange(starta+g_interval,enda,g_interval):
+        for each_g in np.arange(starta+g_interval, enda, g_interval):
             num_list.append(each_g)
             type_list.append("f")
             annote_list.append("")
@@ -71,19 +73,73 @@ def gmt_lon_as_dist(startlon, startlat, endlon, endlat,a_list=None,g_interval=No
     num_list.append(a_list[-1])
     type_list.append("a")
     annote_list.append(f"{a_list[-1]}")
-    for each_g in np.arange(a_list[-1]+g_interval,endlon,g_interval):
+    for each_g in np.arange(a_list[-1]+g_interval, endlat, g_interval):
         num_list.append(each_g)
         type_list.append("f")
         annote_list.append("")
 
     # convert num_list to actual dist_list
-    num_list=np.array(num_list)
+    num_list = np.array(num_list)
     _, pos = tree.query(num_list.reshape(len(num_list), -1))
-    dist_list=pos/((npts-1)*10)*gcarc
+    dist_list = pos/((npts-1)*10)*gcarc
 
     # write lists to a temp file
     tmp = tempfile.NamedTemporaryFile()
     with open(tmp.name, 'w') as f:
         for index in range(len(num_list)):
-            f.write(f"{dist_list[index]}  {type_list[index]}  {annote_list[index]} \n")
+            f.write(
+                f"{dist_list[index]}  {type_list[index]}  {annote_list[index]} \n")
+    return tmp
+
+
+def gmt_lon_as_dist(startlon, startlat, endlon, endlat, a_list=None, g_interval=None, npts=1001):
+    g = pyproj.Geod(ellps='WGS84')
+    gcarc = locations2degrees(startlat, startlon, endlat, endlon)
+    if startlon > endlon:
+        startlon, endlon = endlon, startlon
+        startlat, endlat = endlat, startlat
+    test_points = np.array(
+        g.npts(startlon, startlat, endlon, endlat, (npts-1)*10+1))
+    tree = KDTree(test_points[:, 0].reshape(test_points.shape[0], -1))
+    # * generate the gmt custome axis file when use lon to plot the cross-section
+    num_list = []
+    type_list = []
+    annote_list = []
+    # before first a
+    for each_lon in np.arange(a_list[0]-g_interval, startlon, -1*g_interval)[::-1]:
+        num_list.append(each_lon)
+        type_list.append("f")
+        annote_list.append("")
+    # start from first a
+    for ia in range(len(a_list)-1):
+        starta = a_list[ia]
+        enda = a_list[ia+1]
+        # first a
+        num_list.append(starta)
+        type_list.append("a")
+        annote_list.append(f"{starta}")
+        for each_g in np.arange(starta+g_interval, enda, g_interval):
+            num_list.append(each_g)
+            type_list.append("f")
+            annote_list.append("")
+    # last a
+    num_list.append(a_list[-1])
+    type_list.append("a")
+    annote_list.append(f"{a_list[-1]}")
+    for each_g in np.arange(a_list[-1]+g_interval, endlon, g_interval):
+        num_list.append(each_g)
+        type_list.append("f")
+        annote_list.append("")
+
+    # convert num_list to actual dist_list
+    num_list = np.array(num_list)
+    _, pos = tree.query(num_list.reshape(len(num_list), -1))
+    dist_list = pos/((npts-1)*10)*gcarc
+
+    # write lists to a temp file
+    tmp = tempfile.NamedTemporaryFile()
+    with open(tmp.name, 'w') as f:
+        for index in range(len(num_list)):
+            f.write(
+                f"{dist_list[index]}  {type_list[index]}  {annote_list[index]} \n")
     return tmp
