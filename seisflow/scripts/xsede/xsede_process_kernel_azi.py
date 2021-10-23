@@ -167,6 +167,9 @@ def itern_generate_perturbed_kernel(kernel_process_directory, perturbed_value, p
     result += f"cd {current_path};\n"
     result += ln_new_model_to_gll(pyexec, join(kernel_process_directory,
                                                f"perturbed_{perturbed_value}_for_line_search"), join(kernel_process_directory, f"gll_for_perturbed_{perturbed_value}_for_line_search"))
+    # ! we should also put mu0 into the gll directory
+    result += f"cd {kernel_process_directory};"
+    result += f"cp INPUT_MODEL/*mu0* gll_for_perturbed_{perturbed_value}_for_line_search;\n"
     result += f"cd {current_path};\n"
     return result
 

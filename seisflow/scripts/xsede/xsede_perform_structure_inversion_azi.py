@@ -18,7 +18,7 @@ from .xsede_perform_source_inversion import (calculate_misfit_windows,
                                              cp_stations_adjoint2structure,
                                              ln_adjoint_source_to_structure)
 from .xsede_process_kernel_azi import \
-    construct_structure as construct_process_kernel_structure
+    construct_structure as construct_process_kernel_structure, ln_new_model_to_gll
 from .xsede_process_kernel_azi import kernel as process_kernel
 
 
@@ -254,11 +254,19 @@ def update_model_from_line_search(kernel_process_directory, nproc):
     """
     itern_generate_perturbed_kernel: generate the perturbed model for the following steps.
     """
+    pyexec = sys.executable
     result = ""
     current_path = str(sh.pwd())[:-1]  # pylint: disable=not-callable
     result += f"cd {kernel_process_directory};"
     # we should read in the value in join(current_path,STEP_LENGTH)
-    result += f"ibrun -n {nproc} ./bin/xadd_model_azi_cg `cat {join(current_path,'STEP_LENGTH')}`;"
+    result += f"ibrun -n {nproc} ./bin/xadd_model_azi_cg `cat {join(current_path,'STEP_LENGTH')}`;\n"
+    # create gll_for_OUTPUT_MODEL and copy mu0
+    result += f"mkdir -p gll_for_OUTPUT_MODEL;"
+    result += f"cd {current_path};\n"
+    result += ln_new_model_to_gll(pyexec, join(kernel_process_directory,
+                                               f"OUTPUT_MODEL"), join(kernel_process_directory, f"gll_for_OUTPUT_MODEL"))
+    result += f"cd {kernel_process_directory};"
+    result += f"cp INPUT_MODEL/*mu0* gll_for_OUTPUT_MODEL;\n"
     result += f"cd {current_path};\n"
     return result
 
