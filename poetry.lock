@@ -20,11 +20,11 @@ tests = ["flufl.lock", "packaging (>=20)", "pytest (>=5.1.2)"]
 
 [[package]]
 name = "certifi"
-version = "2021.10.8"
+version = "2022.12.7"
 description = "Python package for providing Mozilla's CA Bundle."
 category = "main"
 optional = false
-python-versions = "*"
+python-versions = ">=3.6"
 
 [[package]]
 name = "cftime"
@@ -46,7 +46,7 @@ optional = false
 python-versions = ">=3.5.0"
 
 [package.extras]
-unicode_backport = ["unicodedata2"]
+unicode-backport = ["unicodedata2"]
 
 [[package]]
 name = "click"
@@ -103,9 +103,9 @@ optional = false
 python-versions = ">=3.7"
 
 [package.extras]
-all = ["fs (>=2.2.0,<3)", "lxml (>=4.0,<5)", "zopfli (>=0.1.4)", "lz4 (>=1.7.4.2)", "matplotlib", "sympy", "skia-pathops (>=0.5.0)", "brotlicffi (>=0.8.0)", "scipy", "brotli (>=1.0.1)", "munkres", "unicodedata2 (>=14.0.0)", "xattr"]
+all = ["brotli (>=1.0.1)", "brotlicffi (>=0.8.0)", "fs (>=2.2.0,<3)", "lxml (>=4.0,<5)", "lz4 (>=1.7.4.2)", "matplotlib", "munkres", "scipy", "skia-pathops (>=0.5.0)", "sympy", "unicodedata2 (>=14.0.0)", "xattr", "zopfli (>=0.1.4)"]
 graphite = ["lz4 (>=1.7.4.2)"]
-interpolatable = ["scipy", "munkres"]
+interpolatable = ["munkres", "scipy"]
 lxml = ["lxml (>=4.0,<5)"]
 pathops = ["skia-pathops (>=0.5.0)"]
 plot = ["matplotlib"]
@@ -113,7 +113,7 @@ symfont = ["sympy"]
 type1 = ["xattr"]
 ufo = ["fs (>=2.2.0,<3)"]
 unicode = ["unicodedata2 (>=14.0.0)"]
-woff = ["zopfli (>=0.1.4)", "brotlicffi (>=0.8.0)", "brotli (>=1.0.1)"]
+woff = ["brotli (>=1.0.1)", "brotlicffi (>=0.8.0)", "zopfli (>=0.1.4)"]
 
 [[package]]
 name = "greenlet"
@@ -124,7 +124,7 @@ optional = false
 python-versions = ">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*"
 
 [package.extras]
-docs = ["sphinx"]
+docs = ["Sphinx"]
 
 [[package]]
 name = "h5py"
@@ -196,7 +196,7 @@ colorama = {version = ">=0.3.4", markers = "sys_platform == \"win32\""}
 win32-setctime = {version = ">=1.0.0", markers = "sys_platform == \"win32\""}
 
 [package.extras]
-dev = ["colorama (>=0.3.4)", "docutils (==0.16)", "flake8 (>=3.7.7)", "tox (>=3.9.0)", "pytest (>=4.6.2)", "pytest-cov (>=2.7.1)", "black (>=19.10b0)", "isort (>=5.1.1)", "Sphinx (>=4.1.1)", "sphinx-autobuild (>=0.7.1)", "sphinx-rtd-theme (>=0.4.3)"]
+dev = ["Sphinx (>=4.1.1)", "black (>=19.10b0)", "colorama (>=0.3.4)", "docutils (==0.16)", "flake8 (>=3.7.7)", "isort (>=5.1.1)", "pytest (>=4.6.2)", "pytest-cov (>=2.7.1)", "sphinx-autobuild (>=0.7.1)", "sphinx-rtd-theme (>=0.4.3)", "tox (>=3.9.0)"]
 
 [[package]]
 name = "lxml"
@@ -209,7 +209,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, != 3.4.*"
 [package.extras]
 cssselect = ["cssselect (>=0.7)"]
 html5 = ["html5lib"]
-htmlsoup = ["beautifulsoup4"]
+htmlsoup = ["BeautifulSoup4"]
 source = ["Cython (>=0.29.7)"]
 
 [[package]]
@@ -248,7 +248,7 @@ optional = false
 python-versions = "*"
 
 [package.extras]
-develop = ["pytest (>=4.6)", "pycodestyle", "pytest-cov", "codecov", "wheel"]
+develop = ["codecov", "pycodestyle", "pytest (>=4.6)", "pytest-cov", "wheel"]
 tests = ["pytest (>=4.6)"]
 
 [[package]]
@@ -272,11 +272,11 @@ optional = false
 python-versions = ">=3.8"
 
 [package.extras]
-default = ["numpy (>=1.19)", "scipy (>=1.8)", "matplotlib (>=3.4)", "pandas (>=1.3)"]
-developer = ["black (==22.1)", "pyupgrade (>=2.31)", "pre-commit (>=2.17)", "mypy (>=0.931)"]
-doc = ["sphinx (>=4.4)", "pydata-sphinx-theme (>=0.8)", "sphinx-gallery (>=0.10)", "numpydoc (>=1.2)", "pillow (>=9.0)", "nb2plots (>=0.6)", "texext (>=0.6.6)"]
-extra = ["lxml (>=4.6)", "pygraphviz (>=1.9)", "pydot (>=1.4.2)"]
-test = ["pytest (>=7.0)", "pytest-cov (>=3.0)", "codecov (>=2.1)"]
+default = ["matplotlib (>=3.4)", "numpy (>=1.19)", "pandas (>=1.3)", "scipy (>=1.8)"]
+developer = ["black (==22.1)", "mypy (>=0.931)", "pre-commit (>=2.17)", "pyupgrade (>=2.31)"]
+doc = ["nb2plots (>=0.6)", "numpydoc (>=1.2)", "pillow (>=9.0)", "pydata-sphinx-theme (>=0.8)", "sphinx (>=4.4)", "sphinx-gallery (>=0.10)", "texext (>=0.6.6)"]
+extra = ["lxml (>=4.6)", "pydot (>=1.4.2)", "pygraphviz (>=1.9)"]
+test = ["codecov (>=2.1)", "pytest (>=7.0)", "pytest-cov (>=3.0)"]
 
 [[package]]
 name = "numba"
@@ -289,6 +289,7 @@ python-versions = ">=3.7,<3.11"
 [package.dependencies]
 llvmlite = ">=0.38.0rc1,<0.39"
 numpy = ">=1.18,<1.22"
+setuptools = "*"
 
 [[package]]
 name = "numpy"
@@ -313,13 +314,14 @@ matplotlib = ">=3.2.0"
 numpy = ">=1.15.0"
 requests = "*"
 scipy = ">=1.0.0"
+setuptools = "*"
 sqlalchemy = "*"
 
 [package.extras]
-all = ["packaging", "pyproj", "pytest", "pytest-json-report", "geographiclib", "cartopy", "pyshp"]
+all = ["cartopy", "geographiclib", "packaging", "pyproj", "pyshp", "pytest", "pytest-json-report"]
 geo = ["geographiclib"]
 imaging = ["cartopy"]
-"io.shapefile" = ["pyshp"]
+io-shapefile = ["pyshp"]
 tests = ["packaging", "pyproj", "pytest", "pytest-json-report"]
 
 [[package]]
@@ -481,6 +483,7 @@ python-versions = ">=3.7"
 [package.dependencies]
 isodate = "*"
 pyparsing = "*"
+setuptools = "*"
 
 [package.extras]
 docs = ["sphinx (<5)", "sphinxcontrib-apidoc"]
@@ -514,7 +517,7 @@ urllib3 = ">=1.21.1,<1.27"
 
 [package.extras]
 socks = ["PySocks (>=1.5.6,!=1.5.7)", "win-inet-pton"]
-use_chardet_on_py3 = ["chardet (>=3.0.2,<5)"]
+use-chardet-on-py3 = ["chardet (>=3.0.2,<5)"]
 
 [[package]]
 name = "scipy"
@@ -542,6 +545,19 @@ pandas = ">=0.23"
 scipy = ">=1.0"
 
 [[package]]
+name = "setuptools"
+version = "65.6.3"
+description = "Easily download, build, install, upgrade, and uninstall Python packages"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.extras]
+docs = ["furo", "jaraco.packaging (>=9)", "jaraco.tidelift (>=1.4)", "pygments-github-lexers (==0.0.5)", "rst.linker (>=1.9)", "sphinx (>=3.5)", "sphinx-favicon", "sphinx-hoverxref (<2)", "sphinx-inline-tabs", "sphinx-notfound-page (==0.8.3)", "sphinx-reredirects", "sphinxcontrib-towncrier"]
+testing = ["build[virtualenv]", "filelock (>=3.4.0)", "flake8 (<5)", "flake8-2020", "ini2toml[lite] (>=0.9)", "jaraco.envs (>=2.2)", "jaraco.path (>=3.2.0)", "pip (>=19.1)", "pip-run (>=8.8)", "pytest (>=6)", "pytest-black (>=0.3.7)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=1.3)", "pytest-flake8", "pytest-mypy (>=0.9.1)", "pytest-perf", "pytest-timeout", "pytest-xdist", "tomli-w (>=1.0.0)", "virtualenv (>=13.0.0)", "wheel"]
+testing-integration = ["build[virtualenv]", "filelock (>=3.4.0)", "jaraco.envs (>=2.2)", "jaraco.path (>=3.2.0)", "pytest", "pytest-enabler", "pytest-xdist", "tomli", "virtualenv (>=13.0.0)", "wheel"]
+
+[[package]]
 name = "setuptools-scm"
 version = "6.4.2"
 description = "the blessed package to manage your versions by scm tags"
@@ -551,6 +567,7 @@ python-versions = ">=3.6"
 
 [package.dependencies]
 packaging = ">=20.0"
+setuptools = "*"
 tomli = ">=1.0.0"
 
 [package.extras]
@@ -574,7 +591,7 @@ optional = false
 python-versions = ">=3.6"
 
 [package.extras]
-all = ["pytest", "pytest-cov", "numpy"]
+all = ["numpy", "pytest", "pytest-cov"]
 test = ["pytest", "pytest-cov"]
 vectorized = ["numpy"]
 
@@ -598,25 +615,25 @@ python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,>=2.7"
 greenlet = {version = "!=0.4.17", markers = "python_version >= \"3\" and (platform_machine == \"aarch64\" or platform_machine == \"ppc64le\" or platform_machine == \"x86_64\" or platform_machine == \"amd64\" or platform_machine == \"AMD64\" or platform_machine == \"win32\" or platform_machine == \"WIN32\")"}
 
 [package.extras]
-aiomysql = ["greenlet (!=0.4.17)", "aiomysql"]
-aiosqlite = ["typing_extensions (!=3.10.0.1)", "greenlet (!=0.4.17)", "aiosqlite"]
+aiomysql = ["aiomysql", "greenlet (!=0.4.17)"]
+aiosqlite = ["aiosqlite", "greenlet (!=0.4.17)", "typing_extensions (!=3.10.0.1)"]
 asyncio = ["greenlet (!=0.4.17)"]
-asyncmy = ["greenlet (!=0.4.17)", "asyncmy (>=0.2.3)"]
-mariadb_connector = ["mariadb (>=1.0.1)"]
+asyncmy = ["asyncmy (>=0.2.3)", "greenlet (!=0.4.17)"]
+mariadb-connector = ["mariadb (>=1.0.1)"]
 mssql = ["pyodbc"]
-mssql_pymssql = ["pymssql"]
-mssql_pyodbc = ["pyodbc"]
-mypy = ["sqlalchemy2-stubs", "mypy (>=0.910)"]
-mysql = ["mysqlclient (>=1.4.0,<2)", "mysqlclient (>=1.4.0)"]
-mysql_connector = ["mysql-connector-python"]
-oracle = ["cx_oracle (>=7,<8)", "cx_oracle (>=7)"]
+mssql-pymssql = ["pymssql"]
+mssql-pyodbc = ["pyodbc"]
+mypy = ["mypy (>=0.910)", "sqlalchemy2-stubs"]
+mysql = ["mysqlclient (>=1.4.0)", "mysqlclient (>=1.4.0,<2)"]
+mysql-connector = ["mysql-connector-python"]
+oracle = ["cx_oracle (>=7)", "cx_oracle (>=7,<8)"]
 postgresql = ["psycopg2 (>=2.7)"]
-postgresql_asyncpg = ["greenlet (!=0.4.17)", "asyncpg"]
-postgresql_pg8000 = ["pg8000 (>=1.16.6)"]
-postgresql_psycopg2binary = ["psycopg2-binary"]
-postgresql_psycopg2cffi = ["psycopg2cffi"]
-pymysql = ["pymysql (<1)", "pymysql"]
-sqlcipher = ["sqlcipher3-binary"]
+postgresql-asyncpg = ["asyncpg", "greenlet (!=0.4.17)"]
+postgresql-pg8000 = ["pg8000 (>=1.16.6)"]
+postgresql-psycopg2binary = ["psycopg2-binary"]
+postgresql-psycopg2cffi = ["psycopg2cffi"]
+pymysql = ["pymysql", "pymysql (<1)"]
+sqlcipher = ["sqlcipher3_binary"]
 
 [[package]]
 name = "sympy"
@@ -662,8 +679,8 @@ optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, <4"
 
 [package.extras]
-brotli = ["brotlicffi (>=0.8.0)", "brotli (>=1.0.9)", "brotlipy (>=0.6.0)"]
-secure = ["pyOpenSSL (>=0.14)", "cryptography (>=1.3.4)", "idna (>=2.0.0)", "certifi", "ipaddress"]
+brotli = ["brotli (>=1.0.9)", "brotlicffi (>=0.8.0)", "brotlipy (>=0.6.0)"]
+secure = ["certifi", "cryptography (>=1.3.4)", "idna (>=2.0.0)", "ipaddress", "pyOpenSSL (>=0.14)"]
 socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 
 [[package]]
@@ -675,7 +692,7 @@ optional = false
 python-versions = ">=3.5"
 
 [package.extras]
-dev = ["pytest (>=4.6.2)", "black (>=19.3b0)"]
+dev = ["black (>=19.3b0)", "pytest (>=4.6.2)"]
 
 [[package]]
 name = "xarray"
@@ -691,12 +708,12 @@ packaging = ">=20.0"
 pandas = ">=1.1"
 
 [package.extras]
-accel = ["scipy", "bottleneck", "numbagg"]
-complete = ["netcdf4", "h5netcdf", "scipy", "pydap", "zarr", "fsspec", "cftime", "rasterio", "cfgrib", "pooch", "bottleneck", "numbagg", "dask", "matplotlib", "seaborn", "nc-time-axis"]
-docs = ["netcdf4", "h5netcdf", "scipy", "pydap", "zarr", "fsspec", "cftime", "rasterio", "cfgrib", "pooch", "bottleneck", "numbagg", "dask", "matplotlib", "seaborn", "nc-time-axis", "sphinx-autosummary-accessors", "sphinx-rtd-theme", "ipython", "ipykernel", "jupyter-client", "nbsphinx", "scanpydoc"]
-io = ["netcdf4", "h5netcdf", "scipy", "pydap", "zarr", "fsspec", "cftime", "rasterio", "cfgrib", "pooch"]
-parallel = ["dask"]
-viz = ["matplotlib", "seaborn", "nc-time-axis"]
+accel = ["bottleneck", "numbagg", "scipy"]
+complete = ["bottleneck", "cfgrib", "cftime", "dask[complete]", "fsspec", "h5netcdf", "matplotlib", "nc-time-axis", "netCDF4", "numbagg", "pooch", "pydap", "rasterio", "scipy", "seaborn", "zarr"]
+docs = ["bottleneck", "cfgrib", "cftime", "dask[complete]", "fsspec", "h5netcdf", "ipykernel", "ipython", "jupyter-client", "matplotlib", "nbsphinx", "nc-time-axis", "netCDF4", "numbagg", "pooch", "pydap", "rasterio", "scanpydoc", "scipy", "seaborn", "sphinx-autosummary-accessors", "sphinx-rtd-theme", "zarr"]
+io = ["cfgrib", "cftime", "fsspec", "h5netcdf", "netCDF4", "pooch", "pydap", "rasterio", "scipy", "zarr"]
+parallel = ["dask[complete]"]
+viz = ["matplotlib", "nc-time-axis", "seaborn"]
 
 [metadata]
 lock-version = "1.1"
@@ -708,8 +725,8 @@ cartopy = [
     {file = "Cartopy-0.20.2.tar.gz", hash = "sha256:4d08c198ecaa50a6a6b109d0f14c070e813defc046a83ac5d7ab494f85599e35"},
 ]
 certifi = [
-    {file = "certifi-2021.10.8-py2.py3-none-any.whl", hash = "sha256:d62a0163eb4c2344ac042ab2bdf75399a71a2d8c7d47eac2e2ee91b9d6339569"},
-    {file = "certifi-2021.10.8.tar.gz", hash = "sha256:78884e7c1d4b00ce3cea67b44566851c4343c120abd683433ce934a68ea58872"},
+    {file = "certifi-2022.12.7-py3-none-any.whl", hash = "sha256:4ad3232f5e926d6718ec31cfc1fcadfde020920e278684144551c91769c7bc18"},
+    {file = "certifi-2022.12.7.tar.gz", hash = "sha256:35824b4c3a97115964b408844d64aa14db1cc518f6562e8d7261699d1350a9e3"},
 ]
 cftime = [
     {file = "cftime-1.6.0-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:bb0d680149f128d181ef1c6561eaebbf99b572329dee090c83b6735d7284a703"},
@@ -1058,6 +1075,7 @@ mpmath = [
 ]
 netcdf4 = [
     {file = "netCDF4-1.5.8-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:fd501ccb28ebae6770112968c750a14feb39cb495d788aa67c28360f7c1f2324"},
+    {file = "netCDF4-1.5.8-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:18e257843fc29846909557a9502a29e37b381ee7760923f9280d3b26d844db8c"},
     {file = "netCDF4-1.5.8-cp310-cp310-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:8b4fac95819b0c17ca5fc1a4e8bb31116b6b808cceca0aa8b475bb50abab1063"},
     {file = "netCDF4-1.5.8-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:e118bfccda464a381187b1f9c771bf9581c83c566faab309a8ec3f781668da4e"},
     {file = "netCDF4-1.5.8-cp310-cp310-win32.whl", hash = "sha256:bdba6ea34680a4c1b7018a4a7155f6112acd063289923c0c61918707e9f26910"},
@@ -1072,13 +1090,17 @@ netcdf4 = [
     {file = "netCDF4-1.5.8-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:29426faabdc017e89572ff1d7835dab426aae4c22ad1a12d1877b932e969b6ac"},
     {file = "netCDF4-1.5.8-cp37-cp37m-win32.whl", hash = "sha256:225d17f7a487ebdab99640294203b61e39e01c951b4e6a4f578d8251623f5f5a"},
     {file = "netCDF4-1.5.8-cp37-cp37m-win_amd64.whl", hash = "sha256:f86399073b582bccd278006ee0213548e7037395e1119f1af9f4faad38279b1e"},
+    {file = "netCDF4-1.5.8-cp38-cp38-macosx_10_9_universal2.whl", hash = "sha256:0a33a953b60ee30dcb78db174231f7ab61923331af9645f84adff684e9add4e2"},
     {file = "netCDF4-1.5.8-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:f92b92f758dfc903af2a8a287fd68a531f73ffd3e5be72b5ad1eb3f083e7aaa2"},
+    {file = "netCDF4-1.5.8-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:b21af57acca0d70c5401f8f779409ab4e818c505fb81706eea8d9475e1f0bb9b"},
     {file = "netCDF4-1.5.8-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:7326afa46fd0c1b50d30db9764a1eefbcff576fcffa8e48bef403094590563b8"},
     {file = "netCDF4-1.5.8-cp38-cp38-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:916434a13ea317934cf248fb70dd5476c498f1def71041fc7e3fd23882ef2cda"},
     {file = "netCDF4-1.5.8-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:75ecf1ef2c841aace539f3326d101efda7c99f6c3283c48a444370aba48525af"},
     {file = "netCDF4-1.5.8-cp38-cp38-win32.whl", hash = "sha256:bd35c37342d9051d2b8fb12a9208856cc59201a94c78a742a198c81813cb00a8"},
     {file = "netCDF4-1.5.8-cp38-cp38-win_amd64.whl", hash = "sha256:bdd344d8de65849fa200f69941f1b15a2611b11b307161ce2fd8ff42148507e8"},
+    {file = "netCDF4-1.5.8-cp39-cp39-macosx_10_9_universal2.whl", hash = "sha256:06f7364086fd3ae097e757d2493dc1fe006e9ae9636a109a1e4c914db05d7e18"},
     {file = "netCDF4-1.5.8-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:0f570b5b4cc0434ef8a2a648fdebfa017de695ea7c836b24ae7b216ede4e3345"},
+    {file = "netCDF4-1.5.8-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:db02d42f7b9c7d68cec351ea63ef3fc2a1ad5e7e74fc7b570b34ceb8c7645bf2"},
     {file = "netCDF4-1.5.8-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:5c883a02c55fd1e5b61ad4f83dd7f11f90b894e14d120ba678d9c33d9e4b3a77"},
     {file = "netCDF4-1.5.8-cp39-cp39-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:d784d6cf5baa90909f385bf60ead91138f13ff7f870467e458fb3650ef71b48d"},
     {file = "netCDF4-1.5.8-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:49a44c7382e5e1da39d8bab5d8e406ad30d46fda9386e85a3e69491e6caaca93"},
@@ -1320,6 +1342,10 @@ scipy = [
 seaborn = [
     {file = "seaborn-0.11.2-py3-none-any.whl", hash = "sha256:85a6baa9b55f81a0623abddc4a26b334653ff4c6b18c418361de19dbba0ef283"},
     {file = "seaborn-0.11.2.tar.gz", hash = "sha256:cf45e9286d40826864be0e3c066f98536982baf701a7caa386511792d61ff4f6"},
+]
+setuptools = [
+    {file = "setuptools-65.6.3-py3-none-any.whl", hash = "sha256:57f6f22bde4e042978bcd50176fdb381d7c21a9efa4041202288d3737a0c6a54"},
+    {file = "setuptools-65.6.3.tar.gz", hash = "sha256:a7620757bf984b58deaf32fc8a4577a9bbc0850cf92c20e1ce41c38c19e5fb75"},
 ]
 setuptools-scm = [
     {file = "setuptools_scm-6.4.2-py3-none-any.whl", hash = "sha256:acea13255093849de7ccb11af9e1fb8bde7067783450cee9ef7a93139bddf6d4"},
